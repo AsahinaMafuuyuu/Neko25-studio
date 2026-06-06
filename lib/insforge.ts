@@ -166,58 +166,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body as T
 }
 
-async function databaseRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  requireConfig()
-
-  const token = getStoredAccessToken()
-  if (!token) {
-    throw new Error("Cannot sync user profile before an InsForge session is stored.")
-  }
-
-  const headers = new Headers(init.headers)
-  headers.set("Content-Type", "application/json")
-  headers.set("x-insforge-api-key", apiKey!)
-  headers.set("Authorization", `Bearer ${token}`)
-
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
-    headers,
-    credentials: "include",
-  })
-
-  const text = await response.text()
-  const contentType = response.headers.get("content-type") || ""
-  const isJson = contentType.includes("application/json")
-  let body: Record<string, unknown> | string | unknown[] = {}
-
-  if (text && isJson) {
-    try {
-      body = JSON.parse(text) as Record<string, unknown> | unknown[]
-    } catch {
-      body = text
-    }
-  } else if (text) {
-    body = text
-  }
-
-  if (!response.ok) {
-    const message =
-      typeof body === "string"
-        ? body.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-        : Array.isArray(body)
-          ? ""
-          : body.message || body.error
-
-    throw new Error(
-      `${response.status} ${response.statusText || "InsForge database request failed"} for ${path}${
-        message ? `: ${String(message).slice(0, 180)}` : ""
-      }`
-    )
-  }
-
-  return body as T
-}
-
 function normalizeSession(body: Record<string, unknown>): AuthSession {
   const data = asRecord(body.data)
   const session = asRecord(body.session) || asRecord(data?.session)
@@ -280,6 +228,10 @@ function getProviders(user: AuthUser) {
 async function syncCurrentUserProfile(user: AuthUser | undefined, _event: ProfileSyncEvent) {
   void _event
   if (!user?.id) return
+  const token = getStoredAccessToken()
+  if (!token) {
+    throw new Error("Cannot sync user profile before an InsForge session is stored.")
+  }
 
   const now = new Date().toISOString()
   const payload = {
@@ -293,26 +245,22 @@ async function syncCurrentUserProfile(user: AuthUser | undefined, _event: Profil
     updated_at: now,
   }
 
-  try {
-    await databaseRequest("/api/database/records/users", {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify([payload]),
-    })
-  } catch (error) {
-    if (!String(error instanceof Error ? error.message : error).includes("409")) {
-      throw error
-    }
+  const response = await fetch("/api/profile/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ profile: payload }),
+  })
 
-    await databaseRequest(`/api/database/records/users?id=eq.${encodeURIComponent(user.id)}`, {
-      method: "PATCH",
-      headers: {
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify(payload),
-    })
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { message?: string; error?: string }
+    throw new Error(
+      `${response.status} ${response.statusText || "Profile sync failed"}${
+        body.message || body.error ? `: ${body.message || body.error}` : ""
+      }`
+    )
   }
 }
 
@@ -369,7 +317,7 @@ export async function retryUserProfileSync(event: ProfileSyncEvent = "sign_in") 
 export async function syncAuthenticatedUserFromCurrentSession(event: ProfileSyncEvent = "sign_in") {
   const user = await getCurrentUser()
   if (!user?.id) {
-    throw new Error("No current InsForge user is available for database sync.")
+    return null
   }
 
   await syncCurrentUserProfile(user, event)
@@ -487,13 +435,12 @@ function randomString(length = 64) {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")
 }
 
-export async function startOAuth(provider: OAuthProvider, next = "/studio") {
+export async function startOAuth(provider: OAuthProvider, next = "/dashboard") {
   requireConfig()
 
   const verifier = randomString()
   const challenge = await sha256Base64Url(verifier)
   const redirectTo = new URL("/auth/callback", window.location.origin)
-  redirectTo.searchParams.set("next", next)
 
   window.sessionStorage.setItem(oauthVerifierKey, verifier)
   window.sessionStorage.setItem(oauthNextKey, next)
@@ -543,8 +490,8 @@ export async function completeOAuth(code: string) {
 }
 
 export function getOAuthNext() {
-  if (typeof window === "undefined") return "/studio"
-  const next = window.sessionStorage.getItem(oauthNextKey) || "/studio"
+  if (typeof window === "undefined") return "/dashboard"
+  const next = window.sessionStorage.getItem(oauthNextKey) || "/dashboard"
   window.sessionStorage.removeItem(oauthNextKey)
   return next
 }
