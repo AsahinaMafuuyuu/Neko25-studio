@@ -1,41 +1,84 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
+
+# Yarn Berry cache, keeping project-level Yarn metadata if it is ever added.
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
+!.yarn/sdks
 !.yarn/versions
 
-# testing
-/coverage
+# Build outputs
+.next/
+out/
+build/
+dist/
 
-# next.js
-/.next/
-/out/
+# Next.js generated files
+next-env.d.ts
 
-# production
-/build
+# Test and coverage output
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
 
-# misc
-.DS_Store
-*.pem
+# TypeScript
+*.tsbuildinfo
 
-# debug
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Package manager cache
+.npm/
+.pnpm-store/
 
-# vercel
-.vercel
+# Deployment platforms
+.vercel/
+.netlify/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Local tooling caches
+.eslintcache
+.stylelintcache
+.turbo/
+.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and IDE files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Certificates and local secrets
+*.pem
+*.key
+*.cert
+*.crt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.swp
