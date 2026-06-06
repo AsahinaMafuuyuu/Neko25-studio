@@ -1,0 +1,11 @@
+[auth]
+allowed_redirect_urls = ["http://localhost:3000/auth/callback"]
+require_email_verification = false
+disable_signup = false
+
+[auth.password]
+min_length = 8
+require_number = true
+require_lowercase = false
+require_uppercase = false
+require_special_char = false
