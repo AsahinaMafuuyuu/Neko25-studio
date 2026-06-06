@@ -48,10 +48,10 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/sign-in" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}>
+            <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}>
               Sign in
             </Link>
-            <Link href="/sign-up" className={buttonVariants()}>
+            <Link href="/sign-up?next=%2Fdashboard" className={buttonVariants()}>
               Start
             </Link>
           </div>
@@ -72,11 +72,11 @@ export default function Home() {
             Kravix brings authentication, prompt workflows, knowledge assets, and launch readiness into a polished studio your team can use every day.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/sign-up" className={cn(buttonVariants({ size: "lg" }), "h-12")}>
+            <Link href="/sign-up?next=%2Fdashboard" className={cn(buttonVariants({ size: "lg" }), "h-12")}>
               Create workspace
               <ArrowRight />
             </Link>
-            <Link href="/sign-in" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12")}>
+            <Link href="/dashboard" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12")}>
               Open studio
             </Link>
           </div>

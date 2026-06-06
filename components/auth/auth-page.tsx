@@ -61,7 +61,7 @@ function ProviderIcon({ provider }: { provider: OAuthProvider }) {
 export function AuthPage({ mode }: { mode: AuthMode }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const next = searchParams.get("next") || "/studio"
+  const next = searchParams.get("next") || "/dashboard"
   const isSignUp = mode === "sign-up"
   const [pending, setPending] = useState(false)
   const [oauthPending, setOauthPending] = useState<OAuthProvider | null>(null)
