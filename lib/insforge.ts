@@ -22,6 +22,10 @@ type AuthSession = {
   user?: AuthUser
 }
 
+type InsForgeRequestInit = RequestInit & {
+  skipAuthorization?: boolean
+}
+
 type PublicConfig = {
   oAuthProviders?: string[]
   customOAuthProviders?: string[]
@@ -59,6 +63,45 @@ function requireConfig() {
 function getStoredAccessToken() {
   if (typeof window === "undefined") return null
   return window.localStorage.getItem(accessTokenKey)
+}
+
+export function getCurrentAccessToken() {
+  return getStoredAccessToken()
+}
+
+function getJwtExpirationMs(token: string) {
+  const [, payload] = token.split(".")
+  if (!payload) return 0
+
+  try {
+    const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/")
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      "="
+    )
+    const decodedPayload = JSON.parse(atob(paddedPayload)) as { exp?: unknown }
+    return typeof decodedPayload.exp === "number" ? decodedPayload.exp * 1000 : 0
+  } catch {
+    return 0
+  }
+}
+
+function shouldRefreshAccessToken(token: string) {
+  const expiresAt = getJwtExpirationMs(token)
+  if (!expiresAt) return false
+
+  return expiresAt - Date.now() < 60_000
+}
+
+export async function getValidAccessToken() {
+  const token = getStoredAccessToken()
+
+  if (token && !shouldRefreshAccessToken(token)) {
+    return token
+  }
+
+  const refreshed = await refreshSession().catch(() => null)
+  return refreshed?.accessToken || getStoredAccessToken()
 }
 
 function getStoredCsrfToken() {
@@ -117,20 +160,21 @@ function readUser(sources: Array<unknown>) {
   return undefined
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: InsForgeRequestInit = {}): Promise<T> {
   requireConfig()
 
+  const { skipAuthorization, ...fetchInit } = init
   const headers = new Headers(init.headers)
   headers.set("Content-Type", "application/json")
   headers.set("x-insforge-api-key", apiKey!)
 
   const token = getStoredAccessToken()
-  if (token && !headers.has("Authorization")) {
+  if (token && !skipAuthorization && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`)
   }
 
   const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
+    ...fetchInit,
     headers,
     credentials: "include",
   })
@@ -352,6 +396,7 @@ export async function refreshSession() {
 
   const body = await request<Record<string, unknown>>("/api/auth/refresh", {
     method: "POST",
+    skipAuthorization: true,
     headers: {
       "x-csrf-token": csrfToken,
     },

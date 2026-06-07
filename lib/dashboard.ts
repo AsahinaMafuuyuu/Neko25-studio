@@ -48,9 +48,9 @@ export const dashboardNavItems: DashboardNavItem[] = [
     mediaSrc: "/ai-avatar.mp4",
   },
   {
-    title: "Avatar",
+    title: "AI Avatars",
     href: "/dashboard/avatar",
-    description: "管理角色形象、外观版本与素材组合。",
+    description: "Create, generate, and manage reusable AI profile avatars.",
     icon: UserRound,
     mediaType: "video",
     mediaSrc: "/avatar.mp4",
@@ -94,12 +94,6 @@ export const dashboardHomeCards = [
     ...dashboardNavItems[5],
     className: "md:col-span-2 xl:col-span-3",
   }
-] as const
-
-export const dashboardQuickStats = [
-  ["6", "可用工作区模块"],
-  ["24/7", "媒体生成准备状态"],
-  ["1,280", "静态积分占位"],
 ] as const
 
 export const dashboardFooterMeta = {
