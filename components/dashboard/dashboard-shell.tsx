@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Loader2, LogOut } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
@@ -28,8 +28,8 @@ import {
 import {
   dashboardFooterMeta,
   dashboardNavItems,
-  dashboardQuickStats,
 } from "@/lib/dashboard"
+import { cn } from "@/lib/utils"
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === href
@@ -40,8 +40,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [routeTransitioning, setRouteTransitioning] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(null)
+  const routeTransitionTimeoutRef = useRef<number | null>(null)
+  const previousPathnameRef = useRef(pathname)
 
   useEffect(() => {
     getCurrentUser()
@@ -65,10 +68,43 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const BrandIcon = dashboardFooterMeta.brandIcon
   const BillingIcon = dashboardFooterMeta.billingIcon
 
+  useEffect(() => {
+    const previousPathname = previousPathnameRef.current
+    previousPathnameRef.current = pathname
+
+    if (previousPathname === pathname) return
+
+    if (routeTransitionTimeoutRef.current) {
+      window.clearTimeout(routeTransitionTimeoutRef.current)
+    }
+
+    setRouteTransitioning(true)
+    routeTransitionTimeoutRef.current = window.setTimeout(() => setRouteTransitioning(false), 420)
+  }, [pathname])
+
+  useEffect(() => {
+    return () => {
+      if (routeTransitionTimeoutRef.current) {
+        window.clearTimeout(routeTransitionTimeoutRef.current)
+      }
+    }
+  }, [])
+
   async function onSignOut() {
     setSigningOut(true)
     await signOut()
     router.replace("/sign-in")
+  }
+
+  function onNavigationStart(href: string) {
+    if (href === pathname) return
+
+    if (routeTransitionTimeoutRef.current) {
+      window.clearTimeout(routeTransitionTimeoutRef.current)
+    }
+
+    setRouteTransitioning(true)
+    routeTransitionTimeoutRef.current = window.setTimeout(() => setRouteTransitioning(false), 900)
   }
 
   if (loading || !user) {
@@ -86,7 +122,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen>
       <Sidebar className="border-r border-sidebar-border/70" side="left">
         <SidebarHeader className="gap-4 px-3 py-4">
-          <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold"
+            onClick={() => onNavigationStart("/dashboard")}
+          >
             <span className="grid size-10 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
               <BrandIcon className="size-4" />
             </span>
@@ -104,7 +144,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton
                   isActive={isActivePath(pathname, item.href)}
                   render={
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={() => onNavigationStart(item.href)}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -146,6 +186,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
 
       <SidebarInset className="min-h-screen">
+        <PageRouteTransition show={routeTransitioning} />
+
         <header className="sticky top-0 z-20 border-b border-border/70 bg-background/82 backdrop-blur-xl">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
@@ -173,18 +215,28 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-            <section className="grid gap-4 md:grid-cols-3">
-              {dashboardQuickStats.map(([value, label]) => (
-                <div key={label} className="rounded-2xl border border-border/70 bg-card px-5 py-4 shadow-sm">
-                  <p className="text-2xl font-semibold tracking-tight">{value}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{label}</p>
-                </div>
-              ))}
-            </section>
             {children}
           </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+function PageRouteTransition({ show }: { show: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200",
+        show ? "opacity-100" : "opacity-0"
+      )}
+    >
+      <div className="w-44 overflow-hidden rounded-full border border-border/70 bg-card/90 p-1.5 shadow-lg">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
+        </div>
+      </div>
+    </div>
   )
 }

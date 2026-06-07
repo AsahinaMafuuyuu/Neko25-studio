@@ -1,0 +1,9 @@
+⚠ Port 3000 is in use by process 32548, using available port 3001 instead.
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3000
+- PID:          32548
+- Dir:          D:\web_project2\AIProject\kravix-ai-studio
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 32548 /F to stop it.
