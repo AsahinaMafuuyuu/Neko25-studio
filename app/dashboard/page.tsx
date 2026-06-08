@@ -16,9 +16,6 @@ export default function DashboardHomePage() {
           <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
             在一个干净的工作台里管理视频、虚拟人、声音与素材库。
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-            下面的 bento 网格覆盖当前全部可用模块。每张卡片都可以直接进入对应页面，继续扩展具体工作流。
-          </p>
         </div>
       </section>
 

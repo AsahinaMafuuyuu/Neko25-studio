@@ -19,7 +19,7 @@ function getInsForgeConfig() {
   return { baseUrl, apiKey }
 }
 
-async function getInsForgeAdmin() {
+export async function getInsForgeAdmin() {
   const { baseUrl, apiKey } = getInsForgeConfig()
   installDep0040WarningFilter()
   const { createAdminClient } = await import("@insforge/sdk")
@@ -243,6 +243,25 @@ export async function selectAvatar(avatarId: string, userId: string, accessToken
   return ((data || []) as AiAvatar[])[0] || null
 }
 
+export async function deleteAvatar(avatarId: string, userId: string, accessToken?: string) {
+  const avatar = await getAvatarById(avatarId, userId, accessToken)
+  if (!avatar) return null
+  if (avatar.source === "default") throw new Error("Default avatars cannot be deleted.")
+
+  const admin = await getInsForgeAdmin()
+  const { error } = await admin
+    .database
+    .from("ai_avatars")
+    .delete()
+    .eq("id", avatarId)
+    .eq("user_id", userId)
+
+  throwIfSdkError(error, "Could not delete avatar.")
+  await removeAvatarStorageKeys([avatar.image_key, avatar.desktop_image_key, avatar.mobile_image_key])
+
+  return avatar
+}
+
 async function clearSelectedAvatar(userId: string, accessToken?: string) {
   void accessToken
   const admin = await getInsForgeAdmin()
@@ -337,6 +356,16 @@ export async function uploadAvatarFile(file: Blob, keyPrefix: string, filename: 
     url: data.url,
     key: data.key,
   }
+}
+
+async function removeAvatarStorageKeys(keys: Array<string | null | undefined>) {
+  const uniqueKeys = Array.from(
+    new Set(keys.filter((key): key is string => Boolean(key && !key.startsWith("default:"))))
+  )
+  if (!uniqueKeys.length) return
+
+  const admin = await getInsForgeAdmin()
+  await Promise.all(uniqueKeys.map((key) => admin.storage.from(avatarBucket).remove(key)))
 }
 
 export function jsonError(error: unknown, fallback: string, status = 500) {
