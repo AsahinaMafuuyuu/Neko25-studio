@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Download, ImagePlus, RefreshCcw, Sparkles, Upload, UserRound, Wand2, X } from "lucide-react"
+import { Check, Download, ImagePlus, RefreshCcw, Sparkles, Trash2, Upload, UserRound, Wand2, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -104,6 +105,7 @@ export function AiAvatarsPage() {
   const [generatedAvatar, setGeneratedAvatar] = useState<LocalGeneratedAvatar | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [deletingAvatarId, setDeletingAvatarId] = useState("")
   const [error, setError] = useState("")
   const [generationCooldownUntil, setGenerationCooldownUntil] = useState(0)
   const pollRef = useRef<number | null>(null)
@@ -114,7 +116,8 @@ export function AiAvatarsPage() {
   const previewRetryCountsRef = useRef<Record<string, number>>({})
   const generationRequestRef = useRef(false)
 
-  const selectedAvatar = useMemo(() => avatars.find((avatar) => avatar.is_selected) || avatars[0] || null, [avatars])
+  const selectedAvatar = useMemo(() => avatars.find((avatar) => avatar.is_selected) || null, [avatars])
+  const savedAvatars = useMemo(() => avatars.filter((avatar) => avatar.source !== "default"), [avatars])
   const isJobActive = activeJob ? activeStatuses.has(activeJob.status) : false
   const isGenerationCoolingDown = generationCooldownUntil > Date.now()
   const shouldShowDialogStatus = showGenerationStatus || Boolean(activeJob)
@@ -294,6 +297,24 @@ export function AiAvatarsPage() {
       setError(nextError instanceof Error ? nextError.message : "Could not select avatar.")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function onDeleteAvatar(avatarId: string) {
+    setDeletingAvatarId(avatarId)
+    setError("")
+
+    try {
+      const response = await apiFetch(`/api/avatars/${avatarId}`, { method: "DELETE" })
+      await readJson<{ avatar: AiAvatar }>(response)
+      setAvatars((current) => current.filter((avatar) => avatar.id !== avatarId))
+      showAppToast("Avatar deleted.", {
+        description: "The avatar was removed from your workspace.",
+      })
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Could not delete avatar.")
+    } finally {
+      setDeletingAvatarId("")
     }
   }
 
@@ -762,7 +783,7 @@ export function AiAvatarsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {loading ? <AvatarMetadataPendingCard /> : null}
 
-          {!loading && avatars.map((avatar, index) => (
+          {!loading && savedAvatars.map((avatar, index) => (
             <AvatarCard
               key={avatar.id}
               actionLabel={avatar.is_selected ? "Selected" : "Use avatar"}
@@ -774,6 +795,7 @@ export function AiAvatarsPage() {
                 style: avatar.style,
               }}
               disabled={submitting || avatar.is_selected || !avatarImagesEnabled}
+              deleting={deletingAvatarId === avatar.id}
               desktopImageLoaded={Boolean(loadedAvatarImages[`${avatar.id}:desktop`])}
               imageLoadingEnabled={avatarImagesEnabled}
               mobileImageLoaded={Boolean(loadedAvatarImages[`${avatar.id}:mobile`])}
@@ -781,12 +803,13 @@ export function AiAvatarsPage() {
               placeholderTone={index % 4}
               selected={avatar.is_selected}
               onDesktopImageLoad={() => onAvatarImageLoad(`${avatar.id}:desktop`)}
+              onDelete={() => onDeleteAvatar(avatar.id)}
               onMobileImageLoad={() => onAvatarImageLoad(`${avatar.id}:mobile`)}
               onAction={() => onSelectAvatar(avatar.id)}
             />
           ))}
 
-          {!avatars.length && !loading ? (
+          {!savedAvatars.length && !loading ? (
             <div className="rounded-xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
               No saved avatars yet. Pick a default or create a new one.
             </div>
@@ -1080,12 +1103,14 @@ function normalizeAvatarName(name: string) {
 function AvatarCard({
   actionLabel,
   avatar,
+  deleting = false,
   desktopImageLoaded = true,
   disabled,
   imageLoadingEnabled = true,
   mobileImageLoaded = true,
   metadataOnly = false,
   onAction,
+  onDelete,
   onDesktopImageLoad = () => {},
   onMobileImageLoad = () => {},
   placeholderTone = 0,
@@ -1099,6 +1124,7 @@ function AvatarCard({
     source: string
     style: AvatarStyle
   }
+  deleting?: boolean
   desktopImageLoaded?: boolean
   disabled?: boolean
   imageLoadingEnabled?: boolean
@@ -1109,11 +1135,12 @@ function AvatarCard({
   onDesktopImageLoad?: () => void
   onMobileImageLoad?: () => void
   onAction: () => void
+  onDelete?: () => void
 }) {
   return (
     <div
       className={cn(
-        "flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md",
         selected ? "border-primary/60 ring-2 ring-primary/20" : "border-border/70"
       )}
     >
@@ -1124,7 +1151,9 @@ function AvatarCard({
         </div>
       ) : (
         <div className="flex flex-wrap gap-2 px-3 pb-2 pt-3">
-          <Badge variant="secondary">ai</Badge>
+          <Badge variant={avatar.source === "default" ? "secondary" : "default"}>
+            {avatar.source === "ai" ? "Generated" : avatar.source === "upload" ? "Uploaded" : "Default"}
+          </Badge>
           <Badge variant="outline">{avatar.style}</Badge>
         </div>
       )}
@@ -1154,16 +1183,42 @@ function AvatarCard({
         />
       </div>
 
-      <div className="mt-auto space-y-4 p-4 pt-0">
+      <div className="mt-auto space-y-4 border-t border-border/60 bg-muted/20 p-4">
         <div className="min-w-0 pt-1">
           {metadataOnly ? <Skeleton className="h-4 w-2/3" /> : <h4 className="truncate text-sm font-semibold">{avatar.name}</h4>}
         </div>
         {metadataOnly ? (
           <Skeleton className="h-9 w-full" />
         ) : (
-          <Button className="w-full" disabled={disabled} variant={selected ? "outline" : "default"} onClick={onAction}>
-            {actionLabel}
-          </Button>
+          <div className={cn("grid gap-2", onDelete ? "grid-cols-2" : "grid-cols-1")}>
+            <Button className="w-full" disabled={disabled} variant={selected ? "outline" : "default"} onClick={onAction}>
+              <Check />
+              {actionLabel}
+            </Button>
+            {onDelete ? (
+              <AlertDialog>
+                <AlertDialogTrigger render={<Button className="w-full" disabled={deleting} variant="destructive" />}>
+                  {deleting ? <Spinner /> : <Trash2 />}
+                  Delete
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete avatar?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This removes {avatar.name} from your saved avatar library.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" disabled={deleting} onClick={onDelete}>
+                      {deleting ? <Spinner /> : <Trash2 />}
+                      Delete avatar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : null}
+          </div>
         )}
       </div>
     </div>
