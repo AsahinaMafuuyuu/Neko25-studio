@@ -8,6 +8,13 @@ type InsForgeResult<T = unknown> = {
   body: T
 }
 
+type UserAvatarPreference = {
+  user_id: string
+  selected_source: "custom" | "default"
+  selected_custom_avatar_id: string | null
+  selected_default_avatar_id: string | null
+}
+
 function getInsForgeConfig() {
   const baseUrl = process.env.INSFORGE_URL || process.env.NEXT_PUBLIC_INSFORGE_URL
   const apiKey = process.env.INSFORGE_API_KEY || process.env.NEXT_PUBLIC_INSFORGE_API_KEY
@@ -133,16 +140,38 @@ function findUserRecord(value: unknown): Record<string, unknown> | null {
 export async function listAvatars(userId: string, accessToken: string) {
   void accessToken
   const admin = await getInsForgeAdmin()
-  const { data, error } = await admin
+  const [customResult, defaultAvatars, preference] = await Promise.all([
+    admin
     .database
     .from("ai_avatars")
     .select()
     .eq("user_id", userId)
     .order("is_selected", { ascending: false })
-    .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false }),
+    listDefaultAvatars(),
+    getUserAvatarPreference(userId),
+  ])
 
-  throwIfSdkError(error, "Could not load avatars.")
-  return (data || []) as AiAvatar[]
+  throwIfSdkError(customResult.error, "Could not load avatars.")
+  const customAvatars = ((customResult.data || []) as AiAvatar[])
+    .filter((avatar) => avatar.source !== "default")
+    .map((avatar) => ({
+      ...avatar,
+      is_selected: preference
+        ? preference.selected_source === "custom" && preference.selected_custom_avatar_id === avatar.id
+        : avatar.is_selected,
+    }))
+  const normalizedDefaults = defaultAvatars.map((avatar) =>
+    toDefaultAvatarListItem(
+      avatar,
+      preference?.selected_source === "default" && preference.selected_default_avatar_id === avatar.id
+    )
+  )
+
+  return [
+    ...customAvatars.sort((left, right) => Number(right.is_selected) - Number(left.is_selected)),
+    ...normalizedDefaults,
+  ]
 }
 
 export async function getAvatarJob(jobId: string, userId: string, accessToken?: string) {
@@ -173,6 +202,24 @@ export async function getAvatarById(avatarId: string, userId: string, accessToke
 
   throwIfSdkError(error, "Could not load avatar.")
   return ((data || []) as AiAvatar[])[0] || null
+}
+
+export async function getDefaultAvatarById(avatarId: string) {
+  const admin = await getInsForgeAdmin()
+  const query = admin
+    .database
+    .from("default_avatars")
+    .select()
+    .eq("active", true)
+    .limit(1)
+
+  const { data, error } = isUuid(avatarId)
+    ? await query.eq("id", avatarId)
+    : await query.eq("slug", avatarId.replace(/^default:/, ""))
+
+  throwIfSdkError(error, "Could not load default avatar.")
+  const avatar = ((data || []) as Array<Record<string, unknown>>)[0] || null
+  return avatar ? toDefaultAvatarListItem(avatar, false) : null
 }
 
 export async function createAvatar(
@@ -221,11 +268,35 @@ export async function createAvatar(
 
   const avatar = ((data || []) as AiAvatar[])[0] || null
   if (!avatar) throw new Error("InsForge did not return the created avatar.")
+  if (input.isSelected) {
+    await saveAvatarPreference({
+      userId: input.userId,
+      selectedSource: "custom",
+      selectedCustomAvatarId: avatar.id,
+      selectedDefaultAvatarId: null,
+    })
+  }
 
   return avatar
 }
 
 export async function selectAvatar(avatarId: string, userId: string, accessToken: string) {
+  const defaultAvatar = await getDefaultAvatarById(avatarId)
+  if (defaultAvatar) {
+    await clearSelectedAvatar(userId, accessToken)
+    await saveAvatarPreference({
+      userId,
+      selectedSource: "default",
+      selectedCustomAvatarId: null,
+      selectedDefaultAvatarId: defaultAvatar.id,
+    })
+
+    return {
+      ...defaultAvatar,
+      is_selected: true,
+    }
+  }
+
   const avatar = await getAvatarById(avatarId, userId, accessToken)
   if (!avatar) throw new Error("Avatar not found.")
 
@@ -240,7 +311,17 @@ export async function selectAvatar(avatarId: string, userId: string, accessToken
     .select()
 
   throwIfSdkError(error, "Could not select avatar.")
-  return ((data || []) as AiAvatar[])[0] || null
+  const selectedAvatar = ((data || []) as AiAvatar[])[0] || null
+  if (selectedAvatar) {
+    await saveAvatarPreference({
+      userId,
+      selectedSource: "custom",
+      selectedCustomAvatarId: selectedAvatar.id,
+      selectedDefaultAvatarId: null,
+    })
+  }
+
+  return selectedAvatar
 }
 
 export async function deleteAvatar(avatarId: string, userId: string, accessToken?: string) {
@@ -257,6 +338,7 @@ export async function deleteAvatar(avatarId: string, userId: string, accessToken
     .eq("user_id", userId)
 
   throwIfSdkError(error, "Could not delete avatar.")
+  await clearAvatarPreferenceIfSelected(userId, avatarId)
   await removeAvatarStorageKeys([avatar.image_key, avatar.desktop_image_key, avatar.mobile_image_key])
 
   return avatar
@@ -366,6 +448,111 @@ async function removeAvatarStorageKeys(keys: Array<string | null | undefined>) {
 
   const admin = await getInsForgeAdmin()
   await Promise.all(uniqueKeys.map((key) => admin.storage.from(avatarBucket).remove(key)))
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+async function listDefaultAvatars() {
+  const admin = await getInsForgeAdmin()
+  const { data, error } = await admin
+    .database
+    .from("default_avatars")
+    .select()
+    .eq("active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true })
+
+  throwIfSdkError(error, "Could not load default avatars.")
+  return (data || []) as Array<Record<string, unknown>>
+}
+
+function readString(record: Record<string, unknown>, key: string) {
+  return typeof record[key] === "string" ? record[key] : ""
+}
+
+function toDefaultAvatarListItem(record: Record<string, unknown>, isSelected: boolean): AiAvatar {
+  const slug = readString(record, "slug")
+  const imageUrl = readString(record, "image_url")
+  const imageKey = readString(record, "image_key") || `default:${slug}`
+  const desktopImageUrl = readString(record, "desktop_image_url") || imageUrl
+  const mobileImageUrl = readString(record, "mobile_image_url") || imageUrl
+
+  return {
+    id: readString(record, "id"),
+    user_id: "",
+    name: readString(record, "name") || "Default Avatar",
+    style: (readString(record, "style") || "Casual") as AvatarStyle,
+    image_url: imageUrl,
+    image_key: imageKey,
+    desktop_image_url: desktopImageUrl,
+    desktop_image_key: readString(record, "desktop_image_key") || imageKey,
+    mobile_image_url: mobileImageUrl,
+    mobile_image_key: readString(record, "mobile_image_key") || imageKey,
+    source: "default",
+    is_selected: isSelected,
+    created_at: readString(record, "created_at"),
+    updated_at: readString(record, "updated_at"),
+  }
+}
+
+async function getUserAvatarPreference(userId: string) {
+  const admin = await getInsForgeAdmin()
+  const { data, error } = await admin
+    .database
+    .from("user_avatar_preferences")
+    .select()
+    .eq("user_id", userId)
+    .limit(1)
+
+  throwIfSdkError(error, "Could not load avatar preference.")
+  return ((data || []) as UserAvatarPreference[])[0] || null
+}
+
+async function saveAvatarPreference(input: {
+  userId: string
+  selectedSource: "custom" | "default"
+  selectedCustomAvatarId: string | null
+  selectedDefaultAvatarId: string | null
+}) {
+  const admin = await getInsForgeAdmin()
+  const existing = await getUserAvatarPreference(input.userId)
+  const values = {
+    selected_source: input.selectedSource,
+    selected_custom_avatar_id: input.selectedCustomAvatarId,
+    selected_default_avatar_id: input.selectedDefaultAvatarId,
+  }
+
+  const result = existing
+    ? await admin
+        .database
+        .from("user_avatar_preferences")
+        .update(values)
+        .eq("user_id", input.userId)
+        .select()
+    : await admin
+        .database
+        .from("user_avatar_preferences")
+        .insert([{ user_id: input.userId, ...values }])
+        .select()
+
+  throwIfSdkError(result.error, "Could not save avatar preference.")
+  return ((result.data || []) as UserAvatarPreference[])[0] || null
+}
+
+async function clearAvatarPreferenceIfSelected(userId: string, avatarId: string) {
+  const preference = await getUserAvatarPreference(userId)
+  if (preference?.selected_source !== "custom" || preference.selected_custom_avatar_id !== avatarId) return
+
+  const admin = await getInsForgeAdmin()
+  const { error } = await admin
+    .database
+    .from("user_avatar_preferences")
+    .delete()
+    .eq("user_id", userId)
+
+  throwIfSdkError(error, "Could not clear avatar preference.")
 }
 
 export function jsonError(error: unknown, fallback: string, status = 500) {

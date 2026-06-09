@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
   OAuthProvider,
-  ensureOAuthProvider,
   signInWithPassword,
   signUpWithPassword,
   startOAuth,
@@ -116,7 +115,6 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     setServerError("")
     setOauthPending(provider)
     try {
-      await ensureOAuthProvider(provider)
       await startOAuth(provider, next)
     } catch (error) {
       setServerError(error instanceof Error ? error.message : `${provider} OAuth is unavailable.`)

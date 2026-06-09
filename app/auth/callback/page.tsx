@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,20 +12,30 @@ function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const code = searchParams.get("code") || searchParams.get("insforge_code")
-  const [error, setError] = useState(code ? "" : "OAuth did not return a code. Please try signing in again.")
+  const oauthError = searchParams.get("error") || searchParams.get("insforge_error")
+  const handledRef = useRef(false)
+  const [error, setError] = useState(
+    oauthError || (code ? "" : "OAuth did not return a code. Please try signing in again.")
+  )
 
   useEffect(() => {
-    if (!code) {
+    if (oauthError) {
       return
     }
 
+    if (!code || handledRef.current) {
+      return
+    }
+
+    handledRef.current = true
     const next = searchParams.get("next") || getOAuthNext()
     completeOAuth(code)
       .then(() => router.replace(next))
       .catch((nextError) => {
+        handledRef.current = false
         setError(nextError instanceof Error ? nextError.message : "OAuth sign-in failed.")
       })
-  }, [code, router, searchParams])
+  }, [code, oauthError, router, searchParams])
 
   return (
     <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">

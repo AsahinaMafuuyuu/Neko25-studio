@@ -31,6 +31,7 @@ export type AiVoiceClone = {
 
 export type DefaultVoice = {
   id: string
+  slug?: string
   name: string
   source: "default"
   provider: "deepgram"
@@ -126,75 +127,6 @@ export type TtsJobResponse = {
   creditBalance: number | null
 }
 
-export const defaultDeepgramVoices: DefaultVoice[] = [
-  {
-    id: "deepgram-thalia",
-    name: "Thalia",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-thalia-en",
-    language: "en",
-    gender: "female",
-    preview_text: "Hi, I am Thalia. A warm voice for clear studio narration.",
-    avatar_image_url: "/avatar/thalia.png",
-  },
-  {
-    id: "deepgram-andromeda",
-    name: "Andromeda",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-andromeda-en",
-    language: "en",
-    gender: "female",
-    preview_text: "Hi, I am Andromeda. A polished voice for product storytelling.",
-    avatar_image_url: "/avatar/andromeda.png",
-  },
-  {
-    id: "deepgram-helena",
-    name: "Helena",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-helena-en",
-    language: "en",
-    gender: "female",
-    preview_text: "Hi, I am Helena. A calm voice for thoughtful explanations.",
-    avatar_image_url: "/avatar/helena.jpg",
-  },
-  {
-    id: "deepgram-apollo",
-    name: "Apollo",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-apollo-en",
-    language: "en",
-    gender: "male",
-    preview_text: "Hi, I am Apollo. A confident voice for direct presentations.",
-    avatar_image_url: "/avatar/apollo.jpg",
-  },
-  {
-    id: "deepgram-arcas",
-    name: "Arcas",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-arcas-en",
-    language: "en",
-    gender: "male",
-    preview_text: "Hi, I am Arcas. A crisp voice for concise generated audio.",
-    avatar_image_url: "/avatar/arcas.jpg",
-  },
-  {
-    id: "deepgram-aries",
-    name: "Aries",
-    source: "default",
-    provider: "deepgram",
-    provider_voice_id: "aura-2-aries-en",
-    language: "en",
-    gender: "male",
-    preview_text: "Hi, I am Aries. A bright voice for energetic content.",
-    avatar_image_url: "/avatar/aries.jpg",
-  },
-]
-
 export const customTtsLanguages: VoiceLanguage[] = [
   { code: "auto", label: "Auto" },
   { code: "Chinese", label: "Chinese" },
@@ -229,12 +161,4 @@ export function getTtsCreditCost(text: string) {
     characterCount,
     creditsCost: characterCount ? Math.ceil(characterCount / 500) * 10 : 0,
   }
-}
-
-export function isDefaultVoiceId(value: string) {
-  return defaultDeepgramVoices.some((voice) => voice.id === value)
-}
-
-export function getDefaultVoiceById(value: string) {
-  return defaultDeepgramVoices.find((voice) => voice.id === value) || null
 }

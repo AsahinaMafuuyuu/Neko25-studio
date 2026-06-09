@@ -7,11 +7,11 @@ import {
 } from "@/lib/avatar-server"
 import { runReplicatePrediction } from "@/lib/replicate-audio"
 import {
-  defaultDeepgramVoices,
   type AiTtsJob,
   type AiTtsOutput,
   type AiVoiceClone,
   type AiVoiceCloneJob,
+  type DefaultVoice,
   type VoiceJobStatus,
   type VoiceListItem,
   type VoiceSource,
@@ -28,6 +28,13 @@ const whisperxModel =
 type SdkResponse<T> = {
   data?: T
   error?: unknown
+}
+
+type UserVoicePreference = {
+  user_id: string
+  selected_source: VoiceSource
+  selected_custom_voice_id: string | null
+  selected_default_voice_id: string | null
 }
 
 function sdkErrorMessage(error: unknown, fallback: string) {
@@ -132,27 +139,62 @@ export function toVoiceListItem(voice: AiVoiceClone): VoiceListItem {
 }
 
 export async function listAllVoices(userId: string) {
-  const customVoices = await listVoiceClones(userId)
+  const [customVoices, defaultVoices, preference] = await Promise.all([
+    listVoiceClones(userId),
+    listDefaultVoices(),
+    getUserVoicePreference(userId),
+  ])
+  const customItems = customVoices.map((voice) => ({
+    ...toVoiceListItem(voice),
+    is_selected: preference
+      ? preference.selected_source === "custom" && preference.selected_custom_voice_id === voice.id
+      : voice.is_selected,
+  }))
+  const defaultItems = defaultVoices.map((voice) => ({
+    ...voice,
+    is_selected: preference?.selected_source === "default" && preference.selected_default_voice_id === voice.id,
+  }))
+
   return {
     customVoices,
-    defaultVoices: defaultDeepgramVoices,
+    defaultVoices,
     voices: [
-      ...customVoices.map(toVoiceListItem),
-      ...defaultDeepgramVoices.map((voice) => ({
-        id: voice.id,
-        name: voice.name,
-        source: voice.source,
-        provider: voice.provider,
-        provider_voice_id: voice.provider_voice_id,
-        language: voice.language,
-        gender: voice.gender,
-        preview_text: voice.preview_text,
-        preview_audio_url: "",
-        avatar_image_url: voice.avatar_image_url,
-        is_selected: false,
-      })),
+      ...customItems,
+      ...defaultItems,
     ] as VoiceListItem[],
   }
+}
+
+export async function listDefaultVoices() {
+  const admin = await getInsForgeAdmin()
+  const { data, error } = await admin
+    .database
+    .from("default_voices")
+    .select()
+    .eq("active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true })
+
+  throwIfSdkError(error, "Could not load default voices.")
+  return ((data || []) as Array<Record<string, unknown>>).map(toDefaultVoiceListItem)
+}
+
+export async function getDefaultVoiceById(voiceId: string) {
+  const admin = await getInsForgeAdmin()
+  const query = admin
+    .database
+    .from("default_voices")
+    .select()
+    .eq("active", true)
+    .limit(1)
+
+  const { data, error } = isUuid(voiceId)
+    ? await query.eq("id", voiceId)
+    : await query.eq("slug", voiceId)
+
+  throwIfSdkError(error, "Could not load default voice.")
+  const voice = ((data || []) as Array<Record<string, unknown>>)[0] || null
+  return voice ? toDefaultVoiceListItem(voice) : null
 }
 
 export async function getVoiceCloneById(voiceId: string, userId: string) {
@@ -279,6 +321,14 @@ export async function createVoiceClone(input: {
   throwIfSdkError(error, "Could not create voice clone.")
   const voice = ((data || []) as AiVoiceClone[])[0] || null
   if (!voice) throw new Error("InsForge did not return the created voice clone.")
+  if (input.isSelected) {
+    await saveVoicePreference({
+      userId: input.userId,
+      selectedSource: "custom",
+      selectedCustomVoiceId: voice.id,
+      selectedDefaultVoiceId: null,
+    })
+  }
   return voice
 }
 
@@ -297,7 +347,38 @@ export async function selectVoiceClone(voiceId: string, userId: string) {
     .select()
 
   throwIfSdkError(error, "Could not select voice clone.")
-  return ((data || []) as AiVoiceClone[])[0] || null
+  const selectedVoice = ((data || []) as AiVoiceClone[])[0] || null
+  if (selectedVoice) {
+    await saveVoicePreference({
+      userId,
+      selectedSource: "custom",
+      selectedCustomVoiceId: selectedVoice.id,
+      selectedDefaultVoiceId: null,
+    })
+  }
+
+  return selectedVoice
+}
+
+export async function selectVoice(voiceId: string, userId: string) {
+  const defaultVoice = await getDefaultVoiceById(voiceId)
+  if (defaultVoice) {
+    await clearSelectedVoiceClone(userId)
+    await saveVoicePreference({
+      userId,
+      selectedSource: "default",
+      selectedCustomVoiceId: null,
+      selectedDefaultVoiceId: defaultVoice.id,
+    })
+
+    return {
+      ...defaultVoice,
+      is_selected: true,
+    } satisfies VoiceListItem
+  }
+
+  const customVoice = await selectVoiceClone(voiceId, userId)
+  return customVoice ? toVoiceListItem(customVoice) : null
 }
 
 export async function deleteVoiceClone(voiceId: string, userId: string) {
@@ -313,6 +394,7 @@ export async function deleteVoiceClone(voiceId: string, userId: string) {
     .eq("user_id", userId)
 
   throwIfSdkError(error, "Could not delete custom voice.")
+  await clearVoicePreferenceIfSelected(userId, voiceId)
   await removeVoiceStorageKeys([voice.sample_audio_key, voice.preview_audio_key])
 
   return voice
@@ -328,6 +410,87 @@ async function clearSelectedVoiceClone(userId: string) {
     .eq("is_selected", true)
 
   throwIfSdkError(error, "Could not update selected voice.")
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+function readString(record: Record<string, unknown>, key: string) {
+  return typeof record[key] === "string" ? record[key] : ""
+}
+
+function toDefaultVoiceListItem(record: Record<string, unknown>): DefaultVoice {
+  return {
+    id: readString(record, "id"),
+    slug: readString(record, "slug"),
+    name: readString(record, "name") || "Default Voice",
+    source: "default",
+    provider: "deepgram",
+    provider_voice_id: readString(record, "provider_voice_id"),
+    language: readString(record, "language") || "en",
+    gender: (readString(record, "gender") || "female") as DefaultVoice["gender"],
+    preview_text: readString(record, "preview_text"),
+    avatar_image_url: readString(record, "avatar_image_url"),
+  }
+}
+
+async function getUserVoicePreference(userId: string) {
+  const admin = await getInsForgeAdmin()
+  const { data, error } = await admin
+    .database
+    .from("user_voice_preferences")
+    .select()
+    .eq("user_id", userId)
+    .limit(1)
+
+  throwIfSdkError(error, "Could not load voice preference.")
+  return ((data || []) as UserVoicePreference[])[0] || null
+}
+
+async function saveVoicePreference(input: {
+  userId: string
+  selectedSource: VoiceSource
+  selectedCustomVoiceId: string | null
+  selectedDefaultVoiceId: string | null
+}) {
+  const admin = await getInsForgeAdmin()
+  const existing = await getUserVoicePreference(input.userId)
+  const values = {
+    selected_source: input.selectedSource,
+    selected_custom_voice_id: input.selectedCustomVoiceId,
+    selected_default_voice_id: input.selectedDefaultVoiceId,
+  }
+
+  const result = existing
+    ? await admin
+        .database
+        .from("user_voice_preferences")
+        .update(values)
+        .eq("user_id", input.userId)
+        .select()
+    : await admin
+        .database
+        .from("user_voice_preferences")
+        .insert([{ user_id: input.userId, ...values }])
+        .select()
+
+  throwIfSdkError(result.error, "Could not save voice preference.")
+  return ((result.data || []) as UserVoicePreference[])[0] || null
+}
+
+async function clearVoicePreferenceIfSelected(userId: string, voiceId: string) {
+  const preference = await getUserVoicePreference(userId)
+  if (preference?.selected_source !== "custom" || preference.selected_custom_voice_id !== voiceId) return
+
+  const admin = await getInsForgeAdmin()
+  const { error } = await admin
+    .database
+    .from("user_voice_preferences")
+    .delete()
+    .eq("user_id", userId)
+
+  throwIfSdkError(error, "Could not clear voice preference.")
 }
 
 export async function listTtsOutputs(userId: string) {

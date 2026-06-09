@@ -3,7 +3,7 @@ import {
   jsonError,
   requireBearerToken,
   requireCurrentUserId,
-  selectVoiceClone,
+  selectVoice,
 } from "@/lib/voice-server"
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -11,7 +11,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const accessToken = requireBearerToken(request)
     const userId = await requireCurrentUserId(accessToken)
     const { id } = await context.params
-    const voice = await selectVoiceClone(id, userId)
+    const voice = await selectVoice(id, userId)
+    if (!voice) {
+      return Response.json({ message: "Voice not found." }, { status: 404 })
+    }
 
     return Response.json({ voice })
   } catch (error) {

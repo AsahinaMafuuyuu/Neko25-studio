@@ -417,13 +417,6 @@ export function AiVoiceCloningPage() {
       }))
     )
 
-    if (voice.source !== "custom") {
-      showAppToast("Default voice selected.", {
-        description: `${voice.name} is ready for the next TTS generation.`,
-      })
-      return
-    }
-
     setSelectingVoiceId(voice.id)
     setError("")
 
@@ -431,6 +424,9 @@ export function AiVoiceCloningPage() {
       const response = await apiFetch(`/api/voices/${voice.id}/select`, { method: "POST" })
       await readJson(response)
       await loadVoices()
+      showAppToast(voice.source === "custom" ? "Custom voice selected." : "Default voice selected.", {
+        description: `${voice.name} is ready for the next TTS generation.`,
+      })
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : "Could not select voice.")
       await loadVoices()

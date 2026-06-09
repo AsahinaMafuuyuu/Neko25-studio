@@ -48,7 +48,7 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}>
+            <Link href="/sign-in?next=%2Fdashboard" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}>
               Sign in
             </Link>
             <Link href="/sign-up?next=%2Fdashboard" className={buttonVariants()}>
@@ -76,7 +76,7 @@ export default function Home() {
               Create workspace
               <ArrowRight />
             </Link>
-            <Link href="/dashboard" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12")}>
+            <Link href="/sign-in?next=%2Fdashboard" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12")}>
               Open studio
             </Link>
           </div>
