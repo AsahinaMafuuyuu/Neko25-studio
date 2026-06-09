@@ -2,7 +2,6 @@ import { tasks } from "@trigger.dev/sdk/v3"
 
 import {
   defaultCustomTtsLanguage,
-  getDefaultVoiceById,
   getTtsCreditCost,
   isSupportedCustomTtsLanguage,
 } from "@/lib/voice-types"
@@ -10,6 +9,7 @@ import {
   avatarErrorStatus,
   createTtsJob,
   deductCredits,
+  getDefaultVoiceById,
   getVoiceCloneById,
   jsonError,
   requireBearerToken,
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       return Response.json({ message: "Text must be 2,000 characters or fewer." }, { status: 400 })
     }
 
-    const defaultVoice = getDefaultVoiceById(voiceId)
+    const defaultVoice = await getDefaultVoiceById(voiceId)
     const customVoice = defaultVoice ? null : await getVoiceCloneById(voiceId, userId)
     if (!defaultVoice && !customVoice) {
       return Response.json({ message: "Voice not found." }, { status: 404 })

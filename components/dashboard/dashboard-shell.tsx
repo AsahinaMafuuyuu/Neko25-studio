@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import {
   AuthUser,
+  clearLocalSession,
   getCurrentUser,
   signOut,
 } from "@/lib/insforge"
@@ -47,16 +48,22 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const previousPathnameRef = useRef(pathname)
 
   useEffect(() => {
+    const signInPath = `/sign-in?next=${encodeURIComponent(pathname || "/dashboard")}`
+
     getCurrentUser()
       .then((nextUser) => {
         if (!nextUser) {
-          router.replace(`/sign-in?next=${encodeURIComponent(pathname || "/dashboard")}`)
+          clearLocalSession()
+          router.replace(signInPath)
           return
         }
 
         setUser(nextUser)
       })
-      .catch(() => router.replace(`/sign-in?next=${encodeURIComponent(pathname || "/dashboard")}`))
+      .catch(() => {
+        clearLocalSession()
+        router.replace(signInPath)
+      })
       .finally(() => setLoading(false))
   }, [pathname, router])
 
@@ -107,12 +114,27 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     routeTransitionTimeoutRef.current = window.setTimeout(() => setRouteTransitioning(false), 900)
   }
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
         <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
           <Loader2 className="size-4 animate-spin text-primary" />
           正在准备你的仪表板
+        </div>
+      </main>
+    )
+  }
+
+  if (!user) {
+    const signInPath = `/sign-in?next=${encodeURIComponent(pathname || "/dashboard")}`
+
+    return (
+      <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-6 py-5 text-center shadow-sm">
+          <p className="text-sm text-muted-foreground">Redirecting to sign in...</p>
+          <Link href={signInPath} className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+            Go to sign in
+          </Link>
         </div>
       </main>
     )

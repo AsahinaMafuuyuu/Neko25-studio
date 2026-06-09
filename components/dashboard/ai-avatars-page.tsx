@@ -44,46 +44,12 @@ import type {
 import { avatarStyles } from "@/lib/avatar-types"
 import { cn } from "@/lib/utils"
 
-type DefaultAvatar = {
-  id: string
-  name: string
-  style: AvatarStyle
-  imageUrl: string
-}
-
 type LocalGeneratedAvatar = {
   desktopFile: File
   desktopImageUrl: string
   mobileFile: File
   mobileImageUrl: string
 }
-
-const defaultAvatars: DefaultAvatar[] = [
-  {
-    id: "podcast-host",
-    name: "xuefeng",
-    style: "Podcast",
-    imageUrl: "/avatars/xuefeng.webp",
-  },
-  {
-    id: "casual-founder",
-    name: "Taylor",
-    style: "Casual",
-    imageUrl: "/avatars/taylor.jpg",
-  },
-  {
-    id: "cartoon-guide",
-    name: "Emma",
-    style: "3D Cartoon",
-    imageUrl: "/avatars/emma.webp",
-  },
-  {
-    id: "stylized-muse",
-    name: "Jack",
-    style: "Stylized",
-    imageUrl: "/avatars/jack.jpg",
-  },
-]
 
 const activeStatuses = new Set(["queued", "running", "generating", "uploading"])
 const generationCooldownMs = 60_000
@@ -116,14 +82,14 @@ export function AiAvatarsPage() {
   const previewRetryCountsRef = useRef<Record<string, number>>({})
   const generationRequestRef = useRef(false)
 
-  const selectedAvatar = useMemo(() => avatars.find((avatar) => avatar.is_selected) || null, [avatars])
   const savedAvatars = useMemo(() => avatars.filter((avatar) => avatar.source !== "default"), [avatars])
+  const defaultAvatars = useMemo(() => avatars.filter((avatar) => avatar.source === "default"), [avatars])
   const isJobActive = activeJob ? activeStatuses.has(activeJob.status) : false
   const isGenerationCoolingDown = generationCooldownUntil > Date.now()
   const shouldShowDialogStatus = showGenerationStatus || Boolean(activeJob)
   const avatarNameValidationMessage = useMemo(
     () => getAvatarNameValidationMessage(avatarName, avatars, defaultAvatars),
-    [avatarName, avatars]
+    [avatarName, avatars, defaultAvatars]
   )
   const canSubmitAvatarName = Boolean(avatarName.trim()) && !avatarNameValidationMessage
   const canGenerate =
@@ -246,33 +212,23 @@ export function AiAvatarsPage() {
     }
   }
 
-  async function onUseDefault(avatar: DefaultAvatar) {
+  async function onUseDefault(avatar: AiAvatar) {
     setSubmitting(true)
     setError("")
 
     try {
-      const response = await apiFetch("/api/avatars/default", {
+      const response = await apiFetch(`/api/avatars/${avatar.id}/select`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: avatar.name,
-          style: avatar.style,
-          imageUrl: avatar.imageUrl,
-          imageKey: `default:${avatar.id}`,
-        }),
       })
       const body = await readJson<{ avatar: AiAvatar }>(response)
-      setAvatars((current) => [
-        body.avatar,
-        ...current
-          .filter((item) => item.id !== body.avatar.id)
-          .map((item) => ({
-            ...item,
-            is_selected: false,
-          })),
-      ])
+      setAvatars((current) => {
+        const next = current.map((item) => item.id === body.avatar.id
+          ? body.avatar
+          : { ...item, is_selected: false }
+        )
+
+        return next.some((item) => item.id === body.avatar.id) ? next : [body.avatar, ...next]
+      })
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : "Could not select default avatar.")
     } finally {
@@ -829,14 +785,14 @@ export function AiAvatarsPage() {
               key={avatar.id}
               actionLabel="Use avatar"
               avatar={{
-                desktopImageUrl: avatar.imageUrl,
-                mobileImageUrl: avatar.imageUrl,
+                desktopImageUrl: getAvatarDesktopImageUrl(avatar),
+                mobileImageUrl: getAvatarMobileImageUrl(avatar),
                 name: avatar.name,
                 source: "default",
                 style: avatar.style,
               }}
               disabled={submitting}
-              selected={selectedAvatar?.image_key === `default:${avatar.id}`}
+              selected={avatar.is_selected}
               onAction={() => onUseDefault(avatar)}
             />
           ))}
@@ -1074,7 +1030,7 @@ function isGenerationRateLimitMessage(message = "") {
 function getAvatarNameValidationMessage(
   name: string,
   avatars: AiAvatar[],
-  defaults: DefaultAvatar[]
+  defaults: AiAvatar[]
 ) {
   const normalizedName = normalizeAvatarName(name)
   if (!normalizedName) return "Avatar name is required."

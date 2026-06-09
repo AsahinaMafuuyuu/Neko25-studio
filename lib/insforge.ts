@@ -53,6 +53,8 @@ const csrfTokenKey = "kravix.insforge.csrfToken"
 const oauthVerifierKey = "kravix.insforge.oauthVerifier"
 const oauthNextKey = "kravix.insforge.oauthNext"
 const appSessionCookie = "kravix_ai_studio_session"
+const defaultRequestTimeoutMs = 15_000
+const profileSyncTimeoutMs = 8_000
 
 function requireConfig() {
   if (!baseUrl || !apiKey) {
@@ -160,6 +162,26 @@ function readUser(sources: Array<unknown>) {
   return undefined
 }
 
+async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = defaultRequestTimeoutMs) {
+  const controller = new AbortController()
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("InsForge request timed out. Please try again.")
+    }
+
+    throw error
+  } finally {
+    window.clearTimeout(timeoutId)
+  }
+}
+
 async function request<T>(path: string, init: InsForgeRequestInit = {}): Promise<T> {
   requireConfig()
 
@@ -173,7 +195,7 @@ async function request<T>(path: string, init: InsForgeRequestInit = {}): Promise
     headers.set("Authorization", `Bearer ${token}`)
   }
 
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetchWithTimeout(`${baseUrl}${path}`, {
     ...fetchInit,
     headers,
     credentials: "include",
@@ -289,14 +311,18 @@ async function syncCurrentUserProfile(user: AuthUser | undefined, _event: Profil
     updated_at: now,
   }
 
-  const response = await fetch("/api/profile/sync", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+  const response = await fetchWithTimeout(
+    "/api/profile/sync",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ profile: payload }),
     },
-    body: JSON.stringify({ profile: payload }),
-  })
+    profileSyncTimeoutMs
+  )
 
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as { message?: string; error?: string }
@@ -448,7 +474,7 @@ export async function getOAuthProviders() {
 }
 
 export async function ensureOAuthProvider(provider: OAuthProvider) {
-  const response = await fetch("/api/oauth/providers", {
+  const response = await fetchWithTimeout("/api/oauth/providers", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -495,7 +521,7 @@ export async function startOAuth(provider: OAuthProvider, next = "/dashboard") {
   url.searchParams.set("code_challenge", challenge)
   url.searchParams.set("code_challenge_method", "S256")
 
-  const response = await fetch(`${url.pathname}${url.search}`)
+  const response = await fetchWithTimeout(`${url.pathname}${url.search}`)
   const body = (await response.json().catch(() => ({}))) as OAuthInitResponse & { message?: string }
 
   if (!response.ok) {
@@ -530,7 +556,11 @@ export async function completeOAuth(code: string) {
   window.sessionStorage.removeItem(oauthVerifierKey)
   const session = normalizeSession(body)
   storeSession(session)
-  await syncCurrentUserProfileSafely(session, "oauth")
+
+  void syncCurrentUserProfileSafely(session, "oauth").catch((error) => {
+    console.error("Deferred OAuth profile sync failed.", error)
+  })
+
   return session
 }
 

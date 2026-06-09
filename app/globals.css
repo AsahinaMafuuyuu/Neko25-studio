@@ -139,3 +139,29 @@
     color: var(--foreground);
   }
 }
+
+@keyframes avatar-progress-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+@layer components {
+  .avatar-progress [data-slot="progress-indicator"] {
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 24px color-mix(in oklch, var(--primary), transparent 62%);
+  }
+
+  .avatar-progress [data-slot="progress-indicator"]::after {
+    animation: avatar-progress-sheen 1.35s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.62), transparent);
+    content: "";
+    inset: 0;
+    position: absolute;
+    width: 46%;
+  }
+}

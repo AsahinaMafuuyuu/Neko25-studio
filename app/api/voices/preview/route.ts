@@ -1,6 +1,6 @@
-import { getDefaultVoiceById } from "@/lib/voice-types"
 import {
   avatarErrorStatus,
+  getDefaultVoiceById,
   jsonError,
   requireBearerToken,
   requireCurrentUserId,
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const accessToken = requireBearerToken(request)
     await requireCurrentUserId(accessToken)
     const body = (await request.json().catch(() => ({}))) as { voiceId?: string }
-    const voice = body.voiceId ? getDefaultVoiceById(body.voiceId) : null
+    const voice = body.voiceId ? await getDefaultVoiceById(body.voiceId) : null
     if (!voice) {
       return Response.json({ message: "Choose a valid default voice." }, { status: 400 })
     }
