@@ -5,7 +5,7 @@ import {
   requireBearerToken,
   requireCurrentUserId,
 } from "@/lib/avatar-server"
-import { runReplicatePrediction } from "@/lib/replicate-audio"
+import { requestVoiceSampleTranscription } from "@/lib/ai-voice-cloning-requests"
 import {
   type AiTtsJob,
   type AiTtsOutput,
@@ -21,9 +21,6 @@ export { avatarErrorStatus, jsonError, requireBearerToken, requireCurrentUserId 
 
 const voiceBucket = "ai-voices"
 const defaultInitialCredits = 1280
-const whisperxModel =
-  process.env.REPLICATE_WHISPERX_MODEL?.trim() ||
-  "victor-upmeet/whisperx:655845d6190ef70573c669245f245892cd039df4b880a1e3a65852c09252f5cc"
 
 type SdkResponse<T> = {
   data?: T
@@ -733,40 +730,5 @@ export async function refundCredits(input: {
 }
 
 export async function transcribeVoiceSample(audioUrl: string) {
-  const prediction = await runReplicatePrediction({
-    model: whisperxModel,
-    input: {
-      task: "transcribe",
-      debug: false,
-      vad_onset: 0.5,
-      audio_file: audioUrl,
-      batch_size: 64,
-      vad_offset: 0.363,
-      diarization: false,
-      temperature: 0,
-      align_output: false,
-      language_detection_min_prob: 0,
-      language_detection_max_tries: 5,
-    },
-  })
-  const output = prediction.output && typeof prediction.output === "object"
-    ? prediction.output as { detected_language?: unknown; segments?: unknown }
-    : null
-  const segments = output?.segments
-  const transcript = Array.isArray(segments)
-    ? segments
-        .map((segment) => {
-          if (!segment || typeof segment !== "object") return ""
-          const text = (segment as Record<string, unknown>).text
-          return typeof text === "string" ? text.trim() : ""
-        })
-        .filter(Boolean)
-        .join(" ")
-        .trim()
-    : ""
-
-  return {
-    transcript,
-    detectedLanguage: typeof output?.detected_language === "string" ? output.detected_language : "",
-  }
+  return await requestVoiceSampleTranscription(audioUrl)
 }

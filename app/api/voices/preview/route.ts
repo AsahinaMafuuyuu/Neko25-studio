@@ -5,6 +5,7 @@ import {
   requireBearerToken,
   requireCurrentUserId,
 } from "@/lib/voice-server"
+import { requestDeepgramTtsBlob } from "@/lib/ai-voice-cloning-requests"
 
 export async function POST(request: Request) {
   try {
@@ -16,30 +17,14 @@ export async function POST(request: Request) {
       return Response.json({ message: "Choose a valid default voice." }, { status: 400 })
     }
 
-    const apiKey = process.env.DEEPGRAM_API_KEY?.trim()
-    if (!apiKey) {
-      return Response.json({ message: "DEEPGRAM_API_KEY is not configured." }, { status: 500 })
-    }
-
-    const url = new URL("https://api.deepgram.com/v1/speak")
-    url.searchParams.set("model", voice.provider_voice_id)
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Token ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: voice.preview_text }),
+    const audio = await requestDeepgramTtsBlob({
+      providerVoiceId: voice.provider_voice_id,
+      text: voice.preview_text,
     })
 
-    if (!response.ok) {
-      const text = (await response.text().catch(() => "")).slice(0, 240)
-      return Response.json({ message: `Deepgram preview failed (${response.status}). ${text}` }, { status: 502 })
-    }
-
-    return new Response(await response.arrayBuffer(), {
+    return new Response(await audio.arrayBuffer(), {
       headers: {
-        "Content-Type": response.headers.get("content-type") || "audio/wav",
+        "Content-Type": audio.type || "audio/wav",
         "Cache-Control": "private, max-age=300",
       },
     })

@@ -14,6 +14,16 @@ export type AgnesVideoTask = {
   raw: AgnesVideoResponse
 }
 
+export class AgnesVideoProviderError extends Error {
+  task: AgnesVideoTask
+
+  constructor(message: string, task: AgnesVideoTask) {
+    super(message)
+    this.name = "AgnesVideoProviderError"
+    this.task = task
+  }
+}
+
 export type CreateAgnesVideoTaskInput = {
   prompt: string
   imageUrl?: string
@@ -124,7 +134,7 @@ export async function waitForAgnesVideoCompletion(input: {
     }
 
     if (isAgnesFailedStatus(task.status)) {
-      throw new Error(getProviderMessage(task.raw) || "Agnes video generation failed.")
+      throw new AgnesVideoProviderError(getProviderMessage(task.raw) || summarizeProviderPayload(task.raw), task)
     }
 
     await delay(intervalMs)
@@ -228,14 +238,53 @@ function getAgnesApiKey(override?: string) {
 }
 
 function getProviderMessage(source: unknown) {
-  return readFirstString(source, [
+  const message = readFirstString(source, [
     "message",
     "error",
+    "error.message",
+    "error.detail",
+    "error.reason",
     "detail",
+    "reason",
+    "failed_reason",
+    "fail_reason",
+    "failure_reason",
+    "error_message",
     "data.message",
     "data.error",
+    "data.error.message",
+    "data.error.detail",
+    "data.error.reason",
     "data.detail",
+    "data.reason",
+    "data.failed_reason",
+    "data.fail_reason",
+    "data.failure_reason",
+    "data.error_message",
+    "data.result.message",
+    "data.result.error",
+    "data.result.error.message",
+    "data.result.failed_reason",
+    "data.result.fail_reason",
+    "data.result.failure_reason",
   ])
+  if (message) return message
+
+  const error = readPath(source, "error") || readPath(source, "data.error") || readPath(source, "data.result.error")
+  if (error && typeof error === "object") return summarizeProviderPayload(error)
+
+  return ""
+}
+
+function summarizeProviderPayload(source: unknown) {
+  try {
+    const text = JSON.stringify(source)
+    if (text && text !== "{}") return `Agnes video generation failed. Provider payload: ${text.slice(0, 500)}`
+  } catch {
+    // Fall through to generic message.
+  }
+
+  return "Agnes video generation failed."
 }
 
 function readFirstString(source: unknown, paths: string[]) {

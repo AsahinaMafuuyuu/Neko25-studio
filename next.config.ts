@@ -8,6 +8,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@insforge/sdk"],
+  turbopack: {
+    resolveAlias: {
+      "next-intl/config": "./src/i18n/request.ts",
+    },
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -454,7 +454,7 @@ export function CreateAiVideoAvatarPage() {
               <ChoiceGroupCard
                 count={groupedVoices.custom.length}
                 description="Cloned voices prepared from your samples."
-                icon={<WandSparkles className="size-4" />}
+                icon={<VoiceGroupIcon voices={groupedVoices.custom} />}
                 title="Custom"
               >
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -701,9 +701,7 @@ function VoiceChoice({
       )}
     >
       <button className="flex min-w-0 items-center gap-3 text-left" type="button" onClick={onSelect}>
-        <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-[linear-gradient(135deg,var(--accent),var(--primary))] text-white shadow-sm">
-          {voice.avatar_image_url ? <img alt={voice.name} className="size-full object-cover" src={voice.avatar_image_url} /> : <Mic2 className="size-5" />}
-        </div>
+        <VoiceImage voice={voice} className="size-12 rounded-xl" />
         <div className="min-w-0">
           <h4 className="truncate text-sm font-semibold">{voice.name}</h4>
           <p className="mt-1 text-xs capitalize text-muted-foreground">{voice.source} voice</p>
@@ -716,6 +714,42 @@ function VoiceChoice({
       </Button>
     </div>
   )
+}
+
+function VoiceGroupIcon({ voices }: { voices: VoiceListItem[] }) {
+  const voice = voices.find((item) => item.avatar_image_url) || voices[0]
+  if (!voice) return <WandSparkles className="size-4" />
+
+  return <VoiceImage voice={voice} className="size-8 rounded-xl" />
+}
+
+function VoiceImage({ className, voice }: { className?: string; voice: VoiceListItem }) {
+  const [failed, setFailed] = useState(false)
+  const initials = getVoiceInitials(voice.name)
+
+  return (
+    <span
+      className={cn(
+        "grid shrink-0 place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--accent),var(--primary))] text-xs font-semibold text-white shadow-sm",
+        className
+      )}
+    >
+      {voice.avatar_image_url && !failed ? (
+        <img alt={voice.name} className="size-full object-cover" src={voice.avatar_image_url} onError={() => setFailed(true)} />
+      ) : (
+        initials
+      )}
+    </span>
+  )
+}
+
+function getVoiceInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "V"
 }
 
 function PreviewPanel({

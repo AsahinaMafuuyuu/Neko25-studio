@@ -33,3 +33,17 @@ The current Visual Style and Presentation Format option-specific prompt text is 
 - Presentation Format: `podcast`, `commentary`, `visual_novel`, `realistic`
 
 Keep these placeholders in source control and fill them in the corresponding prompt file when the final prompt copy is approved.
+
+## Avatar, Video Avatar, And Voice Cloning
+
+- `prompts/ai-avatars.prompt.ts`
+  - Builds image-generation prompts for AI Avatars.
+  - Inputs include avatar style, user personalization prompt, source-image presence, and target image variant.
+
+- `prompts/ai-video-avatar.prompt.ts`
+  - Builds Agnes image-to-video prompts for AI Video Avatar.
+  - Inputs include the saved video avatar record, script, and selected voice name.
+
+- `prompts/ai-voice-cloning.prompt.ts`
+  - Builds provider input payloads for voice sample transcription, Qwen voice cloning TTS, and Deepgram speech synthesis.
+  - Inputs include source audio URL, output text, language, speaker, and preview/TTS text.
