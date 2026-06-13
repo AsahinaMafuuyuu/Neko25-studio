@@ -1,5 +1,5 @@
-import { AiVoiceCloningPage } from "@/components/dashboard/ai-voice-cloning-page"
+import { redirect } from "next/navigation"
 
-export default function AiVoiceCloningDashboardPage() {
-  return <AiVoiceCloningPage />
+export default function AiVoiceCloningRedirect() {
+  redirect("/zh/dashboard/ai-voice-cloning")
 }

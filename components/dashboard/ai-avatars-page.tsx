@@ -81,6 +81,7 @@ export function AiAvatarsPage() {
   const discardedJobIdsRef = useRef<Set<string>>(new Set())
   const previewRetryCountsRef = useRef<Record<string, number>>({})
   const generationRequestRef = useRef(false)
+  const confirmedDialogCloseRef = useRef(false)
 
   const savedAvatars = useMemo(() => avatars.filter((avatar) => avatar.source !== "default"), [avatars])
   const defaultAvatars = useMemo(() => avatars.filter((avatar) => avatar.source === "default"), [avatars])
@@ -315,7 +316,7 @@ export function AiAvatarsPage() {
       resetDialogInputs()
       setShowGenerationStatus(false)
       setActiveJob(null)
-      setDialogOpen(false)
+      closeDialogWithoutConfirmation()
       showAppToast("Avatar uploaded successfully.", {
         description: "The new avatar is now selected in your workspace.",
       })
@@ -414,9 +415,11 @@ export function AiAvatarsPage() {
     eventDetails?: {
       cancel?: () => void
       preventUnmountOnClose?: () => void
+      reason?: string
     }
   ) {
     if (open) {
+      confirmedDialogCloseRef.current = false
       resetDialogInputs()
       setShowGenerationStatus(false)
 
@@ -427,7 +430,15 @@ export function AiAvatarsPage() {
     }
 
     if (!open) {
+      if (confirmedDialogCloseRef.current) {
+        confirmedDialogCloseRef.current = false
+        setDialogOpen(false)
+        return
+      }
+
       eventDetails?.cancel?.()
+      if (eventDetails?.reason !== "close-press") return
+
       eventDetails?.preventUnmountOnClose?.()
       requestDialogClose()
       return
@@ -440,6 +451,11 @@ export function AiAvatarsPage() {
     setConfirmCloseOpen(true)
   }
 
+  function closeDialogWithoutConfirmation() {
+    confirmedDialogCloseRef.current = true
+    setDialogOpen(false)
+  }
+
   function closeDialogAndDiscard() {
     setConfirmCloseOpen(false)
     if (activeJob) {
@@ -448,7 +464,7 @@ export function AiAvatarsPage() {
     resetDialogInputs()
     setShowGenerationStatus(false)
     setActiveJob(null)
-    setDialogOpen(false)
+    closeDialogWithoutConfirmation()
   }
 
   async function onSaveGeneratedAvatar() {
@@ -534,7 +550,7 @@ export function AiAvatarsPage() {
               </div>
 
               <div className="mt-auto flex justify-end pt-6">
-                <Dialog open={dialogOpen} onOpenChange={onDialogOpenChange}>
+                <Dialog open={dialogOpen} onOpenChange={onDialogOpenChange} disablePointerDismissal>
                   <DialogTrigger render={<Button />}>
                     <ImagePlus />
                     Create New Avatar

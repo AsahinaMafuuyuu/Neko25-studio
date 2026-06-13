@@ -1,10 +1,10 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
 import { Loader2, LogOut } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useEffect, useMemo, useRef, useState } from "react"
 
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,17 +20,15 @@ import {
   SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { dashboardFooterMeta, getDashboardNavItems } from "@/lib/dashboard"
 import {
   AuthUser,
   clearLocalSession,
   getCurrentUser,
   signOut,
 } from "@/lib/insforge"
-import {
-  dashboardFooterMeta,
-  dashboardNavItems,
-} from "@/lib/dashboard"
 import { cn } from "@/lib/utils"
+import { Link, usePathname, useRouter } from "@/src/i18n/navigation"
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === href
@@ -40,12 +38,15 @@ function isActivePath(pathname: string, href: string) {
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+  const t = useTranslations("Dashboard")
+  const common = useTranslations("Common")
   const [loading, setLoading] = useState(true)
   const [routeTransitioning, setRouteTransitioning] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(null)
   const routeTransitionTimeoutRef = useRef<number | null>(null)
   const previousPathnameRef = useRef(pathname)
+  const dashboardNavItems = useMemo(() => getDashboardNavItems(t), [t])
 
   useEffect(() => {
     const signInPath = `/sign-in?next=${encodeURIComponent(pathname || "/dashboard")}`
@@ -69,8 +70,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const currentItem = useMemo(
     () =>
-      dashboardNavItems.find((item) => isActivePath(pathname, item.href)) || dashboardNavItems[0],
-    [pathname]
+      dashboardNavItems.find((item) => isActivePath(pathname, item.href)) ||
+      dashboardNavItems[0],
+    [dashboardNavItems, pathname]
   )
   const BrandIcon = dashboardFooterMeta.brandIcon
   const BillingIcon = dashboardFooterMeta.billingIcon
@@ -86,7 +88,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
 
     setRouteTransitioning(true)
-    routeTransitionTimeoutRef.current = window.setTimeout(() => setRouteTransitioning(false), 420)
+    routeTransitionTimeoutRef.current = window.setTimeout(
+      () => setRouteTransitioning(false),
+      420
+    )
   }, [pathname])
 
   useEffect(() => {
@@ -111,7 +116,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
 
     setRouteTransitioning(true)
-    routeTransitionTimeoutRef.current = window.setTimeout(() => setRouteTransitioning(false), 900)
+    routeTransitionTimeoutRef.current = window.setTimeout(
+      () => setRouteTransitioning(false),
+      900
+    )
   }
 
   if (loading) {
@@ -119,7 +127,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
         <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
           <Loader2 className="size-4 animate-spin text-primary" />
-          正在准备你的仪表板
+          {common("loadingDashboard")}
         </div>
       </main>
     )
@@ -131,9 +139,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return (
       <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-6 py-5 text-center shadow-sm">
-          <p className="text-sm text-muted-foreground">Redirecting to sign in...</p>
-          <Link href={signInPath} className="text-sm font-medium text-primary underline-offset-4 hover:underline">
-            Go to sign in
+          <p className="text-sm text-muted-foreground">{common("redirecting")}</p>
+          <Link
+            href={signInPath}
+            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {common("goToSignIn")}
           </Link>
         </div>
       </main>
@@ -153,8 +164,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <BrandIcon className="size-4" />
             </span>
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-sm">Kravix AI Studio</span>
-              <span className="truncate text-xs font-normal text-sidebar-foreground/65">Creative dashboard</span>
+              <span className="truncate text-sm">{common("brand")}</span>
+              <span className="truncate text-xs font-normal text-sidebar-foreground/65">
+                {t("brandSubtitle")}
+              </span>
             </span>
           </Link>
         </SidebarHeader>
@@ -187,9 +200,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <BillingIcon className="size-4" />
               </div>
               <div>
-                <p className="text-sm font-medium">{dashboardFooterMeta.billingTitle}</p>
+                <p className="text-sm font-medium">{t("billingTitle")}</p>
                 <p className="mt-1 text-xs leading-5 text-sidebar-foreground/72">
-                  {dashboardFooterMeta.billingDescription}
+                  {t("billingDescription")}
                 </p>
               </div>
             </div>
@@ -197,11 +210,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
           <div className="rounded-2xl border border-sidebar-border/70 bg-sidebar-accent/40 p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-sidebar-foreground/66">
-              {dashboardFooterMeta.creditsTitle}
+              {t("creditsTitle")}
             </p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight">{dashboardFooterMeta.creditsValue}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight">
+              {dashboardFooterMeta.creditsValue}
+            </p>
             <p className="mt-2 text-xs leading-5 text-sidebar-foreground/72">
-              {dashboardFooterMeta.creditsDescription}
+              {t("creditsDescription")}
             </p>
           </div>
         </SidebarFooter>
@@ -216,20 +231,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <SidebarTrigger className="md:hidden" />
               <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                  Dashboard
+                  {t("eyebrow")}
                 </p>
-                <h1 className="truncate text-lg font-semibold tracking-tight">{currentItem.title}</h1>
+                <h1 className="truncate text-lg font-semibold tracking-tight">
+                  {currentItem.title}
+                </h1>
               </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden rounded-full border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground shadow-sm sm:block">
-                {user?.email || "Authenticated user"}
+                {user?.email || t("emailFallback")}
               </div>
+              <LanguageSwitcher />
               <ThemeToggle />
               <Button variant="outline" onClick={onSignOut} disabled={signingOut}>
                 {signingOut ? <Loader2 className="animate-spin" /> : <LogOut />}
-                <span className="hidden sm:inline">Sign out</span>
+                <span className="hidden sm:inline">{common("signOut")}</span>
               </Button>
             </div>
           </div>

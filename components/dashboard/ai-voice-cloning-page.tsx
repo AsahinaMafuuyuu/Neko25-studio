@@ -8,6 +8,7 @@ import {
   CircleDollarSign,
   Clock3,
   CloudUpload,
+  ImagePlus,
   LoaderCircle,
   ListChecks,
   Mic2,
@@ -94,6 +95,8 @@ export function AiVoiceCloningPage() {
   const [voiceName, setVoiceName] = useState("")
   const [voiceSample, setVoiceSample] = useState<File | null>(null)
   const [voiceSampleUrl, setVoiceSampleUrl] = useState("")
+  const [voiceImage, setVoiceImage] = useState<File | null>(null)
+  const [voiceImageUrl, setVoiceImageUrl] = useState("")
   const [selectedVoiceId, setSelectedVoiceId] = useState("")
   const [ttsLanguage, setTtsLanguage] = useState(defaultCustomTtsLanguage)
   const [ttsText, setTtsText] = useState("")
@@ -108,6 +111,7 @@ export function AiVoiceCloningPage() {
   const [error, setError] = useState("")
   const ttsPollRef = useRef<number | null>(null)
   const voiceSamplePreviewRef = useRef("")
+  const voiceImagePreviewRef = useRef("")
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const defaultPreviewUrlsRef = useRef<Record<string, string>>({})
 
@@ -133,6 +137,7 @@ export function AiVoiceCloningPage() {
     return () => {
       if (ttsPollRef.current) window.clearInterval(ttsPollRef.current)
       if (voiceSamplePreviewRef.current) URL.revokeObjectURL(voiceSamplePreviewRef.current)
+      if (voiceImagePreviewRef.current) URL.revokeObjectURL(voiceImagePreviewRef.current)
       Object.values(defaultPreviewUrlsRef.current).forEach((url) => URL.revokeObjectURL(url))
       audioRef.current?.pause()
     }
@@ -277,6 +282,23 @@ export function AiVoiceCloningPage() {
     setVoiceSampleUrl(url)
   }
 
+  function onChooseImage(file: File | null) {
+    if (voiceImagePreviewRef.current) {
+      URL.revokeObjectURL(voiceImagePreviewRef.current)
+      voiceImagePreviewRef.current = ""
+    }
+
+    setVoiceImage(file)
+    if (!file) {
+      setVoiceImageUrl("")
+      return
+    }
+
+    const url = URL.createObjectURL(file)
+    voiceImagePreviewRef.current = url
+    setVoiceImageUrl(url)
+  }
+
   async function submitClone() {
     if (!canSubmitClone || !voiceSample) return
 
@@ -298,6 +320,7 @@ export function AiVoiceCloningPage() {
       const form = new FormData()
       form.append("name", trimmedName)
       form.append("file", voiceSample)
+      if (voiceImage) form.append("image", voiceImage)
       updateTaskQueueItem(taskId, {
         detail: "Analyzing voice sample and preparing clone.",
         progress: 48,
@@ -312,6 +335,7 @@ export function AiVoiceCloningPage() {
       setCloneDialogOpen(false)
       setVoiceName("")
       onChooseSample(null)
+      onChooseImage(null)
       updateTaskQueueItem(taskId, {
         detail: `${body.voice.name} is ready for generation.`,
         progress: 100,
@@ -522,11 +546,14 @@ export function AiVoiceCloningPage() {
             <CloneVoiceDialog
               file={voiceSample}
               fileUrl={voiceSampleUrl}
+              imageFile={voiceImage}
+              imageUrl={voiceImageUrl}
               name={voiceName}
               open={cloneDialogOpen}
               submitting={submittingClone}
               canSubmit={canSubmitClone}
               onChooseFile={onChooseSample}
+              onChooseImage={onChooseImage}
               onNameChange={setVoiceName}
               onOpenChange={setCloneDialogOpen}
               onSubmit={submitClone}
@@ -763,8 +790,11 @@ function CloneVoiceDialog({
   canSubmit,
   file,
   fileUrl,
+  imageFile,
+  imageUrl,
   name,
   onChooseFile,
+  onChooseImage,
   onNameChange,
   onOpenChange,
   onSubmit,
@@ -774,8 +804,11 @@ function CloneVoiceDialog({
   canSubmit: boolean
   file: File | null
   fileUrl: string
+  imageFile: File | null
+  imageUrl: string
   name: string
   onChooseFile: (file: File | null) => void
+  onChooseImage: (file: File | null) => void
   onNameChange: (value: string) => void
   onOpenChange: (open: boolean) => void
   onSubmit: () => void
@@ -788,7 +821,7 @@ function CloneVoiceDialog({
         <Plus />
         Add New Voice Clone
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add New Voice Clone</DialogTitle>
           <DialogDescription>
@@ -796,7 +829,7 @@ function CloneVoiceDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-5">
+        <div className="grid min-h-0 gap-5 overflow-y-auto pr-1">
           <div className="grid gap-2">
             <Label htmlFor="voice-name">Voice name</Label>
             <Input
@@ -836,16 +869,54 @@ function CloneVoiceDialog({
                 Use a clean recording with one speaker and minimal background noise.
               </p>
               {file && fileUrl ? (
-                <div className="mt-4 rounded-lg border border-border/70 bg-card p-3">
-                  <p className="truncate text-sm font-medium">{file.name}</p>
+                <div className="mt-4 min-w-0 max-w-full overflow-hidden rounded-lg border border-border/70 bg-card p-3">
+                  <p className="block max-w-full truncate text-sm font-medium" title={file.name}>{file.name}</p>
                   <audio className="mt-3 w-full" controls src={fileUrl} />
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="voice-image">Voice impression image</Label>
+            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+              <Input
+                id="voice-image"
+                accept="image/*"
+                className="sr-only"
+                disabled={submitting}
+                type="file"
+                onChange={(event) => onChooseImage(event.target.files?.[0] || null)}
+              />
+              <Label
+                htmlFor="voice-image"
+                className={cn(
+                  "flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-border/70 bg-card px-4 py-5 text-center transition hover:bg-muted/40",
+                  submitting && "pointer-events-none opacity-60"
+                )}
+              >
+                <ImagePlus className="size-7 text-primary" />
+                <span className="text-sm font-semibold">{imageFile ? "Replace impression image" : "Upload impression image"}</span>
+                <span className="max-w-sm text-xs leading-5 text-muted-foreground">
+                  Choose a square or portrait image that helps identify this custom voice.
+                </span>
+              </Label>
+              {imageFile && imageUrl ? (
+                <div className="mt-4 flex min-w-0 max-w-full items-center gap-3 overflow-hidden rounded-lg border border-border/70 bg-card p-3">
+                  <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-border/70 bg-muted">
+                    <img alt={imageFile.name} className="size-full object-cover" src={imageUrl} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="block max-w-full truncate text-sm font-medium" title={imageFile.name}>{imageFile.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Saved as the voice card image.</p>
+                  </div>
                 </div>
               ) : null}
             </div>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t border-border/70 bg-popover pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             <X />
             Cancel

@@ -1,0 +1,161 @@
+{
+  "LanguageSwitcher": {
+    "label": "切换语言",
+    "locales": {
+      "zh": "中文",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "Common": {
+    "brand": "Kravix AI Studio",
+    "dashboard": "仪表盘",
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "start": "开始",
+    "email": "邮箱",
+    "password": "密码",
+    "name": "姓名",
+    "loadingDashboard": "正在准备你的仪表盘...",
+    "redirecting": "正在跳转到登录页...",
+    "goToSignIn": "前往登录"
+  },
+  "Home": {
+    "nav": {
+      "features": "功能",
+      "security": "安全",
+      "metrics": "指标"
+    },
+    "eyebrow": "由 InsForge 驱动的 AI Studio SaaS",
+    "title": "面向生产级 AI 产品的从容控制台。",
+    "description": "Kravix 将认证、提示词工作流、知识资产和发布准备聚合进一个精致的日常工作室。",
+    "createWorkspace": "创建工作区",
+    "openStudio": "打开工作室",
+    "workflowQuality": "工作流质量",
+    "live": "实时",
+    "evalLane": "评估通道 {index}",
+    "secureAccess": "安全访问",
+    "secureAccessDescription": "支持邮箱认证以及 Google 和 X OAuth 入口。",
+    "studioPolish": "精致工作台",
+    "studioPolishDescription": "浅色和深色主题共享一致的设计令牌。",
+    "featuresEyebrow": "为日常产品工作而设计",
+    "featuresTitle": "所有能力都触手可及。",
+    "securityEyebrow": "InsForge 后端",
+    "securityTitle": "认证和产品状态共享同一个基础设施。",
+    "securityDescription": "应用已连接 InsForge，用于认证、数据库、存储、实时能力和后端函数，同时避免在 UI 中暴露密钥。",
+    "checks": {
+      "oauth": "OAuth 登录",
+      "protected": "受保护的工作室路由",
+      "theme": "主题安全组件"
+    },
+    "features": {
+      "prompt": {
+        "title": "提示词运营",
+        "description": "用可重复的评估习惯设计、比较并发布提示词。"
+      },
+      "context": {
+        "title": "上下文资产库",
+        "description": "为每个产品界面准备数据集、文档和检索上下文。"
+      },
+      "workflow": {
+        "title": "发布工作流",
+        "description": "在一个工作区协调模型运行、QA 和发布信号。"
+      }
+    },
+    "stats": {
+      "cycles": "实验周期更快",
+      "availability": "后端可用性目标",
+      "workflows": "工作室工作流随时可用"
+    }
+  },
+  "Auth": {
+    "signInTitle": "欢迎回来",
+    "signUpTitle": "创建你的工作室",
+    "signInDescription": "登录以继续使用你的 AI Studio 工作区。",
+    "signUpDescription": "开始构建 AI 工作流、数据集和可发布的产品体验。",
+    "switchToSignInText": "已有账号？",
+    "switchToSignUpText": "第一次使用 Kravix？",
+    "switchToSignInAction": "登录",
+    "switchToSignUpAction": "创建账号",
+    "passwordHintSignIn": "使用你的工作区密码。",
+    "passwordHintSignUp": "至少 8 个字符，并包含至少一个字母和一个数字。",
+    "heroEyebrow": "由 InsForge 驱动的认证",
+    "heroTitle": "在一个专注的工作室中构建精致 AI 产品。",
+    "heroDescription": "安全登录、精致工作区和生产级界面模式已为你的 SaaS 工作流准备就绪。",
+    "heroPills": {
+      "oauth": "OAuth 就绪",
+      "theme": "深色模式",
+      "routing": "工作室路由"
+    },
+    "confirmPassword": "确认密码",
+    "createAccount": "创建账号",
+    "authenticationFailed": "认证失败。",
+    "oauthUnavailable": "{provider} OAuth 暂不可用。",
+    "validation": {
+      "name": "请输入至少 2 个字符。",
+      "email": "请输入有效的邮箱地址。",
+      "passwordLength": "请使用至少 8 个字符。",
+      "passwordContent": "请至少包含一个字母和一个数字。",
+      "confirmPassword": "两次输入的密码不一致。"
+    }
+  },
+  "Dashboard": {
+    "brandSubtitle": "创意仪表盘",
+    "emailFallback": "已认证用户",
+    "eyebrow": "仪表盘",
+    "billingTitle": "账单设置",
+    "billingDescription": "管理计划、发票与续费信息",
+    "creditsTitle": "可用积分",
+    "creditsDescription": "本月可用于视频、语音与形象生成",
+    "homeHeroEyebrow": "创意指挥中心",
+    "homeHeroTitle": "在一个干净的工作台里管理视频、虚拟人、声音与素材库。",
+    "cardEyebrows": {
+      "featured": "精选",
+      "overview": "总览",
+      "module": "模块"
+    },
+    "module": {
+      "workspaceModule": "工作区模块",
+      "statusLabel": "当前状态",
+      "statusTitle": "已准备好接入实现",
+      "statusDescription": "这个页面骨架已经准备好，接下来可以直接接入真实的生成流程、表单和任务结果视图。",
+      "includesLabel": "本页包含",
+      "defaultChecklist": {
+        "entry": "模块入口与空状态文案已就位",
+        "media": "媒体背景与主题样式已接入",
+        "workflow": "后续可在此页继续挂接真实工作流"
+      }
+    },
+    "libraryChecklist": {
+      "entry": "作为素材库与历史资产的统一入口",
+      "search": "为搜索、筛选和集合管理准备版面",
+      "assets": "后续可接入视频、音频与形象资产列表"
+    },
+    "nav": {
+      "home": {
+        "title": "主页",
+        "description": "总览你的 AI 创作工作台与全部功能入口。"
+      },
+      "aiVideoAgent": {
+        "title": "AI Video Agent",
+        "description": "自动化视频生成、脚本编排与多步骤执行。"
+      },
+      "aiVideoAvatar": {
+        "title": "AI Video Avatar",
+        "description": "用 AI 虚拟人完成镜头表达、讲解与演示。"
+      },
+      "aiAvatars": {
+        "title": "AI Avatars",
+        "description": "创建、生成并管理可复用的 AI 头像。"
+      },
+      "aiVoiceCloning": {
+        "title": "AI Voice Cloning",
+        "description": "训练专属音色，快速复用到生成内容里。"
+      },
+      "library": {
+        "title": "My Library",
+        "description": "集中整理视频、音频、形象与项目资产。"
+      }
+    }
+  }
+}

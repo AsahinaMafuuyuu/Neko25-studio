@@ -7,8 +7,11 @@ import {
   requireBearerToken,
   requireCurrentUserId,
   updateAvatarJob,
+  uploadAvatarFile,
 } from "@/lib/avatar-server"
 import { isAvatarStyle } from "@/lib/avatar-types"
+
+const maxSourceImageBytes = 12 * 1024 * 1024
 
 export async function POST(request: Request) {
   try {
@@ -34,21 +37,25 @@ export async function POST(request: Request) {
       return Response.json({ message: "Upload an image or add a prompt before generating." }, { status: 400 })
     }
 
-    const sourceImage =
-      file instanceof File
-        ? {
-            data: Buffer.from(await file.arrayBuffer()).toString("base64"),
-            mimeType: file.type || "image/png",
-          }
-        : undefined
+    if (file instanceof File && !file.type.startsWith("image/")) {
+      return Response.json({ message: "Avatar source must be an image file." }, { status: 400 })
+    }
+
+    if (file instanceof File && file.size > maxSourceImageBytes) {
+      return Response.json({ message: "Avatar source image must be smaller than 12 MB." }, { status: 400 })
+    }
+
+    const sourceImage = file instanceof File
+      ? await uploadAvatarFile(file, `users/${userId}/avatar-sources`, file.name || "avatar-source.png", accessToken)
+      : null
 
     const job = await createAvatarJob(
       {
         userId,
         style: styleValue,
         prompt,
-        sourceImageUrl: "",
-        sourceImageKey: "",
+        sourceImageUrl: sourceImage?.url || "",
+        sourceImageKey: sourceImage?.key || "",
       },
       accessToken
     )
@@ -61,9 +68,8 @@ export async function POST(request: Request) {
         avatarName,
         style: styleValue,
         prompt,
-        sourceImage,
-        sourceImageUrl: "",
-        sourceImageKey: "",
+        sourceImageUrl: sourceImage?.url || "",
+        sourceImageKey: sourceImage?.key || "",
       },
       {
         tags: [`user:${userId}`, `avatar-job:${job.id}`],

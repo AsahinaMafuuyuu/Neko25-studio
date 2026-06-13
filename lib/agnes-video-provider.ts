@@ -16,28 +16,33 @@ export type AgnesVideoTask = {
 
 export type CreateAgnesVideoTaskInput = {
   prompt: string
-  imageUrl: string
+  imageUrl?: string
   audioUrl?: string
   aspectRatio: AgnesVideoAspectRatio
   durationSeconds: number
+  apiKey?: string
+  apiUrl?: string
+  model?: string
 }
 
 export async function createAgnesVideoTask(input: CreateAgnesVideoTaskInput) {
-  const apiKey = getAgnesApiKey()
+  const apiKey = getAgnesApiKey(input.apiKey)
+  const apiUrl = input.apiUrl?.trim() || process.env.VIDEO_GENERATOR_API_URL?.trim() || "https://apihub.agnes-ai.com/v1/videos"
+  const model = input.model?.trim() || process.env.VIDEO_GENERATOR_MODEL?.trim() || agnesVideoModel
   const { numFrames, frameRate } = getAgnesDurationSettings(input.durationSeconds)
   const { width, height } = getAgnesDimensions(input.aspectRatio)
   const extraBody = input.audioUrl ? { audio: input.audioUrl } : undefined
 
-  const response = await fetch("https://apihub.agnes-ai.com/v1/videos", {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: agnesVideoModel,
+      model,
       prompt: input.prompt.slice(0, 2000),
-      image: input.imageUrl,
+      ...(input.imageUrl ? { image: input.imageUrl } : {}),
       width,
       height,
       num_frames: numFrames,
@@ -59,15 +64,18 @@ export async function createAgnesVideoTask(input: CreateAgnesVideoTaskInput) {
 export async function retrieveAgnesVideoTask(input: {
   taskId?: string
   videoId?: string
+  apiKey?: string
+  model?: string
 }) {
-  const apiKey = getAgnesApiKey()
+  const apiKey = getAgnesApiKey(input.apiKey)
+  const model = input.model?.trim() || process.env.VIDEO_GENERATOR_MODEL?.trim() || agnesVideoModel
   const url = input.videoId
     ? new URL("https://apihub.agnes-ai.com/agnesapi")
     : new URL(`https://apihub.agnes-ai.com/v1/videos/${encodeURIComponent(input.taskId || "")}`)
 
   if (input.videoId) {
     url.searchParams.set("video_id", input.videoId)
-    url.searchParams.set("model_name", agnesVideoModel)
+    url.searchParams.set("model_name", model)
   }
 
   const response = await fetch(url, {
@@ -89,6 +97,8 @@ export async function retrieveAgnesVideoTask(input: {
 export async function waitForAgnesVideoCompletion(input: {
   taskId: string
   videoId: string
+  apiKey?: string
+  model?: string
   intervalMs?: number
   maxAttempts?: number
   onProgress?: (task: AgnesVideoTask) => Promise<void>
@@ -100,6 +110,8 @@ export async function waitForAgnesVideoCompletion(input: {
     const task = await retrieveAgnesVideoTask({
       taskId: input.taskId,
       videoId: input.videoId,
+      apiKey: input.apiKey,
+      model: input.model,
     })
 
     await input.onProgress?.(task)
@@ -209,8 +221,8 @@ async function readJsonResponse(response: Response) {
   }
 }
 
-function getAgnesApiKey() {
-  const apiKey = process.env.AGNES_API_KEY?.trim()
+function getAgnesApiKey(override?: string) {
+  const apiKey = override?.trim() || process.env.AGNES_API_KEY?.trim()
   if (!apiKey) throw new Error("AGNES_API_KEY is not configured.")
   return apiKey
 }

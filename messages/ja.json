@@ -1,0 +1,161 @@
+{
+  "LanguageSwitcher": {
+    "label": "言語を切り替え",
+    "locales": {
+      "zh": "中文",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "Common": {
+    "brand": "Kravix AI Studio",
+    "dashboard": "ダッシュボード",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "start": "開始",
+    "email": "メール",
+    "password": "パスワード",
+    "name": "名前",
+    "loadingDashboard": "ダッシュボードを準備しています...",
+    "redirecting": "ログインページへ移動しています...",
+    "goToSignIn": "ログインへ"
+  },
+  "Home": {
+    "nav": {
+      "features": "機能",
+      "security": "セキュリティ",
+      "metrics": "指標"
+    },
+    "eyebrow": "InsForge で動く AI Studio SaaS",
+    "title": "本番 AI プロダクトのための落ち着いた管制室。",
+    "description": "Kravix は認証、プロンプトワークフロー、ナレッジ資産、リリース準備を、毎日使える洗練されたスタジオにまとめます。",
+    "createWorkspace": "ワークスペースを作成",
+    "openStudio": "スタジオを開く",
+    "workflowQuality": "ワークフロー品質",
+    "live": "ライブ",
+    "evalLane": "評価レーン {index}",
+    "secureAccess": "安全なアクセス",
+    "secureAccessDescription": "メール認証に加えて Google と X の OAuth に対応。",
+    "studioPolish": "洗練されたスタジオ",
+    "studioPolishDescription": "ライト/ダークテーマを一貫したデザイントークンで提供。",
+    "featuresEyebrow": "日々のプロダクト作業のために設計",
+    "featuresTitle": "すべてが手の届く場所に。",
+    "securityEyebrow": "InsForge バックエンド",
+    "securityTitle": "認証とプロダクト状態を同じ基盤で扱えます。",
+    "securityDescription": "このアプリは InsForge に接続され、認証、データベース、ストレージ、リアルタイム、バックエンド関数を UI に秘密情報を広げずに利用できます。",
+    "checks": {
+      "oauth": "OAuth ログイン",
+      "protected": "保護されたスタジオルート",
+      "theme": "テーマ対応コンポーネント"
+    },
+    "features": {
+      "prompt": {
+        "title": "プロンプト運用",
+        "description": "再現可能な評価習慣でプロンプトを設計、比較、リリースします。"
+      },
+      "context": {
+        "title": "コンテキスト保管庫",
+        "description": "各プロダクト画面に必要なデータセット、文書、検索コンテキストを準備します。"
+      },
+      "workflow": {
+        "title": "リリースワークフロー",
+        "description": "モデル実行、QA、リリースシグナルを一つのワークスペースで調整します。"
+      }
+    },
+    "stats": {
+      "cycles": "実験サイクルを高速化",
+      "availability": "バックエンド可用性目標",
+      "workflows": "いつでも使えるスタジオワークフロー"
+    }
+  },
+  "Auth": {
+    "signInTitle": "おかえりなさい",
+    "signUpTitle": "スタジオを作成",
+    "signInDescription": "AI Studio ワークスペースを続けるにはログインしてください。",
+    "signUpDescription": "AI ワークフロー、データセット、リリース可能なプロダクト体験の構築を始めましょう。",
+    "switchToSignInText": "すでにアカウントがありますか？",
+    "switchToSignUpText": "Kravix は初めてですか？",
+    "switchToSignInAction": "ログイン",
+    "switchToSignUpAction": "アカウントを作成",
+    "passwordHintSignIn": "ワークスペースのパスワードを使用してください。",
+    "passwordHintSignUp": "8文字以上で、少なくとも1つの英字と数字を含めてください。",
+    "heroEyebrow": "InsForge による認証",
+    "heroTitle": "一つの集中したスタジオから洗練された AI プロダクトを構築。",
+    "heroDescription": "安全なログイン、整ったワークスペース、本番品質の UI パターンが SaaS ワークフローのために用意されています。",
+    "heroPills": {
+      "oauth": "OAuth 対応",
+      "theme": "ダークモード",
+      "routing": "スタジオルーティング"
+    },
+    "confirmPassword": "パスワード確認",
+    "createAccount": "アカウントを作成",
+    "authenticationFailed": "認証に失敗しました。",
+    "oauthUnavailable": "{provider} OAuth は現在利用できません。",
+    "validation": {
+      "name": "2文字以上入力してください。",
+      "email": "有効なメールアドレスを入力してください。",
+      "passwordLength": "8文字以上で入力してください。",
+      "passwordContent": "少なくとも1つの英字と数字を含めてください。",
+      "confirmPassword": "パスワードが一致しません。"
+    }
+  },
+  "Dashboard": {
+    "brandSubtitle": "クリエイティブダッシュボード",
+    "emailFallback": "認証済みユーザー",
+    "eyebrow": "ダッシュボード",
+    "billingTitle": "請求設定",
+    "billingDescription": "プラン、請求書、更新情報を管理",
+    "creditsTitle": "利用可能クレジット",
+    "creditsDescription": "今月の動画、音声、アバター生成に利用可能",
+    "homeHeroEyebrow": "クリエイティブ司令室",
+    "homeHeroTitle": "動画、アバター、音声、素材を一つの整理されたワークスペースで管理。",
+    "cardEyebrows": {
+      "featured": "注目",
+      "overview": "概要",
+      "module": "モジュール"
+    },
+    "module": {
+      "workspaceModule": "ワークスペースモジュール",
+      "statusLabel": "現在の状態",
+      "statusTitle": "実装の準備完了",
+      "statusDescription": "このページの骨組みは、実際の生成フロー、フォーム、タスク結果ビューを接続できる状態です。",
+      "includesLabel": "このページの内容",
+      "defaultChecklist": {
+        "entry": "モジュール入口と空状態の文言を準備済み",
+        "media": "メディア背景とテーマスタイルを接続済み",
+        "workflow": "次に実ワークフローを接続可能"
+      }
+    },
+    "libraryChecklist": {
+      "entry": "素材と履歴アセットの統一入口",
+      "search": "検索、フィルター、コレクション管理用のレイアウト",
+      "assets": "動画、音声、アバターのアセット一覧に接続可能"
+    },
+    "nav": {
+      "home": {
+        "title": "ホーム",
+        "description": "AI 制作ワークスペースとすべての機能入口を確認。"
+      },
+      "aiVideoAgent": {
+        "title": "AI Video Agent",
+        "description": "自動動画生成、脚本編成、複数ステップの実行。"
+      },
+      "aiVideoAvatar": {
+        "title": "AI Video Avatar",
+        "description": "AI プレゼンターで説明動画やデモを作成。"
+      },
+      "aiAvatars": {
+        "title": "AI Avatars",
+        "description": "再利用できる AI プロフィールアバターを作成、生成、管理。"
+      },
+      "aiVoiceCloning": {
+        "title": "AI Voice Cloning",
+        "description": "カスタム音声を学習し、生成コンテンツで素早く再利用。"
+      },
+      "library": {
+        "title": "My Library",
+        "description": "動画、音声、アバター、プロジェクト資産を一か所で整理。"
+      }
+    }
+  }
+}

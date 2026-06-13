@@ -61,6 +61,10 @@ function getExtension(contentType: string, fallback = "bin") {
   if (contentType.includes("ogg")) return "ogg"
   if (contentType.includes("webm")) return "webm"
   if (contentType.includes("mp4") || contentType.includes("m4a")) return "m4a"
+  if (contentType.includes("jpeg")) return "jpg"
+  if (contentType.includes("png")) return "png"
+  if (contentType.includes("webp")) return "webp"
+  if (contentType.includes("gif")) return "gif"
   return fallback
 }
 
@@ -87,6 +91,24 @@ export async function uploadVoiceBlob(blob: Blob, keyPrefix: string, filename: s
 
   if (!data?.url || !data?.key) {
     throw new Error("InsForge did not return the uploaded audio URL and key.")
+  }
+
+  return {
+    url: data.url,
+    key: data.key,
+  }
+}
+
+export async function uploadVoiceImageBlob(blob: Blob, keyPrefix: string, filename: string) {
+  const contentType = blob.type || "image/png"
+  const fallback = `image.${getExtension(contentType, "png")}`
+  const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
+  const admin = await getInsForgeAdmin()
+  const { data, error } = await admin.storage.from(voiceBucket).upload(key, blob)
+  throwIfSdkError(error, "Could not upload voice image.")
+
+  if (!data?.url || !data?.key) {
+    throw new Error("InsForge did not return the uploaded voice image URL and key.")
   }
 
   return {

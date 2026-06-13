@@ -111,11 +111,11 @@ insert into public.default_voices (
   version
 ) values
   ('deepgram-thalia', 'Thalia', 'deepgram', 'aura-2-thalia-en', 'en', 'female', 'Hi, I am Thalia. A warm voice for clear studio narration.', '/avatar/thalia.png', true, 10, 1),
-  ('deepgram-izanami', 'Izanami', 'deepgram', 'aura-2-izanami-ja', 'ja', 'female', 'Hello, I am Izanami. A poised voice for polished Japanese narration.', '/avatar/izanami.png', true, 20, 1),
+  ('deepgram-izanami', 'Izanami', 'deepgram', 'aura-2-izanami-ja', 'ja', 'female', 'こんにちは、イザナミです。落ち着いた声で、洗練された日本語ナレーションをお届けします。', '/avatar/izanami.png', true, 20, 1),
   ('deepgram-helena', 'Helena', 'deepgram', 'aura-2-helena-en', 'en', 'female', 'Hi, I am Helena. A calm voice for thoughtful explanations.', '/avatar/helena.jpg', true, 30, 1),
   ('deepgram-apollo', 'Apollo', 'deepgram', 'aura-2-apollo-en', 'en', 'male', 'Hi, I am Apollo. A confident voice for direct presentations.', '/avatar/apollo.jpg', true, 40, 1),
   ('deepgram-arcas', 'Arcas', 'deepgram', 'aura-2-arcas-en', 'en', 'male', 'Hi, I am Arcas. A crisp voice for concise generated audio.', '/avatar/arcas.jpg', true, 50, 1),
-  ('deepgram-fujin', 'Fujin', 'deepgram', 'aura-2-fujin-ja', 'ja', 'male', 'Hello, I am Fujin. A grounded voice for natural Japanese narration.', '/avatar/fujin.jpg', true, 60, 1)
+  ('deepgram-fujin', 'Fujin', 'deepgram', 'aura-2-fujin-ja', 'ja', 'male', 'こんにちは、フウジンです。自然で力強い声で、日本語のナレーションをお届けします。', '/avatar/fujin.jpg', true, 60, 1)
 on conflict (slug) do update set
   name = excluded.name,
   provider = excluded.provider,

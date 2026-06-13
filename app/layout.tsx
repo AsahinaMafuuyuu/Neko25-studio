@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "Kravix AI Studio",
   description: "A polished AI Studio SaaS workspace powered by InsForge.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(
         "h-full",
@@ -24,7 +27,7 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );
