@@ -457,7 +457,7 @@ export function CreateAiVideoAvatarPage() {
                 icon={<WandSparkles className="size-4" />}
                 title="Custom"
               >
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                   {groupedVoices.custom.map((voice) => (
                     <VoiceChoice
                       key={voice.id}
@@ -480,7 +480,7 @@ export function CreateAiVideoAvatarPage() {
                 icon={<Mic2 className="size-4" />}
                 title="Default"
               >
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                   {groupedVoices.default.map((voice) => (
                     <VoiceChoice
                       key={voice.id}

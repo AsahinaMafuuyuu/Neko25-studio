@@ -1,5 +1,5 @@
-import { AiAvatarsPage } from "@/components/dashboard/ai-avatars-page"
+import { redirect } from "next/navigation"
 
-export default function AvatarPage() {
-  return <AiAvatarsPage />
+export default function AvatarRedirect() {
+  redirect("/zh/dashboard/avatar")
 }

@@ -1,10 +1,8 @@
-import { AiVideoAvatarDetailPage } from "@/components/dashboard/ai-video-avatar-detail-page"
+import { redirect } from "next/navigation"
 
-export default async function AiVideoAvatarDetailRoute({
+export default async function AiVideoAvatarDetailRedirect({
   params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+}: PageProps<"/dashboard/ai-video-avatar/[id]">) {
   const { id } = await params
-  return <AiVideoAvatarDetailPage videoId={id} />
+  redirect(`/zh/dashboard/ai-video-avatar/${id}`)
 }

@@ -1,0 +1,161 @@
+{
+  "LanguageSwitcher": {
+    "label": "Switch language",
+    "locales": {
+      "zh": "中文",
+      "en": "English",
+      "ja": "日本語"
+    }
+  },
+  "Common": {
+    "brand": "Kravix AI Studio",
+    "dashboard": "Dashboard",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "start": "Start",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loadingDashboard": "Preparing your dashboard...",
+    "redirecting": "Redirecting to sign in...",
+    "goToSignIn": "Go to sign in"
+  },
+  "Home": {
+    "nav": {
+      "features": "Features",
+      "security": "Security",
+      "metrics": "Metrics"
+    },
+    "eyebrow": "AI Studio SaaS powered by InsForge",
+    "title": "The calm control room for production AI products.",
+    "description": "Kravix brings authentication, prompt workflows, knowledge assets, and launch readiness into a polished studio your team can use every day.",
+    "createWorkspace": "Create workspace",
+    "openStudio": "Open studio",
+    "workflowQuality": "Workflow quality",
+    "live": "Live",
+    "evalLane": "Eval lane {index}",
+    "secureAccess": "Secure access",
+    "secureAccessDescription": "Email auth plus Google and X OAuth entry points.",
+    "studioPolish": "Studio polish",
+    "studioPolishDescription": "Light and dark themes with consistent design tokens.",
+    "featuresEyebrow": "Designed for daily product work",
+    "featuresTitle": "Everything feels close at hand.",
+    "securityEyebrow": "InsForge backend",
+    "securityTitle": "Authentication and product state share one foundation.",
+    "securityDescription": "The app is linked to InsForge for auth, future database work, storage, realtime, and backend functions without spreading secrets through the UI.",
+    "checks": {
+      "oauth": "OAuth login",
+      "protected": "Protected studio route",
+      "theme": "Theme-safe components"
+    },
+    "features": {
+      "prompt": {
+        "title": "Prompt operations",
+        "description": "Design, compare, and ship prompts with repeatable evaluation habits."
+      },
+      "context": {
+        "title": "Context vault",
+        "description": "Prepare datasets, docs, and retrieval context for every product surface."
+      },
+      "workflow": {
+        "title": "Launch workflows",
+        "description": "Coordinate model runs, QA, and release signals from one workspace."
+      }
+    },
+    "stats": {
+      "cycles": "faster experiment cycles",
+      "availability": "backend availability target",
+      "workflows": "studio-ready workflows"
+    }
+  },
+  "Auth": {
+    "signInTitle": "Welcome back",
+    "signUpTitle": "Create your studio",
+    "signInDescription": "Sign in to continue your AI Studio workspace.",
+    "signUpDescription": "Start building AI workflows, datasets, and launch-ready product experiences.",
+    "switchToSignInText": "Already have an account?",
+    "switchToSignUpText": "New to Kravix?",
+    "switchToSignInAction": "Sign in",
+    "switchToSignUpAction": "Create an account",
+    "passwordHintSignIn": "Use your workspace password.",
+    "passwordHintSignUp": "Minimum 8 characters with at least one letter and one number.",
+    "heroEyebrow": "InsForge powered authentication",
+    "heroTitle": "Build polished AI products from one focused studio.",
+    "heroDescription": "Secure sign-in, a refined workspace, and production-grade interface patterns are ready for your SaaS workflow.",
+    "heroPills": {
+      "oauth": "OAuth ready",
+      "theme": "Dark mode",
+      "routing": "Studio routing"
+    },
+    "confirmPassword": "Confirm password",
+    "createAccount": "Create account",
+    "authenticationFailed": "Authentication failed.",
+    "oauthUnavailable": "{provider} OAuth is unavailable.",
+    "validation": {
+      "name": "Enter at least 2 characters.",
+      "email": "Enter a valid email address.",
+      "passwordLength": "Use at least 8 characters.",
+      "passwordContent": "Use at least one letter and one number.",
+      "confirmPassword": "Passwords do not match."
+    }
+  },
+  "Dashboard": {
+    "brandSubtitle": "Creative dashboard",
+    "emailFallback": "Authenticated user",
+    "eyebrow": "Dashboard",
+    "billingTitle": "Billing settings",
+    "billingDescription": "Manage plans, invoices, and renewal details",
+    "creditsTitle": "Available credits",
+    "creditsDescription": "Available this month for video, voice, and avatar generation",
+    "homeHeroEyebrow": "Creative Command Center",
+    "homeHeroTitle": "Manage video, avatars, voice, and media assets from one clean workspace.",
+    "cardEyebrows": {
+      "featured": "Featured",
+      "overview": "Overview",
+      "module": "Module"
+    },
+    "module": {
+      "workspaceModule": "Workspace Module",
+      "statusLabel": "Current status",
+      "statusTitle": "Ready for implementation",
+      "statusDescription": "This page skeleton is ready for real generation flows, forms, and task result views.",
+      "includesLabel": "This page includes",
+      "defaultChecklist": {
+        "entry": "Module entry and empty-state copy are ready",
+        "media": "Media background and theme styles are connected",
+        "workflow": "Real workflows can be attached here next"
+      }
+    },
+    "libraryChecklist": {
+      "entry": "A unified entry for media and historical assets",
+      "search": "Layout prepared for search, filtering, and collection management",
+      "assets": "Ready to connect video, audio, and avatar asset lists"
+    },
+    "nav": {
+      "home": {
+        "title": "Home",
+        "description": "Overview your AI creation workspace and all feature entries."
+      },
+      "aiVideoAgent": {
+        "title": "AI Video Agent",
+        "description": "Automated video generation, script orchestration, and multi-step execution."
+      },
+      "aiVideoAvatar": {
+        "title": "AI Video Avatar",
+        "description": "Use AI presenters for camera delivery, explainers, and demos."
+      },
+      "aiAvatars": {
+        "title": "AI Avatars",
+        "description": "Create, generate, and manage reusable AI profile avatars."
+      },
+      "aiVoiceCloning": {
+        "title": "AI Voice Cloning",
+        "description": "Train custom voices and reuse them quickly in generated content."
+      },
+      "library": {
+        "title": "My Library",
+        "description": "Organize videos, audio, avatars, and project assets in one place."
+      }
+    }
+  }
+}

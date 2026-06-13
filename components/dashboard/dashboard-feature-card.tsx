@@ -1,8 +1,7 @@
-import Link from "next/link"
-
 import { DashboardMediaSurface } from "@/components/dashboard/dashboard-media-surface"
 import type { DashboardNavItem } from "@/lib/dashboard"
 import { cn } from "@/lib/utils"
+import { Link } from "@/src/i18n/navigation"
 
 type DashboardFeatureCardProps = DashboardNavItem & {
   className?: string

@@ -1,11 +1,5 @@
-import { Suspense } from "react"
+import { redirect } from "next/navigation"
 
-import { AuthPage } from "@/components/auth/auth-page"
-
-export default function SignUpPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <AuthPage mode="sign-up" />
-    </Suspense>
-  )
+export default function SignUpRedirect() {
+  redirect("/zh/sign-up")
 }

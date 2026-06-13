@@ -1,5 +1,5 @@
-import { AiVideoAvatarsPage } from "@/components/dashboard/ai-video-avatars-page"
+import { redirect } from "next/navigation"
 
-export default function AiVideoAvatarPage() {
-  return <AiVideoAvatarsPage />
+export default function AiVideoAvatarRedirect() {
+  redirect("/zh/dashboard/ai-video-avatar")
 }
