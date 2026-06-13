@@ -5,10 +5,8 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import ffmpegPath from "ffmpeg-static"
 
-import {
-  createAgnesVideoTask,
-  waitForAgnesVideoCompletion,
-} from "../../lib/agnes-video-provider"
+import { AgnesVideoProviderError, waitForAgnesVideoCompletion } from "../../lib/agnes-video-provider"
+import { requestAiVideoAvatarProviderTask } from "../../lib/ai-video-avatar-requests"
 import {
   getVideoAvatarJob,
   getVideoAvatarVideo,
@@ -58,17 +56,16 @@ export const generateAiVideoAvatar = task({
         message: "Preparing Agnes video prompt.",
       })
 
-      const providerTask = await createAgnesVideoTask({
+      const providerTask = await requestAiVideoAvatarProviderTask({
+        video,
         imageUrl,
-        prompt: buildAgnesPrompt(video),
-        aspectRatio: video.aspect_ratio,
-        durationSeconds: video.duration_seconds,
       })
 
       await updateProviderProgress(job, video, {
         providerTaskId: providerTask.taskId,
         providerVideoId: providerTask.videoId,
         providerStatus: providerTask.status,
+        providerPayload: providerTask.raw,
         progress: 55,
         message: "Agnes Video V2.0 accepted the image-to-video task.",
       })
@@ -83,6 +80,7 @@ export const generateAiVideoAvatar = task({
             providerTaskId: currentTask.taskId,
             providerVideoId: currentTask.videoId,
             providerStatus: currentTask.status,
+            providerPayload: currentTask.raw,
             progress,
             message: currentTask.progress
               ? `Agnes Video V2.0 is generating the video (${currentTask.progress}%).`
@@ -181,6 +179,7 @@ async function updateProviderProgress(
     providerTaskId: string
     providerVideoId: string
     providerStatus: string
+    providerPayload?: Record<string, unknown>
     progress: number
     message: string
   }
@@ -190,6 +189,7 @@ async function updateProviderProgress(
       provider_task_id: values.providerTaskId,
       provider_video_id: values.providerVideoId,
       provider_status: values.providerStatus,
+      callback_payload: values.providerPayload || {},
       status: "generating",
       progress: values.progress,
       message: values.message,
@@ -271,9 +271,18 @@ async function failVideoJob({
   video: AiVideoAvatarVideo
 }) {
   const errorMessage = getErrorMessage(error)
+  const providerTask = error instanceof AgnesVideoProviderError ? error.task : null
 
   await Promise.all([
     updateVideoAvatarJob(job.id, {
+      ...(providerTask
+        ? {
+            provider_task_id: providerTask.taskId,
+            provider_video_id: providerTask.videoId,
+            provider_status: providerTask.status,
+            callback_payload: providerTask.raw,
+          }
+        : {}),
       status: "failed",
       progress: 100,
       message,
@@ -367,14 +376,6 @@ function runFfmpeg(args: string[]) {
       else reject(new Error(`ffmpeg exited with code ${code}.`))
     })
   })
-}
-
-function buildAgnesPrompt(video: AiVideoAvatarVideo) {
-  const voiceGuidance = video.voice_name
-    ? `The selected voice style is ${video.voice_name}; keep the presenter motion natural for a future voiced avatar workflow.`
-    : "Keep the presenter motion natural for a future voiced avatar workflow."
-
-  return `${video.script}\n\n${voiceGuidance}`.slice(0, 2000)
 }
 
 function toPublicUrl(url: string) {

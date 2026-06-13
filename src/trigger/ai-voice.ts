@@ -5,7 +5,10 @@ import { tmpdir } from "node:os"
 import { extname, join } from "node:path"
 import ffmpegPath from "ffmpeg-static"
 
-import { findReplicateOutputUrl, runReplicatePrediction } from "../../lib/replicate-audio"
+import {
+  requestDeepgramTtsBlob,
+  requestQwenVoiceCloneUrl,
+} from "../../lib/ai-voice-cloning-requests"
 import {
   createTtsOutput,
   refundCredits,
@@ -34,9 +37,6 @@ type AudioAsset = {
   format: "mp3" | "wav" | "audio"
 }
 
-const qwenTtsModel = process.env.REPLICATE_QWEN_TTS_MODEL?.trim() || "qwen/qwen3-tts"
-const qwenTtsSpeaker = process.env.REPLICATE_QWEN_TTS_SPEAKER?.trim() || "Aiden"
-
 export const generateVoiceCloningTts = task({
   id: "generate-voice-cloning-tts",
   maxDuration: 900,
@@ -64,13 +64,16 @@ export const generateVoiceCloningTts = task({
       const sourceBlob =
         payload.voiceSource === "custom"
           ? await downloadAudio(
-              await runQwenVoiceClone({
+              await requestQwenVoiceCloneUrl({
                 text: payload.text,
                 language: payload.language,
                 referenceAudioUrl: payload.sampleAudioUrl,
               })
             )
-          : await generateDeepgramTtsBlob(payload.text, payload.providerVoiceId || "")
+          : await requestDeepgramTtsBlob({
+              text: payload.text,
+              providerVoiceId: payload.providerVoiceId || "",
+            })
 
       await updateTtsJob(payload.jobId, {
         status: "uploading",
@@ -130,60 +133,6 @@ export const generateVoiceCloningTts = task({
     }
   },
 })
-
-async function runQwenVoiceClone({
-  language,
-  referenceAudioUrl,
-  text,
-}: {
-  language: string
-  referenceAudioUrl?: string
-  text: string
-}) {
-  if (!referenceAudioUrl) throw new Error("Custom voice reference audio is missing.")
-
-  const prediction = await runReplicatePrediction({
-    model: qwenTtsModel,
-    input: {
-      mode: "voice_clone",
-      speaker: qwenTtsSpeaker,
-      language,
-      reference_audio: referenceAudioUrl,
-      text,
-    },
-  })
-  const outputUrl = findReplicateOutputUrl(prediction.output)
-  if (!outputUrl) {
-    throw new Error("Replicate Qwen3-TTS did not return an audio URL.")
-  }
-
-  return outputUrl
-}
-
-async function generateDeepgramTtsBlob(text: string, providerVoiceId: string) {
-  const apiKey = process.env.DEEPGRAM_API_KEY?.trim()
-  if (!apiKey) throw new Error("DEEPGRAM_API_KEY is not configured.")
-  if (!providerVoiceId) throw new Error("Choose a valid Deepgram voice.")
-
-  const url = new URL("https://api.deepgram.com/v1/speak")
-  url.searchParams.set("model", providerVoiceId)
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Token ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ text }),
-  })
-
-  if (!response.ok) {
-    const body = (await response.text().catch(() => "")).slice(0, 240)
-    throw new Error(`Deepgram TTS failed (${response.status}). ${body}`)
-  }
-
-  const contentType = response.headers.get("content-type") || "audio/wav"
-  return new Blob([await response.arrayBuffer()], { type: contentType })
-}
 
 async function downloadAudio(url: string) {
   const response = await fetch(url)

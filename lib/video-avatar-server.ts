@@ -205,9 +205,15 @@ export async function createVideoAvatarJob(input: {
       {
         user_id: input.userId,
         video_id: input.videoId,
+        provider_task_id: "",
+        provider_video_id: "",
+        provider_status: "",
         status: "queued",
         progress: 5,
         message: "Queued for Trigger.dev.",
+        error: "",
+        credits_refunded: false,
+        callback_payload: {},
       },
     ])
     .select()
