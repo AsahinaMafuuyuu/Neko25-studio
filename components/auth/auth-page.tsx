@@ -88,6 +88,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const [pending, setPending] = useState(false)
   const [oauthPending, setOauthPending] = useState<OAuthProvider | null>(null)
   const [serverError, setServerError] = useState("")
+  const [serverNotice, setServerNotice] = useState("")
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   const title = isSignUp ? t("signUpTitle") : t("signInTitle")
@@ -108,6 +109,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setServerError("")
+    setServerNotice("")
 
     const form = new FormData(event.currentTarget)
     const values = {
@@ -124,7 +126,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     setPending(true)
     try {
       if (isSignUp) {
-        await signUpWithPassword(values.name, values.email, values.password)
+        const session = await signUpWithPassword(values.name, values.email, values.password)
+        if (session.needsEmailVerification) {
+          setServerNotice(t("verificationEmailSent"))
+          return
+        }
       } else {
         await signInWithPassword(values.email, values.password)
       }
@@ -138,6 +144,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
 
   async function onOAuth(provider: OAuthProvider) {
     setServerError("")
+    setServerNotice("")
     setOauthPending(provider)
     try {
       await startOAuth(provider, next)
@@ -301,6 +308,15 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                     className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
                   >
                     {serverError}
+                  </div>
+                ) : null}
+
+                {serverNotice ? (
+                  <div
+                    role="status"
+                    className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300"
+                  >
+                    {serverNotice}
                   </div>
                 ) : null}
 

@@ -2,11 +2,18 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Box, Check, CircleDollarSign, Clapperboard, Film, Image as ImageIcon, LayoutTemplate, LoaderCircle, Mic2, MonitorPlay, Palette, Pause, Play, Radio, Sparkles, Type, UserRound, WandSparkles } from "lucide-react"
+import { ArrowLeft, Box, Check, CircleDollarSign, Clapperboard, Film, Image as ImageIcon, LayoutTemplate, LoaderCircle, Mic2, MonitorPlay, Palette, Radio, Sparkles, Type, UserRound, WandSparkles } from "lucide-react"
 import { Player } from "@remotion/player"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { AiVideoAgentRemotion } from "@/components/dashboard/ai-video-agent-remotion"
+import {
+  AvatarChoice,
+  ChoiceEmptyState,
+  ChoiceGroupCard,
+  VoiceChoice,
+  getAvatarPreviewImageUrl,
+} from "@/components/dashboard/media-choice-components"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -671,120 +678,6 @@ function Choice({ active, children, disabled, onClick }: { active: boolean; chil
   )
 }
 
-function ChoiceGroupCard({
-  children,
-  contentClassName,
-  count,
-  description,
-  icon,
-  title,
-}: {
-  children: React.ReactNode
-  contentClassName?: string
-  count: number
-  description: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <section className="min-h-[220px] rounded-xl border border-border/70 bg-muted/15 p-4 shadow-sm">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-background text-primary shadow-sm ring-1 ring-border/70">
-              {icon}
-            </span>
-            <h4 className="text-sm font-semibold uppercase text-foreground">{title}</h4>
-          </div>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
-        </div>
-        <Badge variant="outline">{count}</Badge>
-      </div>
-      <div className={cn("grid gap-3", contentClassName)}>{children}</div>
-    </section>
-  )
-}
-
-function ChoiceEmptyState({ message }: { message: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border/80 bg-background/55 px-4 py-6 text-center text-sm text-muted-foreground">
-      {message}
-    </div>
-  )
-}
-
-function AvatarChoice({ avatar, disabled, onSelect, selected }: { avatar: AiAvatar; disabled: boolean; onSelect: () => void; selected: boolean }) {
-  const desktopImageUrl = getAvatarDesktopImageUrl(avatar)
-  const mobileImageUrl = getAvatarMobileImageUrl(avatar)
-
-  return (
-    <button
-      className={cn(
-        "overflow-hidden rounded-xl border bg-card/90 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70"
-      )}
-      disabled={disabled}
-      type="button"
-      onClick={onSelect}
-    >
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(62px,0.52fr)] items-center gap-2 bg-muted/35 p-2">
-        <AvatarRatioPreview imageUrl={desktopImageUrl} label="16:9" name={avatar.name} ratioClassName="aspect-video" />
-        <AvatarRatioPreview imageUrl={mobileImageUrl} label="9:16" name={avatar.name} ratioClassName="aspect-[9/16]" />
-      </div>
-      <div className="space-y-2 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <h4 className="truncate text-sm font-semibold">{avatar.name}</h4>
-          {selected ? <Check className="size-4 text-primary" /> : null}
-        </div>
-        <p className="text-xs text-muted-foreground">{avatar.style} / {avatar.source}</p>
-      </div>
-    </button>
-  )
-}
-
-function VoiceChoice({
-  disabled,
-  loading,
-  onPlay,
-  onSelect,
-  playing,
-  selected,
-  voice,
-}: {
-  disabled: boolean
-  loading: boolean
-  onPlay: () => void
-  onSelect: () => void
-  playing: boolean
-  selected: boolean
-  voice: VoiceListItem
-}) {
-  return (
-    <div
-      className={cn(
-        "grid gap-3 rounded-xl border bg-card/90 p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70",
-        disabled && "opacity-60"
-      )}
-    >
-      <button className="flex min-w-0 items-center gap-3 text-left disabled:cursor-not-allowed" disabled={disabled} type="button" onClick={onSelect}>
-        <div className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-[linear-gradient(135deg,var(--accent),var(--primary))] text-white shadow-sm">
-          {voice.avatar_image_url ? <img alt={voice.name} className="size-full object-cover" src={voice.avatar_image_url} /> : <Mic2 className="size-5" />}
-        </div>
-        <div className="min-w-0">
-          <h4 className="truncate text-sm font-semibold">{voice.name}</h4>
-          <p className="mt-1 text-xs capitalize text-muted-foreground">{voice.source} voice</p>
-        </div>
-        {selected ? <Check className="ml-auto size-4 shrink-0 text-primary" /> : null}
-      </button>
-      <Button className="border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary" disabled={disabled || loading} variant="outline" onClick={onPlay}>
-        {loading ? <LoaderCircle className="animate-spin" /> : playing ? <Pause /> : <Play />}
-        {playing ? "Pause" : "Preview"}
-      </Button>
-    </div>
-  )
-}
-
 function CaptionStyleChoice({
   active,
   captionEffect,
@@ -869,39 +762,6 @@ function DescriptiveChoice({
       <p className="mt-3 text-xs leading-5 text-muted-foreground">{description}</p>
     </button>
   )
-}
-
-function AvatarRatioPreview({
-  imageUrl,
-  label,
-  name,
-  ratioClassName,
-}: {
-  imageUrl: string
-  label: string
-  name: string
-  ratioClassName: string
-}) {
-  return (
-    <div className={cn("relative overflow-hidden rounded-lg bg-muted", ratioClassName)}>
-      <img alt={`${name} ${label}`} className="size-full object-cover" src={imageUrl} />
-      <span className="absolute bottom-1.5 left-1.5 rounded-md bg-background/90 px-1.5 py-0.5 text-[11px] font-medium leading-none text-foreground shadow-sm ring-1 ring-border/70">
-        {label}
-      </span>
-    </div>
-  )
-}
-
-function getAvatarPreviewImageUrl(avatar: AiAvatar, aspectRatio: AiVideoAgentAspectRatio) {
-  return aspectRatio === "9:16" ? getAvatarMobileImageUrl(avatar) : getAvatarDesktopImageUrl(avatar)
-}
-
-function getAvatarDesktopImageUrl(avatar: AiAvatar) {
-  return avatar.desktop_image_url || avatar.image_url
-}
-
-function getAvatarMobileImageUrl(avatar: AiAvatar) {
-  return avatar.mobile_image_url || avatar.image_url
 }
 
 function buildDefaultTransition(sceneId: string, sceneIndex: number): AiVideoAgentSceneTransition {

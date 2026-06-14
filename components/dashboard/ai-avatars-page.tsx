@@ -1,9 +1,9 @@
 "use client"
 
-import { Check, Download, ImagePlus, RefreshCcw, Sparkles, Trash2, Upload, UserRound, Wand2, X } from "lucide-react"
+import { Check, Download, ImagePlus, RefreshCcw, Sparkles, Upload, UserRound, Wand2, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
+import { AvatarAssetCard } from "@/components/dashboard/library-asset-cards"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +13,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -756,7 +755,7 @@ export function AiAvatarsPage() {
           {loading ? <AvatarMetadataPendingCard /> : null}
 
           {!loading && savedAvatars.map((avatar, index) => (
-            <AvatarCard
+            <AvatarAssetCard
               key={avatar.id}
               actionLabel={avatar.is_selected ? "Selected" : "Use avatar"}
               avatar={{
@@ -797,7 +796,7 @@ export function AiAvatarsPage() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {defaultAvatars.map((avatar) => (
-            <AvatarCard
+            <AvatarAssetCard
               key={avatar.id}
               actionLabel="Use avatar"
               avatar={{
@@ -1072,179 +1071,6 @@ function normalizeAvatarName(name: string) {
   return name.trim().replace(/\s+/g, " ").toLowerCase()
 }
 
-function AvatarCard({
-  actionLabel,
-  avatar,
-  deleting = false,
-  desktopImageLoaded = true,
-  disabled,
-  imageLoadingEnabled = true,
-  mobileImageLoaded = true,
-  metadataOnly = false,
-  onAction,
-  onDelete,
-  onDesktopImageLoad = () => {},
-  onMobileImageLoad = () => {},
-  placeholderTone = 0,
-  selected,
-}: {
-  actionLabel: string
-  avatar: {
-    desktopImageUrl: string
-    mobileImageUrl: string
-    name: string
-    source: string
-    style: AvatarStyle
-  }
-  deleting?: boolean
-  desktopImageLoaded?: boolean
-  disabled?: boolean
-  imageLoadingEnabled?: boolean
-  mobileImageLoaded?: boolean
-  metadataOnly?: boolean
-  selected?: boolean
-  placeholderTone?: number
-  onDesktopImageLoad?: () => void
-  onMobileImageLoad?: () => void
-  onAction: () => void
-  onDelete?: () => void
-}) {
-  return (
-    <div
-      className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md",
-        selected ? "border-primary/60 ring-2 ring-primary/20" : "border-border/70"
-      )}
-    >
-      {metadataOnly ? (
-        <div className="flex flex-wrap gap-2 px-3 pb-2 pt-3">
-          <Skeleton className="h-6 w-11 rounded-full" />
-          <Skeleton className="h-6 w-20 rounded-full" />
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-2 px-3 pb-2 pt-3">
-          <Badge variant={avatar.source === "default" ? "secondary" : "default"}>
-            {avatar.source === "ai" ? "Generated" : avatar.source === "upload" ? "Uploaded" : "Default"}
-          </Badge>
-          <Badge variant="outline">{avatar.style}</Badge>
-        </div>
-      )}
-
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(74px,0.52fr)] items-center gap-2 px-3 pb-3">
-        <AvatarRatioPreview
-          imageLoaded={desktopImageLoaded}
-          imageUrl={avatar.desktopImageUrl}
-          label="16:9"
-          name={avatar.name}
-          placeholderTone={placeholderTone}
-          ratioClassName="aspect-video"
-          shouldLoadImage={imageLoadingEnabled}
-          showLabel={!metadataOnly}
-          onImageLoad={onDesktopImageLoad}
-        />
-        <AvatarRatioPreview
-          imageLoaded={mobileImageLoaded}
-          imageUrl={avatar.mobileImageUrl}
-          label="9:16"
-          name={avatar.name}
-          placeholderTone={placeholderTone}
-          ratioClassName="aspect-[9/16]"
-          shouldLoadImage={imageLoadingEnabled}
-          showLabel={!metadataOnly}
-          onImageLoad={onMobileImageLoad}
-        />
-      </div>
-
-      <div className="mt-auto space-y-4 border-t border-border/60 bg-muted/20 p-4">
-        <div className="min-w-0 pt-1">
-          {metadataOnly ? <Skeleton className="h-4 w-2/3" /> : <h4 className="truncate text-sm font-semibold">{avatar.name}</h4>}
-        </div>
-        {metadataOnly ? (
-          <Skeleton className="h-9 w-full" />
-        ) : (
-          <div className={cn("grid gap-2", onDelete ? "grid-cols-2" : "grid-cols-1")}>
-            <Button className="w-full" disabled={disabled} variant={selected ? "outline" : "default"} onClick={onAction}>
-              <Check />
-              {actionLabel}
-            </Button>
-            {onDelete ? (
-              <AlertDialog>
-                <AlertDialogTrigger render={<Button className="w-full" disabled={deleting} variant="destructive" />}>
-                  {deleting ? <Spinner /> : <Trash2 />}
-                  Delete
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete avatar?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This removes {avatar.name} from your saved avatar library.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction variant="destructive" disabled={deleting} onClick={onDelete}>
-                      {deleting ? <Spinner /> : <Trash2 />}
-                      Delete avatar
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : null}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function AvatarRatioPreview({
-  imageLoaded,
-  imageUrl,
-  label,
-  name,
-  onImageLoad,
-  placeholderTone,
-  ratioClassName,
-  shouldLoadImage,
-  showLabel,
-}: {
-  imageLoaded: boolean
-  imageUrl: string
-  label: string
-  name: string
-  onImageLoad: () => void
-  placeholderTone: number
-  ratioClassName: string
-  shouldLoadImage: boolean
-  showLabel: boolean
-}) {
-  return (
-    <div
-      className={cn("relative overflow-hidden rounded-lg", getAvatarPlaceholderClassName(placeholderTone), ratioClassName)}
-    >
-      {!imageLoaded ? (
-        <span
-          aria-hidden
-          className="absolute inset-0 animate-pulse bg-[radial-gradient(circle_at_30%_24%,rgb(255_255_255_/_0.55),transparent_34%),linear-gradient(115deg,transparent_0%,rgb(255_255_255_/_0.32)_46%,transparent_68%)] opacity-80 dark:bg-[radial-gradient(circle_at_30%_24%,rgb(255_255_255_/_0.10),transparent_34%),linear-gradient(115deg,transparent_0%,rgb(255_255_255_/_0.08)_46%,transparent_68%)]"
-        />
-      ) : null}
-      {shouldLoadImage ? (
-        <img
-          alt={`${name} ${label}`}
-          className={cn("size-full object-cover opacity-0 transition-opacity duration-500", imageLoaded && "opacity-100")}
-          src={imageUrl}
-          onLoad={onImageLoad}
-        />
-      ) : null}
-      {showLabel ? (
-        <span className="absolute bottom-1.5 left-1.5 rounded-md bg-background/90 px-1.5 py-0.5 text-[11px] font-medium leading-none text-foreground shadow-sm ring-1 ring-border/70">
-          {label}
-        </span>
-      ) : null}
-    </div>
-  )
-}
-
 function AvatarMetadataPendingCard() {
   return (
     <div className="rounded-xl border border-dashed border-border bg-card p-6 shadow-sm">
@@ -1256,13 +1082,3 @@ function AvatarMetadataPendingCard() {
   )
 }
 
-function getAvatarPlaceholderClassName(tone: number) {
-  const tones = [
-    "bg-muted/80 dark:bg-white/[0.065]",
-    "bg-secondary/70 dark:bg-white/[0.075]",
-    "bg-muted/65 dark:bg-white/[0.055]",
-    "bg-accent/20 dark:bg-white/[0.085]",
-  ]
-
-  return tones[tone % tones.length]
-}

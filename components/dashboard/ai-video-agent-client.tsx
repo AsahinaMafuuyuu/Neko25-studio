@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { Download, Eye, Film, LoaderCircle, Play, Plus, RefreshCcw, Sparkles, Trash2 } from "lucide-react"
+import { Film, LoaderCircle, Plus, RefreshCcw, Sparkles, Trash2 } from "lucide-react"
 import { Player } from "@remotion/player"
 import { useCallback, useEffect, useState } from "react"
 
 import { AiVideoAgentRemotion } from "@/components/dashboard/ai-video-agent-remotion"
+import { AiVideoAgentProjectCard } from "@/components/dashboard/library-asset-cards"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,16 +18,13 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { showAppToast } from "@/components/ui/app-toast"
 import { getValidAccessToken, refreshSession } from "@/lib/insforge"
 import {
-  aiVideoAgentBRollStyleLabels,
   getAiVideoAgentDimensions,
-  getAiVideoAgentStatusLabel,
   type AiVideoAgentCaptionEffect,
   type AiVideoAgentInitialData,
   type AiVideoAgentProject,
@@ -124,7 +122,7 @@ export function AiVideoAgentClient() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {loading ? <ProjectSkeletons /> : null}
         {!loading && projects.map((project) => (
-          <ProjectCard
+          <AiVideoAgentProjectCard
             key={project.id}
             project={project}
             deleting={deletingId === project.id}
@@ -184,77 +182,6 @@ export function AiVideoAgentClient() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
-}
-
-function ProjectCard({
-  deleting,
-  onDelete,
-  onPreview,
-  project,
-}: {
-  deleting: boolean
-  onDelete: () => void
-  onPreview: () => void
-  project: AiVideoAgentProject
-}) {
-  const createdAt = new Date(project.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
-
-  return (
-    <article className="group flex min-h-[430px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
-      <div className={cn("relative overflow-hidden bg-muted", project.aspect_ratio === "9:16" ? "aspect-[9/12]" : "aspect-video")}>
-        {project.thumbnail_url ? (
-          <img alt={project.title} className="size-full object-cover transition group-hover:scale-[1.03]" src={project.thumbnail_url} />
-        ) : (
-          <div className="grid size-full place-items-center bg-[linear-gradient(135deg,#0f766e,#2563eb,#7c3aed)] text-white">
-            <Film className="size-10" />
-          </div>
-        )}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-          <Badge variant={project.status === "completed" ? "default" : project.status === "failed" ? "destructive" : "secondary"}>
-            {getAiVideoAgentStatusLabel(project.status)}
-          </Badge>
-          <Badge className="bg-background/90" variant="outline">{project.aspect_ratio}</Badge>
-          <Badge className="bg-background/90" variant="outline">{project.duration_seconds}s</Badge>
-        </div>
-        <Button aria-label="Preview project" className="absolute bottom-3 right-3 shadow-md" size="icon" variant="secondary" onClick={onPreview}>
-          <Play />
-        </Button>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold">{project.title}</h3>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{project.script || project.topic}</p>
-        </div>
-        <div className="grid gap-2 text-sm">
-          <Meta label="Scenes" value={`${project.scene_count}`} />
-          <Meta label="Avatar" value={project.avatar_name || "Avatar"} />
-          <Meta label="Voice" value={project.voice_name || "Voice"} />
-          <Meta label="Video style" value={aiVideoAgentBRollStyleLabels[project.b_roll_style]} />
-          <Meta label="Created" value={createdAt} />
-        </div>
-        {project.error ? <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{project.error}</p> : null}
-        <div className="mt-auto grid grid-cols-2 gap-2">
-          <Button className="border-cyan-300/55 bg-cyan-400/10 text-cyan-700 shadow-[0_0_16px_rgba(34,211,238,.12)] transition hover:-translate-y-0.5 hover:bg-cyan-400/18 hover:shadow-[0_0_26px_rgba(34,211,238,.26)] dark:text-cyan-200" variant="outline" onClick={onPreview}>
-            <Eye />
-            Preview
-          </Button>
-          <Button className="border-rose-300/60 bg-rose-500/10 text-rose-700 shadow-[0_0_16px_rgba(244,63,94,.12)] transition hover:-translate-y-0.5 hover:bg-rose-500/18 hover:shadow-[0_0_26px_rgba(244,63,94,.28)] dark:text-rose-200" disabled={deleting} variant="outline" onClick={onDelete}>
-            {deleting ? <LoaderCircle className="animate-spin" /> : <Trash2 />}
-            Delete
-          </Button>
-          <Button className="border-violet-300/55 bg-violet-400/10 text-violet-700 shadow-[0_0_16px_rgba(167,139,250,.12)] transition hover:-translate-y-0.5 hover:bg-violet-400/18 hover:shadow-[0_0_26px_rgba(167,139,250,.26)] dark:text-violet-200" disabled={!project.final_video_url} nativeButton={false} render={project.final_video_url ? <a href={project.final_video_url} download /> : undefined} variant="outline">
-            <Download />
-            Download
-          </Button>
-          <Button className="border-emerald-300/55 bg-emerald-400/10 text-emerald-700 shadow-[0_0_16px_rgba(52,211,153,.12)] transition hover:-translate-y-0.5 hover:bg-emerald-400/18 hover:shadow-[0_0_26px_rgba(52,211,153,.26)] dark:text-emerald-200" nativeButton={false} render={<Link href={`/dashboard/ai-video-agent/${project.id}`} />} variant="outline">
-            <Film />
-            Open
-          </Button>
-        </div>
-      </div>
-    </article>
   )
 }
 
@@ -322,15 +249,6 @@ function buildScenePreviewComposition(composition: AiVideoAgentProject["composit
     },
     transitions: (composition.transitions || []).filter((item) => String(item.sceneId) === sceneId || Number(item.sceneIndex) === activeSceneIndex),
   }
-}
-
-function Meta({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-      <span className="text-xs font-medium uppercase text-muted-foreground">{label}</span>
-      <span className="truncate font-medium">{value || "-"}</span>
-    </div>
-  )
 }
 
 function EmptyState() {

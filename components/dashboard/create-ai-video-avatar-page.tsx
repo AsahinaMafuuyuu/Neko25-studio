@@ -11,7 +11,6 @@ import {
   LayoutTemplate,
   LoaderCircle,
   Mic2,
-  Play,
   RefreshCcw,
   Sparkles,
   UserRound,
@@ -19,6 +18,14 @@ import {
 } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import {
+  AvatarChoice,
+  ChoiceEmptyState,
+  ChoiceGroupCard,
+  VoiceChoice,
+  VoiceGroupIcon,
+  getAvatarPreviewImageUrl,
+} from "@/components/dashboard/media-choice-components"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -461,7 +468,7 @@ export function CreateAiVideoAvatarPage() {
                   {groupedVoices.custom.map((voice) => (
                     <VoiceChoice
                       key={voice.id}
-                      previewing={previewingVoiceId === voice.id}
+                      playing={previewingVoiceId === voice.id}
                       selected={selectedVoice?.id === voice.id}
                       voice={voice}
                       onPlay={() => playVoicePreview(voice)}
@@ -484,7 +491,7 @@ export function CreateAiVideoAvatarPage() {
                   {groupedVoices.default.map((voice) => (
                     <VoiceChoice
                       key={voice.id}
-                      previewing={previewingVoiceId === voice.id}
+                      playing={previewingVoiceId === voice.id}
                       selected={selectedVoice?.id === voice.id}
                       voice={voice}
                       onPlay={() => playVoicePreview(voice)}
@@ -608,148 +615,6 @@ function Panel({ children, icon, title }: { children: React.ReactNode; icon: Rea
       <div className="grid gap-4">{children}</div>
     </section>
   )
-}
-
-function ChoiceGroupCard({
-  children,
-  contentClassName,
-  count,
-  description,
-  icon,
-  title,
-}: {
-  children: React.ReactNode
-  contentClassName?: string
-  count: number
-  description: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <section className="group/choice-card min-h-[240px] rounded-2xl border border-border/70 bg-[linear-gradient(150deg,var(--card),color-mix(in_oklch,var(--primary),transparent_93%),color-mix(in_oklch,var(--accent),transparent_92%))] p-4 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-xl bg-background/80 text-primary shadow-sm ring-1 ring-border/70 transition group-hover/choice-card:scale-105">
-              {icon}
-            </span>
-            <h4 className="text-sm font-semibold uppercase text-foreground">{title}</h4>
-          </div>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
-        </div>
-        <Badge variant="outline">{count}</Badge>
-      </div>
-      <div className={cn("grid gap-3", contentClassName)}>{children}</div>
-    </section>
-  )
-}
-
-function ChoiceEmptyState({ message }: { message: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border/80 bg-background/55 px-4 py-6 text-center text-sm text-muted-foreground">
-      {message}
-    </div>
-  )
-}
-
-function AvatarChoice({ avatar, onSelect, selected }: { avatar: AiAvatar; onSelect: () => void; selected: boolean }) {
-  const desktopImageUrl = getAvatarDesktopImageUrl(avatar)
-  const mobileImageUrl = getAvatarMobileImageUrl(avatar)
-
-  return (
-    <button
-      className={cn(
-        "group/avatar-choice overflow-hidden rounded-2xl border bg-card/90 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg hover:shadow-primary/10",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70"
-      )}
-      type="button"
-      onClick={onSelect}
-    >
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(62px,0.52fr)] items-center gap-2 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--secondary),transparent_38%),color-mix(in_oklch,var(--accent),transparent_86%))] p-2">
-        <AvatarRatioPreview imageUrl={desktopImageUrl} label="16:9" name={avatar.name} ratioClassName="aspect-video" />
-        <AvatarRatioPreview imageUrl={mobileImageUrl} label="9:16" name={avatar.name} ratioClassName="aspect-[9/16]" />
-      </div>
-      <div className="space-y-2 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <h4 className="truncate text-sm font-semibold">{avatar.name}</h4>
-          {selected ? <Check className="size-4 text-primary" /> : null}
-        </div>
-        <p className="text-xs text-muted-foreground">{avatar.style} · {avatar.source}</p>
-      </div>
-    </button>
-  )
-}
-
-function VoiceChoice({
-  onPlay,
-  onSelect,
-  previewing,
-  selected,
-  voice,
-}: {
-  onPlay: () => void
-  onSelect: () => void
-  previewing: boolean
-  selected: boolean
-  voice: VoiceListItem
-}) {
-  return (
-    <div
-      className={cn(
-        "grid gap-3 rounded-2xl border bg-card/90 p-3 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg hover:shadow-primary/10",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70"
-      )}
-    >
-      <button className="flex min-w-0 items-center gap-3 text-left" type="button" onClick={onSelect}>
-        <VoiceImage voice={voice} className="size-12 rounded-xl" />
-        <div className="min-w-0">
-          <h4 className="truncate text-sm font-semibold">{voice.name}</h4>
-          <p className="mt-1 text-xs capitalize text-muted-foreground">{voice.source} voice</p>
-        </div>
-        {selected ? <Check className="ml-auto size-4 shrink-0 text-primary" /> : null}
-      </button>
-      <Button className="border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary" variant="outline" onClick={onPlay}>
-        {previewing ? <Spinner /> : <Play />}
-        Preview
-      </Button>
-    </div>
-  )
-}
-
-function VoiceGroupIcon({ voices }: { voices: VoiceListItem[] }) {
-  const voice = voices.find((item) => item.avatar_image_url) || voices[0]
-  if (!voice) return <WandSparkles className="size-4" />
-
-  return <VoiceImage voice={voice} className="size-8 rounded-xl" />
-}
-
-function VoiceImage({ className, voice }: { className?: string; voice: VoiceListItem }) {
-  const [failed, setFailed] = useState(false)
-  const initials = getVoiceInitials(voice.name)
-
-  return (
-    <span
-      className={cn(
-        "grid shrink-0 place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--accent),var(--primary))] text-xs font-semibold text-white shadow-sm",
-        className
-      )}
-    >
-      {voice.avatar_image_url && !failed ? (
-        <img alt={voice.name} className="size-full object-cover" src={voice.avatar_image_url} onError={() => setFailed(true)} />
-      ) : (
-        initials
-      )}
-    </span>
-  )
-}
-
-function getVoiceInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "V"
 }
 
 function PreviewPanel({
@@ -887,39 +752,6 @@ function PreviewPanel({
       </div>
     </aside>
   )
-}
-
-function AvatarRatioPreview({
-  imageUrl,
-  label,
-  name,
-  ratioClassName,
-}: {
-  imageUrl: string
-  label: string
-  name: string
-  ratioClassName: string
-}) {
-  return (
-    <div className={cn("relative overflow-hidden rounded-lg bg-muted", ratioClassName)}>
-      <img alt={`${name} ${label}`} className="size-full object-cover" src={imageUrl} />
-      <span className="absolute bottom-1.5 left-1.5 rounded-md bg-background/90 px-1.5 py-0.5 text-[11px] font-medium leading-none text-foreground shadow-sm ring-1 ring-border/70">
-        {label}
-      </span>
-    </div>
-  )
-}
-
-function getAvatarPreviewImageUrl(avatar: AiAvatar, aspectRatio: VideoAvatarAspectRatio) {
-  return aspectRatio === "9:16" ? getAvatarMobileImageUrl(avatar) : getAvatarDesktopImageUrl(avatar)
-}
-
-function getAvatarDesktopImageUrl(avatar: AiAvatar) {
-  return avatar.desktop_image_url || avatar.image_url
-}
-
-function getAvatarMobileImageUrl(avatar: AiAvatar) {
-  return avatar.mobile_image_url || avatar.image_url
 }
 
 function PreviewStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

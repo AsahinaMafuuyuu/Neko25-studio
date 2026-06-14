@@ -1,4 +1,5 @@
 import { tasks } from "@trigger.dev/sdk/v3"
+import { timingSafeEqual } from "node:crypto"
 
 import {
   getVideoAvatarJobByProviderTaskId,
@@ -11,6 +12,9 @@ import {
 
 export async function POST(request: Request) {
   try {
+    const webhookAuthError = verifyWebhookSecret(request)
+    if (webhookAuthError) return webhookAuthError
+
     const payload = (await request.json().catch(() => ({}))) as Record<string, unknown>
     const providerTaskId = readFirstString(payload, [
       "task_id",
@@ -114,6 +118,50 @@ export async function POST(request: Request) {
   } catch (error) {
     return jsonError(error, "Could not process provider callback.", 500)
   }
+}
+
+function verifyWebhookSecret(request: Request) {
+  const expectedSecret = process.env.DOMOAI_WEBHOOK_SECRET?.trim()
+  if (!expectedSecret) {
+    if (process.env.NODE_ENV === "production") {
+      return Response.json({ message: "DomoAI webhook secret is not configured." }, { status: 401 })
+    }
+
+    return null
+  }
+
+  const providedSecret = getProvidedWebhookSecret(request)
+  if (!providedSecret || !safeEqual(providedSecret, expectedSecret)) {
+    return Response.json({ message: "Invalid DomoAI webhook secret." }, { status: 401 })
+  }
+
+  return null
+}
+
+function getProvidedWebhookSecret(request: Request) {
+  const authorization = request.headers.get("authorization") || ""
+  if (authorization.toLowerCase().startsWith("bearer ")) {
+    return authorization.slice("bearer ".length).trim()
+  }
+
+  const headerSecret =
+    request.headers.get("x-domoai-webhook-secret") ||
+    request.headers.get("x-webhook-secret")
+  if (headerSecret?.trim()) return headerSecret.trim()
+
+  const url = new URL(request.url)
+  return (
+    url.searchParams.get("secret") ||
+    url.searchParams.get("token") ||
+    url.searchParams.get("webhook_secret") ||
+    ""
+  ).trim()
+}
+
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left)
+  const rightBuffer = Buffer.from(right)
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer)
 }
 
 function isCompletedStatus(status: string) {
