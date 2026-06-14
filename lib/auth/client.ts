@@ -2,7 +2,7 @@
 
 import { createBrowserClient } from "@insforge/sdk/ssr"
 
-import type { AuthSession, AuthUser, OAuthProvider, SignUpResult, VerifyEmailResult } from "@/lib/auth/types"
+import type { AuthResult, AuthSession, AuthUser, OAuthProvider, SignUpResult, VerifyEmailResult } from "@/lib/auth/types"
 
 const legacyAccessTokenKey = "kravix.insforge.accessToken"
 const legacyCsrfTokenKey = "kravix.insforge.csrfToken"
@@ -161,9 +161,18 @@ export async function getCurrentUser() {
   return body.user || null
 }
 
+export function isTwoFactorChallenge(value: unknown): value is Extract<AuthResult, { requiresTwoFactor: true }> {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    (value as { requiresTwoFactor?: unknown }).requiresTwoFactor === true &&
+    typeof (value as { challengeId?: unknown }).challengeId === "string"
+  )
+}
+
 export async function signInWithPassword(email: string, password: string) {
-  const session = await postJson<AuthSession>("/api/auth/sign-in", { email, password })
-  if (session.accessToken) {
+  const session = await postJson<AuthResult>("/api/auth/sign-in", { email, password })
+  if (!isTwoFactorChallenge(session) && session.accessToken) {
     getBrowserClient().setAccessToken(session.accessToken)
   }
 
@@ -297,7 +306,16 @@ export async function startOAuth(provider: OAuthProvider, next = "/dashboard") {
 }
 
 export async function completeOAuth(code: string) {
-  const session = await postJson<AuthSession>("/api/auth/oauth/complete", { code })
+  const session = await postJson<AuthResult>("/api/auth/oauth/complete", { code })
+  if (!isTwoFactorChallenge(session) && session.accessToken) {
+    getBrowserClient().setAccessToken(session.accessToken)
+  }
+
+  return session
+}
+
+export async function verifyTwoFactorChallenge(challengeId: string, code: string) {
+  const session = await postJson<AuthSession>("/api/auth/2fa/verify", { challengeId, code })
   if (session.accessToken) {
     getBrowserClient().setAccessToken(session.accessToken)
   }
