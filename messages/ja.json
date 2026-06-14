@@ -78,7 +78,7 @@
     "switchToSignInAction": "ログイン",
     "switchToSignUpAction": "アカウントを作成",
     "passwordHintSignIn": "ワークスペースのパスワードを使用してください。",
-    "passwordHintSignUp": "8文字以上で、少なくとも1つの英字と数字を含めてください。",
+    "passwordHintSignUp": "8文字以上で、小文字・大文字・数字・記号を含めてください。",
     "heroEyebrow": "InsForge による認証",
     "heroTitle": "一つの集中したスタジオから洗練された AI プロダクトを構築。",
     "heroDescription": "安全なログイン、整ったワークスペース、本番品質の UI パターンが SaaS ワークフローのために用意されています。",
@@ -89,15 +89,25 @@
     },
     "confirmPassword": "パスワード確認",
     "createAccount": "アカウントを作成",
+    "verificationCode": "確認コード",
+    "verificationCodeDescription": "メールに届いた6桁のコードを入力してください。",
+    "verifyEmail": "メールを確認",
+    "submitVerificationCode": "コードを送信",
+    "resendVerificationCode": "コードを再送信",
     "authenticationFailed": "認証に失敗しました。",
-    "verificationEmailSent": "アカウントを作成しました。メールを確認して認証リンクを開き、その後ログインしてください。",
+    "accountCreated": "アカウントを作成しました。ログインしてください。",
+    "verificationEmailSent": "アカウントを作成しました。メールに届いた確認コードを入力してください。",
+    "verificationSuccess": "メールを確認しました。ログインしてください。",
+    "signInSuccess": "ログインしました。",
+    "verificationCodeResent": "新しい確認コードを送信しました。",
     "oauthUnavailable": "{provider} OAuth は現在利用できません。",
     "validation": {
       "name": "2文字以上入力してください。",
       "email": "有効なメールアドレスを入力してください。",
       "passwordLength": "8文字以上で入力してください。",
-      "passwordContent": "少なくとも1つの英字と数字を含めてください。",
-      "confirmPassword": "パスワードが一致しません。"
+      "passwordContent": "小文字・大文字・数字・記号を含めてください。",
+      "confirmPassword": "パスワードが一致しません。",
+      "verificationCode": "6桁の確認コードを入力してください。"
     }
   },
   "Dashboard": {

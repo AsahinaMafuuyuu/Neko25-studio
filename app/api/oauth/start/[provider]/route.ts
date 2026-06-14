@@ -1,20 +1,13 @@
+import { createServerClient } from "@insforge/sdk/ssr"
+import { NextRequest, NextResponse } from "next/server"
+
 const allowedProviders = new Set(["google", "x"])
+const verifierCookie = "insforge_code_verifier"
 
 type OAuthInitResponse = {
   authUrl?: string
   message?: string
   error?: string
-}
-
-function getInsForgeConfig() {
-  const baseUrl = process.env.INSFORGE_URL
-  const apiKey = process.env.INSFORGE_API_KEY
-
-  if (!baseUrl || !apiKey) {
-    throw new Error("InsForge is not configured. Add INSFORGE_URL and INSFORGE_API_KEY.")
-  }
-
-  return { baseUrl, apiKey }
 }
 
 function getErrorMessage(body: OAuthInitResponse, fallback: string) {
@@ -31,13 +24,11 @@ function isAllowedRedirect(redirectUri: string, requestUrl: string) {
   }
 }
 
-export async function GET(request: Request, context: { params: Promise<{ provider: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ provider: string }> }) {
   try {
     const { provider } = await context.params
     const requestUrl = new URL(request.url)
     const redirectUri = requestUrl.searchParams.get("redirect_uri")
-    const codeChallenge = requestUrl.searchParams.get("code_challenge")
-    const codeChallengeMethod = requestUrl.searchParams.get("code_challenge_method") || "S256"
 
     if (!allowedProviders.has(provider)) {
       return Response.json({ message: "Unsupported OAuth provider." }, { status: 400 })
@@ -47,37 +38,33 @@ export async function GET(request: Request, context: { params: Promise<{ provide
       return Response.json({ message: "Invalid OAuth redirect URI." }, { status: 400 })
     }
 
-    if (!codeChallenge) {
-      return Response.json({ message: "Missing OAuth code challenge." }, { status: 400 })
-    }
-
-    const { baseUrl, apiKey } = getInsForgeConfig()
-    const url = new URL(`/api/auth/oauth/${provider}`, baseUrl)
-    url.searchParams.set("redirect_uri", redirectUri)
-    url.searchParams.set("code_challenge", codeChallenge)
-    url.searchParams.set("code_challenge_method", codeChallengeMethod)
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "x-insforge-api-key": apiKey,
-      },
+    const client = createServerClient()
+    const { data, error } = await client.auth.signInWithOAuth(provider, {
+      redirectTo: redirectUri,
+      skipBrowserRedirect: true,
     })
 
-    const body = (await response.json().catch(() => ({}))) as OAuthInitResponse
-
-    if (!response.ok) {
+    if (error) {
       return Response.json(
-        { message: getErrorMessage(body, `${provider} OAuth could not be started.`) },
-        { status: response.status }
+        { message: getErrorMessage(error, `${provider} OAuth could not be started.`) },
+        { status: error.statusCode || 400 }
       )
     }
 
-    if (!body.authUrl) {
+    if (!data.url || !data.codeVerifier) {
       return Response.json({ message: `${provider} OAuth did not return an authorization URL.` }, { status: 502 })
     }
 
-    return Response.json({ authUrl: body.authUrl })
+    const response = NextResponse.json({ authUrl: data.url })
+    response.cookies.set(verifierCookie, data.codeVerifier, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 600,
+    })
+
+    return response
   } catch (error) {
     return Response.json(
       {

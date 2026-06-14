@@ -78,7 +78,7 @@
     "switchToSignInAction": "登录",
     "switchToSignUpAction": "创建账号",
     "passwordHintSignIn": "使用你的工作区密码。",
-    "passwordHintSignUp": "至少 8 个字符，并包含至少一个字母和一个数字。",
+    "passwordHintSignUp": "至少 8 个字符，并包含小写字母、大写字母、数字和特殊字符。",
     "heroEyebrow": "由 InsForge 驱动的认证",
     "heroTitle": "在一个专注的工作室中构建精致 AI 产品。",
     "heroDescription": "安全登录、精致工作区和生产级界面模式已为你的 SaaS 工作流准备就绪。",
@@ -89,15 +89,25 @@
     },
     "confirmPassword": "确认密码",
     "createAccount": "创建账号",
+    "verificationCode": "邮箱验证码",
+    "verificationCodeDescription": "请输入发送到你邮箱的 6 位验证码。",
+    "verifyEmail": "验证邮箱",
+    "submitVerificationCode": "提交验证码",
+    "resendVerificationCode": "重新发送验证码",
     "authenticationFailed": "认证失败。",
-    "verificationEmailSent": "账号已创建。请检查邮箱并点击验证链接，完成验证后再登录。",
+    "accountCreated": "账号已创建，请登录。",
+    "verificationEmailSent": "账号已创建。请输入发送到你邮箱的验证码。",
+    "verificationSuccess": "邮箱已验证，请登录。",
+    "signInSuccess": "登录成功。",
+    "verificationCodeResent": "新的验证码已发送。",
     "oauthUnavailable": "{provider} OAuth 暂不可用。",
     "validation": {
       "name": "请输入至少 2 个字符。",
       "email": "请输入有效的邮箱地址。",
       "passwordLength": "请使用至少 8 个字符。",
-      "passwordContent": "请至少包含一个字母和一个数字。",
-      "confirmPassword": "两次输入的密码不一致。"
+      "passwordContent": "请包含小写字母、大写字母、数字和特殊字符。",
+      "confirmPassword": "两次输入的密码不一致。",
+      "verificationCode": "请输入 6 位邮箱验证码。"
     }
   },
   "Dashboard": {

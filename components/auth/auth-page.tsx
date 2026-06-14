@@ -3,7 +3,7 @@
 import { Loader2, Sparkles } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
-import { FormEvent, useMemo, useState } from "react"
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react"
 
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -25,10 +25,14 @@ import {
 import { Input } from "@/components/ui/input"
 import {
   OAuthProvider,
+  getOAuthProviders,
+  resendVerificationEmail,
   signInWithPassword,
   signUpWithPassword,
   startOAuth,
+  verifyEmailCode,
 } from "@/lib/insforge"
+import { showAppToast } from "@/components/ui/app-toast"
 import { Link, useRouter } from "@/src/i18n/navigation"
 
 type AuthMode = "sign-in" | "sign-up"
@@ -38,13 +42,22 @@ type FieldErrors = {
   email?: string
   password?: string
   confirmPassword?: string
+  verificationCode?: string
+}
+
+type FormValues = {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  verificationCode: string
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function validate(
   mode: AuthMode,
-  values: Record<string, string>,
+  values: FormValues,
   t: ReturnType<typeof useTranslations<"Auth">>
 ) {
   const errors: FieldErrors = {}
@@ -59,7 +72,12 @@ function validate(
 
   if (values.password.length < 8) {
     errors.password = t("validation.passwordLength")
-  } else if (!/[A-Za-z]/.test(values.password) || !/[0-9]/.test(values.password)) {
+  } else if (
+    !/[a-z]/.test(values.password) ||
+    !/[A-Z]/.test(values.password) ||
+    !/[0-9]/.test(values.password) ||
+    !/[^A-Za-z0-9]/.test(values.password)
+  ) {
     errors.password = t("validation.passwordContent")
   }
 
@@ -87,9 +105,19 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const isSignUp = mode === "sign-up"
   const [pending, setPending] = useState(false)
   const [oauthPending, setOauthPending] = useState<OAuthProvider | null>(null)
-  const [serverError, setServerError] = useState("")
-  const [serverNotice, setServerNotice] = useState("")
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [verificationEmail, setVerificationEmail] = useState("")
+  const [values, setValues] = useState<FormValues>({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    verificationCode: "",
+  })
+  const [resending, setResending] = useState(false)
+  const [enabledProviders, setEnabledProviders] = useState<Set<OAuthProvider>>(
+    () => new Set(["google", "x"] as OAuthProvider[])
+  )
 
   const title = isSignUp ? t("signUpTitle") : t("signInTitle")
   const description = isSignUp ? t("signUpDescription") : t("signInDescription")
@@ -106,17 +134,60 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     return t("passwordHintSignUp")
   }, [isSignUp, t])
 
+  useEffect(() => {
+    let cancelled = false
+
+    getOAuthProviders()
+      .then((providers) => {
+        if (!cancelled) setEnabledProviders(providers)
+      })
+      .catch(() => {
+        if (!cancelled) setEnabledProviders(new Set(["google", "x"] as OAuthProvider[]))
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  function updateValue(field: keyof FormValues) {
+    return (event: ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value
+      setValues((current) => ({ ...current, [field]: value }))
+      if (fieldErrors[field]) {
+        setFieldErrors((current) => ({ ...current, [field]: undefined }))
+      }
+    }
+  }
+
+  function showAuthError(error: unknown) {
+    showAppToast(error instanceof Error ? error.message : t("authenticationFailed"), {
+      variant: "error",
+    })
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setServerError("")
-    setServerNotice("")
 
-    const form = new FormData(event.currentTarget)
-    const values = {
-      name: String(form.get("name") || ""),
-      email: String(form.get("email") || ""),
-      password: String(form.get("password") || ""),
-      confirmPassword: String(form.get("confirmPassword") || ""),
+    if (isSignUp && verificationEmail) {
+      const verificationCode = values.verificationCode.trim()
+      if (!/^\d{6}$/.test(verificationCode)) {
+        setFieldErrors({ verificationCode: t("validation.verificationCode") })
+        return
+      }
+
+      setFieldErrors({})
+      setPending(true)
+      try {
+        await verifyEmailCode(verificationEmail, verificationCode)
+        showAppToast(t("verificationSuccess"))
+        router.replace(`/sign-in?next=${encodeURIComponent(next)}`)
+      } catch (error) {
+        showAuthError(error)
+      } finally {
+        setPending(false)
+      }
+      return
     }
 
     const nextErrors = validate(mode, values, t)
@@ -128,31 +199,56 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       if (isSignUp) {
         const session = await signUpWithPassword(values.name, values.email, values.password)
         if (session.needsEmailVerification) {
-          setServerNotice(t("verificationEmailSent"))
+          const email = values.email.trim()
+          setVerificationEmail(email)
+          setValues((current) => ({
+            ...current,
+            email,
+            password: "",
+            confirmPassword: "",
+            verificationCode: "",
+          }))
+          showAppToast(t("verificationEmailSent"))
           return
         }
+        showAppToast(t("accountCreated"))
+        router.replace(`/sign-in?next=${encodeURIComponent(next)}`)
+        return
       } else {
         await signInWithPassword(values.email, values.password)
+        showAppToast(t("signInSuccess"))
       }
       router.replace(next)
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : t("authenticationFailed"))
+      showAuthError(error)
     } finally {
       setPending(false)
     }
   }
 
+  async function onResendVerification() {
+    if (!verificationEmail) return
+    setResending(true)
+    try {
+      await resendVerificationEmail(verificationEmail)
+      showAppToast(t("verificationCodeResent"))
+    } catch (error) {
+      showAuthError(error)
+    } finally {
+      setResending(false)
+    }
+  }
+
   async function onOAuth(provider: OAuthProvider) {
-    setServerError("")
-    setServerNotice("")
     setOauthPending(provider)
     try {
       await startOAuth(provider, next)
     } catch (error) {
-      setServerError(
+      showAppToast(
         error instanceof Error
           ? error.message
-          : t("oauthUnavailable", { provider })
+          : t("oauthUnavailable", { provider }),
+        { variant: "error" }
       )
       setOauthPending(null)
     }
@@ -210,13 +306,14 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               <div className="grid gap-3 sm:grid-cols-2">
                 {(["google", "x"] as OAuthProvider[]).map((provider) => {
                   const loading = oauthPending === provider
+                  const enabled = enabledProviders.has(provider)
                   return (
                     <Button
                       key={provider}
                       type="button"
                       variant="outline"
                       size="lg"
-                      disabled={loading || pending}
+                      disabled={loading || pending || !enabled}
                       onClick={() => onOAuth(provider)}
                       className="h-11"
                     >
@@ -238,87 +335,104 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               </div>
 
               <form className="grid gap-5" onSubmit={onSubmit} noValidate>
-                <FieldGroup>
-                  {isSignUp ? (
-                    <Field data-invalid={Boolean(fieldErrors.name)}>
-                      <FieldLabel htmlFor="name">{common("name")}</FieldLabel>
+                {isSignUp && verificationEmail ? (
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel>{common("email")}</FieldLabel>
+                      <Input value={verificationEmail} readOnly disabled />
+                      <FieldDescription>{t("verificationCodeDescription")}</FieldDescription>
+                    </Field>
+                    <Field data-invalid={Boolean(fieldErrors.verificationCode)}>
+                      <FieldLabel htmlFor="verificationCode">{t("verificationCode")}</FieldLabel>
                       <Input
-                        id="name"
-                        name="name"
-                        autoComplete="name"
-                        placeholder="Maya Chen"
-                        aria-invalid={Boolean(fieldErrors.name)}
+                        id="verificationCode"
+                        name="verificationCode"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        autoComplete="one-time-code"
+                        placeholder="123456"
+                        value={values.verificationCode}
+                        onChange={updateValue("verificationCode")}
+                        aria-invalid={Boolean(fieldErrors.verificationCode)}
                         disabled={pending}
                       />
-                      <FieldError>{fieldErrors.name}</FieldError>
+                      <FieldError>{fieldErrors.verificationCode}</FieldError>
                     </Field>
-                  ) : null}
+                  </FieldGroup>
+                ) : (
+                  <FieldGroup>
+                    {isSignUp ? (
+                      <Field data-invalid={Boolean(fieldErrors.name)}>
+                        <FieldLabel htmlFor="name">{common("name")}</FieldLabel>
+                        <Input
+                          id="name"
+                          name="name"
+                          autoComplete="name"
+                          placeholder="Maya Chen"
+                          value={values.name}
+                          onChange={updateValue("name")}
+                          aria-invalid={Boolean(fieldErrors.name)}
+                          disabled={pending}
+                        />
+                        <FieldError>{fieldErrors.name}</FieldError>
+                      </Field>
+                    ) : null}
 
-                  <Field data-invalid={Boolean(fieldErrors.email)}>
-                    <FieldLabel htmlFor="email">{common("email")}</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="you@company.com"
-                      aria-invalid={Boolean(fieldErrors.email)}
-                      disabled={pending}
-                    />
-                    <FieldError>{fieldErrors.email}</FieldError>
-                  </Field>
-
-                  <Field data-invalid={Boolean(fieldErrors.password)}>
-                    <FieldLabel htmlFor="password">{common("password")}</FieldLabel>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete={isSignUp ? "new-password" : "current-password"}
-                      placeholder={common("password")}
-                      aria-invalid={Boolean(fieldErrors.password)}
-                      disabled={pending}
-                    />
-                    <FieldDescription>{passwordHint}</FieldDescription>
-                    <FieldError>{fieldErrors.password}</FieldError>
-                  </Field>
-
-                  {isSignUp ? (
-                    <Field data-invalid={Boolean(fieldErrors.confirmPassword)}>
-                      <FieldLabel htmlFor="confirmPassword">
-                        {t("confirmPassword")}
-                      </FieldLabel>
+                    <Field data-invalid={Boolean(fieldErrors.email)}>
+                      <FieldLabel htmlFor="email">{common("email")}</FieldLabel>
                       <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="you@company.com"
+                        value={values.email}
+                        onChange={updateValue("email")}
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        disabled={pending}
+                      />
+                      <FieldError>{fieldErrors.email}</FieldError>
+                    </Field>
+
+                    <Field data-invalid={Boolean(fieldErrors.password)}>
+                      <FieldLabel htmlFor="password">{common("password")}</FieldLabel>
+                      <Input
+                        id="password"
+                        name="password"
                         type="password"
-                        autoComplete="new-password"
+                        autoComplete={isSignUp ? "new-password" : "current-password"}
                         placeholder={common("password")}
-                        aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                        value={values.password}
+                        onChange={updateValue("password")}
+                        aria-invalid={Boolean(fieldErrors.password)}
                         disabled={pending}
                       />
-                      <FieldError>{fieldErrors.confirmPassword}</FieldError>
+                      <FieldDescription>{passwordHint}</FieldDescription>
+                      <FieldError>{fieldErrors.password}</FieldError>
                     </Field>
-                  ) : null}
-                </FieldGroup>
 
-                {serverError ? (
-                  <div
-                    role="alert"
-                    className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-                  >
-                    {serverError}
-                  </div>
-                ) : null}
-
-                {serverNotice ? (
-                  <div
-                    role="status"
-                    className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300"
-                  >
-                    {serverNotice}
-                  </div>
-                ) : null}
+                    {isSignUp ? (
+                      <Field data-invalid={Boolean(fieldErrors.confirmPassword)}>
+                        <FieldLabel htmlFor="confirmPassword">
+                          {t("confirmPassword")}
+                        </FieldLabel>
+                        <Input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          autoComplete="new-password"
+                          placeholder={common("password")}
+                          value={values.confirmPassword}
+                          onChange={updateValue("confirmPassword")}
+                          aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                          disabled={pending}
+                        />
+                        <FieldError>{fieldErrors.confirmPassword}</FieldError>
+                      </Field>
+                    ) : null}
+                  </FieldGroup>
+                )}
 
                 <Button
                   type="submit"
@@ -327,8 +441,25 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   className="h-11"
                 >
                   {pending ? <Loader2 className="animate-spin" /> : null}
-                  {isSignUp ? t("createAccount") : common("signIn")}
+                  {isSignUp && verificationEmail
+                    ? t("submitVerificationCode")
+                    : isSignUp
+                      ? t("createAccount")
+                      : common("signIn")}
                 </Button>
+
+                {isSignUp && verificationEmail ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={pending || resending}
+                    onClick={onResendVerification}
+                    className="h-10"
+                  >
+                    {resending ? <Loader2 className="animate-spin" /> : null}
+                    {t("resendVerificationCode")}
+                  </Button>
+                ) : null}
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
