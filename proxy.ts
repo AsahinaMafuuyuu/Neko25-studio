@@ -1,24 +1,32 @@
 import createMiddleware from "next-intl/middleware"
+import { updateSession } from "@insforge/sdk/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 import { routing } from "@/src/i18n/routing"
 
-const appSessionCookie = "kravix_ai_studio_session"
 const intlMiddleware = createMiddleware(routing)
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const locale = getPathLocale(pathname)
   const unprefixedPathname = stripLocale(pathname)
-  const hasSessionHint = request.cookies.has(appSessionCookie)
+  const response = intlMiddleware(request)
+  const requestCookies = {
+    get: (name: string) => request.cookies.get(name),
+  } as Parameters<typeof updateSession>[0]["requestCookies"]
+  const session = await updateSession({
+    requestCookies,
+    responseCookies: response.cookies,
+  }).catch(() => null)
+  const hasUsableSession = Boolean(session?.accessToken)
 
-  if (isProtectedAppPath(unprefixedPathname) && !hasSessionHint) {
+  if (isProtectedAppPath(unprefixedPathname) && !hasUsableSession) {
     const signInUrl = new URL(`/${locale}/sign-in`, request.url)
     signInUrl.searchParams.set("next", pathname)
     return NextResponse.redirect(signInUrl)
   }
 
-  return intlMiddleware(request)
+  return response
 }
 
 export const config = {

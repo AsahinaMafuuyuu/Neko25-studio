@@ -1,8 +1,8 @@
 "use client"
 
-import { Loader2, LogOut } from "lucide-react"
+import { Loader2, LogOut, UserCog } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -25,6 +25,8 @@ import {
   AuthUser,
   clearLocalSession,
   getCurrentUser,
+  getValidAccessToken,
+  refreshSession,
   signOut,
 } from "@/lib/insforge"
 import { cn } from "@/lib/utils"
@@ -44,6 +46,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [routeTransitioning, setRouteTransitioning] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [creditBalance, setCreditBalance] = useState<number | null>(null)
+  const [creditBalanceFailed, setCreditBalanceFailed] = useState(false)
   const routeTransitionTimeoutRef = useRef<number | null>(null)
   const previousPathnameRef = useRef(pathname)
   const dashboardNavItems = useMemo(() => getDashboardNavItems(t), [t])
@@ -69,13 +73,41 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [pathname, router])
 
   const currentItem = useMemo(
-    () =>
-      dashboardNavItems.find((item) => isActivePath(pathname, item.href)) ||
-      dashboardNavItems[0],
-    [dashboardNavItems, pathname]
+    () => {
+      if (pathname.startsWith("/dashboard/billing")) {
+        return {
+          title: t("billingTitle"),
+        }
+      }
+
+      return (
+        dashboardNavItems.find((item) => isActivePath(pathname, item.href)) ||
+        dashboardNavItems[0]
+      )
+    },
+    [dashboardNavItems, pathname, t]
   )
   const BrandIcon = dashboardFooterMeta.brandIcon
   const BillingIcon = dashboardFooterMeta.billingIcon
+
+  const loadCreditBalance = useCallback(async () => {
+    try {
+      const response = await apiFetch("/api/billing/balance")
+      const body = await readJson<{ creditBalance: number }>(response)
+      setCreditBalance(body.creditBalance)
+      setCreditBalanceFailed(false)
+    } catch {
+      setCreditBalanceFailed(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!user) return
+    const timeout = window.setTimeout(() => {
+      loadCreditBalance()
+    }, 0)
+    return () => window.clearTimeout(timeout)
+  }, [loadCreditBalance, user])
 
   useEffect(() => {
     const previousPathname = previousPathnameRef.current
@@ -194,31 +226,47 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <SidebarFooter className="gap-3 px-3 pb-4">
           <SidebarSeparator />
-          <div className="rounded-2xl border border-sidebar-border/70 bg-sidebar-accent/40 p-4">
+          <Link
+            href="/dashboard/billing"
+            className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 transition-colors hover:bg-sidebar-accent/70"
+            onClick={() => onNavigationStart("/dashboard/billing")}
+          >
             <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-xl bg-background/80 text-foreground shadow-sm">
+              <div className="grid size-9 place-items-center rounded-lg bg-background/80 text-foreground shadow-sm">
                 <BillingIcon className="size-4" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-medium">{t("billingTitle")}</p>
-                <p className="mt-1 text-xs leading-5 text-sidebar-foreground/72">
+                <p className="mt-0.5 truncate text-xs text-sidebar-foreground/72">
                   {t("billingDescription")}
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="rounded-2xl border border-sidebar-border/70 bg-sidebar-accent/40 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-sidebar-foreground/66">
+          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 px-3 py-2.5">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-sidebar-foreground/66">
               {t("creditsTitle")}
             </p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight">
-              {dashboardFooterMeta.creditsValue}
-            </p>
-            <p className="mt-2 text-xs leading-5 text-sidebar-foreground/72">
-              {t("creditsDescription")}
+            <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
+              {creditBalanceFailed ? "--" : creditBalance === null ? "..." : creditBalance.toLocaleString("en")}
             </p>
           </div>
+
+          <button
+            type="button"
+            disabled
+            className="flex items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/25 p-3 text-left text-sidebar-foreground/70 opacity-75"
+            title="Personal Settings coming soon"
+          >
+            <span className="grid size-9 place-items-center rounded-lg bg-background/60 text-foreground shadow-sm">
+              <UserCog className="size-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">Personal Settings</span>
+              <span className="block truncate text-xs text-sidebar-foreground/62">Coming soon</span>
+            </span>
+          </button>
         </SidebarFooter>
       </Sidebar>
 
@@ -261,6 +309,27 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </SidebarInset>
     </SidebarProvider>
   )
+}
+
+async function apiFetch(path: string, init: RequestInit = {}) {
+  const token = await getValidAccessToken()
+  if (!token) throw new Error("Your session has expired. Please sign in again.")
+  const makeRequest = (accessToken: string) => {
+    const headers = new Headers(init.headers)
+    headers.set("Authorization", `Bearer ${accessToken}`)
+    return fetch(path, { ...init, headers })
+  }
+  const response = await makeRequest(token)
+  if (response.status !== 401) return response
+  const refreshed = await refreshSession().catch(() => null)
+  if (!refreshed?.accessToken) return response
+  return makeRequest(refreshed.accessToken)
+}
+
+async function readJson<T>(response: Response) {
+  const body = (await response.json().catch(() => ({}))) as T & { message?: string }
+  if (!response.ok) throw new Error(body.message || "Request failed.")
+  return body
 }
 
 function PageRouteTransition({ show }: { show: boolean }) {

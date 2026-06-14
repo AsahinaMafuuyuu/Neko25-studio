@@ -78,7 +78,7 @@
     "switchToSignInAction": "Sign in",
     "switchToSignUpAction": "Create an account",
     "passwordHintSignIn": "Use your workspace password.",
-    "passwordHintSignUp": "Minimum 8 characters with at least one letter and one number.",
+    "passwordHintSignUp": "Minimum 8 characters with lowercase, uppercase, number, and special character.",
     "heroEyebrow": "InsForge powered authentication",
     "heroTitle": "Build polished AI products from one focused studio.",
     "heroDescription": "Secure sign-in, a refined workspace, and production-grade interface patterns are ready for your SaaS workflow.",
@@ -89,15 +89,25 @@
     },
     "confirmPassword": "Confirm password",
     "createAccount": "Create account",
+    "verificationCode": "Verification code",
+    "verificationCodeDescription": "Enter the 6-digit code sent to your email.",
+    "verifyEmail": "Verify email",
+    "submitVerificationCode": "Submit code",
+    "resendVerificationCode": "Resend code",
     "authenticationFailed": "Authentication failed.",
-    "verificationEmailSent": "Your account was created. Check your email and open the verification link, then sign in.",
+    "accountCreated": "Account created. Please sign in.",
+    "verificationEmailSent": "Your account was created. Enter the verification code sent to your email.",
+    "verificationSuccess": "Email verified. Please sign in.",
+    "signInSuccess": "Signed in successfully.",
+    "verificationCodeResent": "A new verification code has been sent.",
     "oauthUnavailable": "{provider} OAuth is unavailable.",
     "validation": {
       "name": "Enter at least 2 characters.",
       "email": "Enter a valid email address.",
       "passwordLength": "Use at least 8 characters.",
-      "passwordContent": "Use at least one letter and one number.",
-      "confirmPassword": "Passwords do not match."
+      "passwordContent": "Use lowercase, uppercase, number, and special character.",
+      "confirmPassword": "Passwords do not match.",
+      "verificationCode": "Enter the 6-digit verification code."
     }
   },
   "Dashboard": {
