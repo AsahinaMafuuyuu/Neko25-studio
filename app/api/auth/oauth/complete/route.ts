@@ -1,6 +1,7 @@
 import { createServerClient } from "@insforge/sdk/ssr"
 import { NextRequest, NextResponse } from "next/server"
 
+import { createTwoFactorChallenge, getTwoFactorStatus } from "@/lib/account-settings-server"
 import { syncUserProfile, writeAuthCookies } from "@/lib/auth/server"
 import type { AuthUser } from "@/lib/auth/types"
 
@@ -34,6 +35,35 @@ export async function POST(request: NextRequest) {
     }
 
     await syncUserProfile(data.accessToken, data.user as AuthUser, "oauth")
+    const user = data.user as AuthUser
+    const userId = typeof user.id === "string" ? user.id : ""
+    if (userId) {
+      const twoFactor = await getTwoFactorStatus(userId)
+      if (twoFactor.enabled) {
+        const challenge = await createTwoFactorChallenge({
+          userId,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          user,
+        })
+        const response = NextResponse.json({
+          requiresTwoFactor: true,
+          challengeId: challenge?.id,
+          user: {
+            email: user.email,
+            name: typeof user.name === "string" ? user.name : undefined,
+          },
+        })
+        response.cookies.set(verifierCookie, "", {
+          path: "/",
+          maxAge: 0,
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        })
+        return response
+      }
+    }
 
     const response = NextResponse.json({
       accessToken: data.accessToken,

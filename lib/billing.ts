@@ -1,4 +1,5 @@
 import { getInsForgeAdmin } from "@/lib/avatar-server"
+import { ensureWorkspaceSummary } from "@/lib/account-settings-server"
 import { ensureCreditBalance } from "@/lib/voice-server"
 
 export type BillingRange = "1d" | "7d" | "30d" | "custom"
@@ -215,12 +216,13 @@ export async function getBillingPayload(userId: string, searchParams: URLSearchP
   const currentMonth = getMonthWindow()
   const previousMonth = getMonthWindow(-1)
 
-  const [creditBalance, ledger, monthLedger, previousMonthLedger] = await Promise.all([
-    ensureCreditBalance(userId),
+  const [workspace, ledger, monthLedger, previousMonthLedger] = await Promise.all([
+    ensureWorkspaceSummary(userId),
     listCreditLedger(userId, fetchStart, end),
     listCreditLedger(userId, currentMonth.start, currentMonth.end),
     listCreditLedger(userId, previousMonth.start, previousMonth.end),
   ])
+  const creditBalance = workspace.totalCredits
 
   const selectedRecords = ledger.filter((record) => {
     const createdAt = new Date(record.created_at)
@@ -285,7 +287,7 @@ export async function getBillingPayload(userId: string, searchParams: URLSearchP
     summary: {
       totalCredits: creditBalance,
       spentThisMonth,
-      activePlan: "Starter",
+      activePlan: workspace.planTier,
       compareWithLastMonth: spentThisMonth - previousSpent,
       nextInvoice: nextInvoiceDate,
       totalCost: `\uFFE5${(spentThisMonth / 100).toFixed(2)}`,

@@ -1,12 +1,19 @@
 "use client"
 
-import { Loader2, LogOut, UserCog } from "lucide-react"
+import { CreditCard, Loader2, LogOut, UserCog } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +28,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { dashboardFooterMeta, getDashboardNavItems } from "@/lib/dashboard"
+import type { AccountSettingsPayload } from "@/lib/settings-types"
 import {
   AuthUser,
   clearLocalSession,
@@ -46,6 +54,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [routeTransitioning, setRouteTransitioning] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [accountSettings, setAccountSettings] = useState<AccountSettingsPayload | null>(null)
   const [creditBalance, setCreditBalance] = useState<number | null>(null)
   const [creditBalanceFailed, setCreditBalanceFailed] = useState(false)
   const routeTransitionTimeoutRef = useRef<number | null>(null)
@@ -80,6 +89,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         }
       }
 
+      if (pathname.startsWith("/dashboard/personal-settings")) {
+        return {
+          title: "Personal Settings",
+        }
+      }
+
       return (
         dashboardNavItems.find((item) => isActivePath(pathname, item.href)) ||
         dashboardNavItems[0]
@@ -101,13 +116,25 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const loadAccountSettings = useCallback(async () => {
+    try {
+      const response = await apiFetch("/api/settings/profile")
+      const body = await readJson<AccountSettingsPayload>(response)
+      setAccountSettings(body)
+      setCreditBalance(body.workspace.totalCredits)
+      setCreditBalanceFailed(false)
+    } catch {
+      await loadCreditBalance()
+    }
+  }, [loadCreditBalance])
+
   useEffect(() => {
     if (!user) return
     const timeout = window.setTimeout(() => {
-      loadCreditBalance()
+      loadAccountSettings()
     }, 0)
     return () => window.clearTimeout(timeout)
-  }, [loadCreditBalance, user])
+  }, [loadAccountSettings, user])
 
   useEffect(() => {
     const previousPathname = previousPathnameRef.current
@@ -244,29 +271,30 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 px-3 py-2.5">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-sidebar-foreground/66">
-              {t("creditsTitle")}
-            </p>
-            <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
-              {creditBalanceFailed ? "--" : creditBalance === null ? "..." : creditBalance.toLocaleString("en")}
-            </p>
+          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="min-w-0 truncate text-xs font-medium uppercase tracking-[0.12em] text-sidebar-foreground/66">
+                {t("creditsTitle")}
+              </p>
+              <span className="rounded-full border border-lime-300/60 bg-lime-300 px-2.5 py-1 text-xs font-semibold tabular-nums text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.42)]">
+                {creditBalanceFailed ? "--" : creditBalance === null ? "..." : creditBalance.toLocaleString("en")}
+              </span>
+            </div>
           </div>
 
-          <button
-            type="button"
-            disabled
-            className="flex items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/25 p-3 text-left text-sidebar-foreground/70 opacity-75"
-            title="Personal Settings coming soon"
+          <Link
+            href="/dashboard/personal-settings"
+            className="flex items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 text-left transition-colors hover:bg-sidebar-accent/70"
+            onClick={() => onNavigationStart("/dashboard/personal-settings")}
           >
             <span className="grid size-9 place-items-center rounded-lg bg-background/60 text-foreground shadow-sm">
               <UserCog className="size-4" />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">Personal Settings</span>
-              <span className="block truncate text-xs text-sidebar-foreground/62">Coming soon</span>
+              <span className="block truncate text-xs text-sidebar-foreground/62">Profile and security</span>
             </span>
-          </button>
+          </Link>
         </SidebarFooter>
       </Sidebar>
 
@@ -288,9 +316,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden rounded-full border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground shadow-sm sm:block">
-                {user?.email || t("emailFallback")}
-              </div>
+              <AccountHoverCard
+                settings={accountSettings}
+                email={user?.email || t("emailFallback")}
+                credits={creditBalance}
+                creditsFailed={creditBalanceFailed}
+                onNavigate={onNavigationStart}
+              />
               <LanguageSwitcher />
               <ThemeToggle />
               <Button variant="outline" onClick={onSignOut} disabled={signingOut}>
@@ -309,6 +341,102 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </SidebarInset>
     </SidebarProvider>
   )
+}
+
+function AccountHoverCard({
+  settings,
+  email,
+  credits,
+  creditsFailed,
+  onNavigate,
+}: {
+  settings: AccountSettingsPayload | null
+  email: string
+  credits: number | null
+  creditsFailed: boolean
+  onNavigate: (href: string) => void
+}) {
+  const username = settings?.profile.username || email.split("@")[0] || "User"
+  const avatarUrl = settings?.profile.avatarUrl || ""
+  const plan = settings?.workspace.planTier || "Free Plan"
+  const creditsLabel = creditsFailed ? "--" : credits === null ? "..." : credits.toLocaleString("en")
+
+  return (
+    <HoverCard>
+      <HoverCardTrigger
+        render={
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted/60"
+          />
+        }
+      >
+        <UserAvatar avatarUrl={avatarUrl} username={username} />
+        <span className="hidden max-w-44 truncate sm:inline">{email}</span>
+      </HoverCardTrigger>
+      <HoverCardContent align="end" className="w-80 p-0">
+        <div className="p-4">
+          <div className="flex items-start gap-3">
+            <UserAvatar avatarUrl={avatarUrl} username={username} className="size-16" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-semibold">{username}</p>
+              <p className="mt-1 truncate text-sm text-muted-foreground">{email}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Badge variant="outline" className="rounded-full">{plan}</Badge>
+                <Badge className="rounded-full bg-lime-300 text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.45)]">
+                  {creditsLabel} credits
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 border-t border-border/70 p-3">
+          <Button
+            variant="outline"
+            onClick={() => onNavigate("/dashboard/personal-settings")}
+            render={<Link href="/dashboard/personal-settings" />}
+          >
+            <UserCog />
+            Personal
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => onNavigate("/dashboard/billing")}
+            render={<Link href="/dashboard/billing" />}
+          >
+            <CreditCard />
+            Billing
+          </Button>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  )
+}
+
+function UserAvatar({
+  avatarUrl,
+  username,
+  className,
+}: {
+  avatarUrl: string
+  username: string
+  className?: string
+}) {
+  return (
+    <Avatar className={className}>
+      {avatarUrl ? <AvatarImage src={avatarUrl} alt={username} /> : null}
+      <AvatarFallback>{getInitials(username)}</AvatarFallback>
+    </Avatar>
+  )
+}
+
+function getInitials(value: string) {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((item) => item[0]?.toUpperCase())
+    .join("") || "U"
 }
 
 async function apiFetch(path: string, init: RequestInit = {}) {

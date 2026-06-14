@@ -9,6 +9,7 @@ export {
   getOAuthNext,
   getOAuthProviders,
   getValidAccessToken,
+  isTwoFactorChallenge,
   refreshSession,
   resendVerificationEmail,
   retryUserProfileSync,
@@ -17,5 +18,6 @@ export {
   signUpWithPassword,
   startOAuth,
   syncAuthenticatedUserFromCurrentSession,
+  verifyTwoFactorChallenge,
   verifyEmailCode,
 } from "@/lib/auth/client"

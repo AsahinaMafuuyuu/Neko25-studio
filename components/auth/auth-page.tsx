@@ -26,12 +26,15 @@ import { Input } from "@/components/ui/input"
 import {
   OAuthProvider,
   getOAuthProviders,
+  isTwoFactorChallenge,
   resendVerificationEmail,
   signInWithPassword,
   signUpWithPassword,
   startOAuth,
+  verifyTwoFactorChallenge,
   verifyEmailCode,
 } from "@/lib/insforge"
+import type { TwoFactorAuthChallenge } from "@/lib/auth/types"
 import { showAppToast } from "@/components/ui/app-toast"
 import { Link, useRouter } from "@/src/i18n/navigation"
 
@@ -107,6 +110,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const [oauthPending, setOauthPending] = useState<OAuthProvider | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [verificationEmail, setVerificationEmail] = useState("")
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState<TwoFactorAuthChallenge | null>(null)
   const [values, setValues] = useState<FormValues>({
     name: "",
     email: "",
@@ -190,6 +194,27 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       return
     }
 
+    if (!isSignUp && twoFactorChallenge) {
+      const verificationCode = values.verificationCode.trim()
+      if (!/^\d{6}$/.test(verificationCode)) {
+        setFieldErrors({ verificationCode: t("validation.verificationCode") })
+        return
+      }
+
+      setFieldErrors({})
+      setPending(true)
+      try {
+        await verifyTwoFactorChallenge(twoFactorChallenge.challengeId, verificationCode)
+        showAppToast(t("signInSuccess"))
+        router.replace(next)
+      } catch (error) {
+        showAuthError(error)
+      } finally {
+        setPending(false)
+      }
+      return
+    }
+
     const nextErrors = validate(mode, values, t)
     setFieldErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
@@ -215,7 +240,17 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         router.replace(`/sign-in?next=${encodeURIComponent(next)}`)
         return
       } else {
-        await signInWithPassword(values.email, values.password)
+        const session = await signInWithPassword(values.email, values.password)
+        if (isTwoFactorChallenge(session)) {
+          setTwoFactorChallenge(session)
+          setValues((current) => ({
+            ...current,
+            password: "",
+            verificationCode: "",
+          }))
+          showAppToast("Enter the code from your authenticator app.")
+          return
+        }
         showAppToast(t("signInSuccess"))
       }
       router.replace(next)
@@ -335,7 +370,32 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               </div>
 
               <form className="grid gap-5" onSubmit={onSubmit} noValidate>
-                {isSignUp && verificationEmail ? (
+                {!isSignUp && twoFactorChallenge ? (
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel>{common("email")}</FieldLabel>
+                      <Input value={twoFactorChallenge.user?.email || values.email} readOnly disabled />
+                      <FieldDescription>Enter the 6-digit code from your authenticator app.</FieldDescription>
+                    </Field>
+                    <Field data-invalid={Boolean(fieldErrors.verificationCode)}>
+                      <FieldLabel htmlFor="verificationCode">Authenticator code</FieldLabel>
+                      <Input
+                        id="verificationCode"
+                        name="verificationCode"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        autoComplete="one-time-code"
+                        placeholder="123456"
+                        value={values.verificationCode}
+                        onChange={updateValue("verificationCode")}
+                        aria-invalid={Boolean(fieldErrors.verificationCode)}
+                        disabled={pending}
+                      />
+                      <FieldError>{fieldErrors.verificationCode}</FieldError>
+                    </Field>
+                  </FieldGroup>
+                ) : isSignUp && verificationEmail ? (
                   <FieldGroup>
                     <Field>
                       <FieldLabel>{common("email")}</FieldLabel>
@@ -443,12 +503,27 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   {pending ? <Loader2 className="animate-spin" /> : null}
                   {isSignUp && verificationEmail
                     ? t("submitVerificationCode")
+                    : !isSignUp && twoFactorChallenge
+                      ? "Verify code"
                     : isSignUp
                       ? t("createAccount")
                       : common("signIn")}
                 </Button>
 
-                {isSignUp && verificationEmail ? (
+                {!isSignUp && twoFactorChallenge ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={pending}
+                    onClick={() => {
+                      setTwoFactorChallenge(null)
+                      setValues((current) => ({ ...current, verificationCode: "" }))
+                    }}
+                    className="h-10"
+                  >
+                    Use another account
+                  </Button>
+                ) : isSignUp && verificationEmail ? (
                   <Button
                     type="button"
                     variant="ghost"

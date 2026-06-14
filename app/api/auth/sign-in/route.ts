@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { createTwoFactorChallenge, getTwoFactorStatus } from "@/lib/account-settings-server"
 import { createAuthServerClient, syncUserProfile, writeAuthCookies } from "@/lib/auth/server"
 import type { AuthUser } from "@/lib/auth/types"
 
@@ -38,6 +39,29 @@ export async function POST(request: Request) {
     }
 
     await syncUserProfile(data.accessToken, data.user as AuthUser, "sign_in")
+
+    const user = data.user as AuthUser
+    const userId = typeof user.id === "string" ? user.id : ""
+    if (userId) {
+      const twoFactor = await getTwoFactorStatus(userId)
+      if (twoFactor.enabled) {
+        const challenge = await createTwoFactorChallenge({
+          userId,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+          user,
+        })
+
+        return Response.json({
+          requiresTwoFactor: true,
+          challengeId: challenge?.id,
+          user: {
+            email: user.email,
+            name: typeof user.name === "string" ? user.name : undefined,
+          },
+        })
+      }
+    }
 
     const response = NextResponse.json({
       accessToken: data.accessToken,

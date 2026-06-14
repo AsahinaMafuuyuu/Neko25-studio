@@ -22,6 +22,17 @@ export type AuthSession = {
   user?: AuthUser
 }
 
+export type TwoFactorAuthChallenge = {
+  requiresTwoFactor: true
+  challengeId: string
+  user?: {
+    email?: string
+    name?: string
+  }
+}
+
+export type AuthResult = AuthSession | TwoFactorAuthChallenge
+
 export type SignUpResult = AuthSession & {
   created?: boolean
   needsEmailVerification?: boolean
