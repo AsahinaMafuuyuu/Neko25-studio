@@ -1,11 +1,23 @@
 [auth]
-allowed_redirect_urls = ["http://localhost:3000/auth/callback"]
-require_email_verification = false
+allowed_redirect_urls = ["http://localhost:3000/auth/callback", "https://neko25-studio.vercel.app/auth/callback"]
+require_email_verification = true
+verify_email_method = "link"
+reset_password_method = "code"
 disable_signup = false
 
 [auth.password]
 min_length = 8
 require_number = true
-require_lowercase = false
-require_uppercase = false
-require_special_char = false
+require_lowercase = true
+require_uppercase = true
+require_special_char = true
+
+[auth.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+username = "resend"
+sender_email = "noreply@asahinamafuyu.top"
+password = "env(SMTP_PASSWORD)"
+sender_name = "Neko25 Studio"
+min_interval_seconds = 60

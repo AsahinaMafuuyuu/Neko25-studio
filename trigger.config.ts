@@ -1,7 +1,13 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
 
+const project = process.env.TRIGGER_PROJECT_REF?.trim();
+
+if (!project) {
+  throw new Error("Trigger.dev is not configured. Add TRIGGER_PROJECT_REF for this environment.");
+}
+
 export default defineConfig({
-  project: "proj_kscbzimghqugjpyvujcd",
+  project,
   runtime: "node",
   logLevel: "log",
   // The max compute seconds a task is allowed to run. If the task run exceeds this duration, it will be stopped.

@@ -90,6 +90,7 @@
     "confirmPassword": "确认密码",
     "createAccount": "创建账号",
     "authenticationFailed": "认证失败。",
+    "verificationEmailSent": "账号已创建。请检查邮箱并点击验证链接，完成验证后再登录。",
     "oauthUnavailable": "{provider} OAuth 暂不可用。",
     "validation": {
       "name": "请输入至少 2 个字符。",

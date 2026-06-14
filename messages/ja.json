@@ -90,6 +90,7 @@
     "confirmPassword": "パスワード確認",
     "createAccount": "アカウントを作成",
     "authenticationFailed": "認証に失敗しました。",
+    "verificationEmailSent": "アカウントを作成しました。メールを確認して認証リンクを開き、その後ログインしてください。",
     "oauthUnavailable": "{provider} OAuth は現在利用できません。",
     "validation": {
       "name": "2文字以上入力してください。",

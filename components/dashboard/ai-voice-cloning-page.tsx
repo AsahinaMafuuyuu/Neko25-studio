@@ -2,39 +2,23 @@
 
 import {
   AudioLines,
-  Bot,
   CircleAlert,
   CircleCheck,
-  CircleDollarSign,
   Clock3,
   CloudUpload,
   ImagePlus,
   LoaderCircle,
   ListChecks,
   Mic2,
-  MousePointerClick,
-  Play,
   Plus,
   Sparkles,
-  Trash2,
   Upload,
   WandSparkles,
   X,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
+import { GeneratedAudioAssetCard, VoiceAssetCard } from "@/components/dashboard/library-asset-cards"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -613,7 +597,7 @@ export function AiVoiceCloningPage() {
           <div className="grid gap-4">
             {loadingOutputs ? <GeneratedAudioSkeleton /> : null}
             {!loadingOutputs && outputs.map((output) => (
-              <GeneratedAudioCard
+              <GeneratedAudioAssetCard
                 key={output.id}
                 deleting={deletingOutputId === output.id}
                 output={output}
@@ -1102,7 +1086,7 @@ function VoiceSection({
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {loading ? <VoiceSkeleton /> : null}
         {!loading && voices.map((voice, index) => (
-          <VoiceCard
+          <VoiceAssetCard
             key={voice.id}
             deleting={deletingVoiceId === voice.id}
             previewing={previewingVoiceId === voice.id}
@@ -1123,210 +1107,6 @@ function VoiceSection({
         ) : null}
       </div>
     </section>
-  )
-}
-
-function VoiceCard({
-  deleting,
-  onDelete,
-  onPlay,
-  onSelect,
-  previewing,
-  selecting,
-  tone,
-  voice,
-}: {
-  deleting: boolean
-  onDelete?: () => void
-  onPlay: () => void
-  onSelect: () => void
-  previewing: boolean
-  selecting: boolean
-  tone: number
-  voice: VoiceListItem
-}) {
-  return (
-    <div
-      className={cn(
-        "flex min-h-56 flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md",
-        voice.is_selected ? "border-primary/60 ring-2 ring-primary/20" : "border-border/70"
-      )}
-    >
-      <div className={cn("relative min-h-28 overflow-hidden", getVoiceGradient(tone))}>
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgb(255_255_255_/_0.28),transparent)]" />
-        <div className="relative flex items-start justify-between gap-3 p-4">
-          <div className="flex items-center gap-3">
-            <VoiceAvatar imageUrl={voice.avatar_image_url} name={voice.name} />
-            <div className="min-w-0">
-              <h4 className="truncate text-base font-semibold text-white">{voice.name}</h4>
-              <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-white/78">
-                {voice.source === "custom" ? voice.preview_text || "Reference audio saved." : voice.preview_text}
-              </p>
-            </div>
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-1.5">
-            <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
-              {voice.source === "custom" ? "Custom" : "Default"}
-            </Badge>
-            <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
-              {voice.source === "custom" ? "Multilingual" : getVoiceLanguageLabel(voice.language)}
-            </Badge>
-            {voice.source === "default" && voice.gender ? (
-              <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
-                {voice.gender === "female" ? "Female" : "Male"}
-              </Badge>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-auto grid gap-3 p-4">
-        <div className={cn("grid gap-2", voice.source === "custom" ? "grid-cols-3" : "grid-cols-2")}>
-          <Button variant="outline" onClick={onPlay}>
-            {previewing ? <Spinner /> : <Play />}
-            {voice.source === "custom" ? "Sample" : "Preview"}
-          </Button>
-          <Button disabled={selecting || voice.is_selected} variant={voice.is_selected ? "outline" : "default"} onClick={onSelect}>
-            {selecting ? <Spinner /> : voice.is_selected ? <CircleCheck /> : <MousePointerClick />}
-            {voice.is_selected ? "Selected" : "Use"}
-          </Button>
-          {voice.source === "custom" && onDelete ? (
-            <AlertDialog>
-              <AlertDialogTrigger render={<Button variant="destructive" disabled={deleting} />}>
-                {deleting ? <Spinner /> : <Trash2 />}
-                Delete
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete custom voice?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This removes {voice.name} from your custom voice library. Generated TTS history will stay available.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive" disabled={deleting} onClick={onDelete}>
-                    {deleting ? <Spinner /> : <Trash2 />}
-                    Delete voice
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function VoiceAvatar({ imageUrl, name }: { imageUrl: string; name: string }) {
-  const [failed, setFailed] = useState(false)
-  const initials = name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-
-  return (
-    <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/20 bg-white/16 text-sm font-semibold text-white shadow-sm">
-      {imageUrl && !failed ? (
-        <img
-          alt={name}
-          className="size-full object-cover"
-          src={imageUrl}
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        initials || <Mic2 className="size-5" />
-      )}
-    </div>
-  )
-}
-
-function GeneratedAudioCard({
-  deleting,
-  onDelete,
-  output,
-  voices,
-}: {
-  deleting: boolean
-  onDelete: () => void
-  output: AiTtsOutput
-  voices: VoiceListItem[]
-}) {
-  const voice = voices.find((item) => {
-    if (output.voice_clone_id && item.id === output.voice_clone_id) return true
-    if (output.provider_voice_id && item.provider_voice_id === output.provider_voice_id) return true
-    return item.name === output.voice_name
-  })
-
-  return (
-    <div className="grid gap-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm lg:grid-cols-[72px_minmax(0,1fr)_320px_auto] lg:items-center">
-      <GeneratedVoiceAvatar imageUrl={voice?.avatar_image_url || ""} name={output.voice_name} />
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={output.voice_source === "custom" ? "default" : "secondary"}>
-            {output.voice_source === "custom" ? "Custom" : "Default"}
-          </Badge>
-          <Badge variant="outline">{output.audio_format.toUpperCase()}</Badge>
-          <Badge variant="outline">{getVoiceLanguageLabel(output.language)}</Badge>
-          <Badge variant="outline">
-            <CircleDollarSign className="size-3.5" />
-            {output.credits_cost} credits
-          </Badge>
-        </div>
-        <h4 className="mt-3 text-base font-semibold">{output.voice_name}</h4>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{output.text}</p>
-      </div>
-      <audio className="w-full self-center" controls src={output.audio_url} />
-      <AlertDialog>
-        <AlertDialogTrigger render={<Button className="justify-self-start lg:justify-self-end" size="icon" variant="destructive" disabled={deleting} />}>
-          {deleting ? <Spinner /> : <Trash2 />}
-          <span className="sr-only">Delete generated audio</span>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete generated audio?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes the audio clip generated with {output.voice_name} from your TTS history.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" disabled={deleting} onClick={onDelete}>
-              {deleting ? <Spinner /> : <Trash2 />}
-              Delete audio
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  )
-}
-
-function GeneratedVoiceAvatar({ imageUrl, name }: { imageUrl: string; name: string }) {
-  const [failed, setFailed] = useState(false)
-  const initials = name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-
-  return (
-    <div className="grid size-16 place-items-center overflow-hidden rounded-xl border border-border/70 bg-[linear-gradient(135deg,#0f766e,#2563eb)] text-sm font-semibold text-white shadow-sm">
-      {imageUrl && !failed ? (
-        <img
-          alt={name}
-          className="size-full object-cover"
-          src={imageUrl}
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        initials || <Bot className="size-6" />
-      )}
-    </div>
   )
 }
 
@@ -1377,13 +1157,3 @@ function GeneratedAudioSkeleton() {
   )
 }
 
-function getVoiceGradient(tone: number) {
-  const tones = [
-    "bg-[linear-gradient(135deg,#0f766e,#2563eb)]",
-    "bg-[linear-gradient(135deg,#be123c,#7c3aed)]",
-    "bg-[linear-gradient(135deg,#047857,#ca8a04)]",
-    "bg-[linear-gradient(135deg,#1d4ed8,#db2777)]",
-  ]
-
-  return tones[tone % tones.length]
-}

@@ -52,7 +52,7 @@ npm run start    # 启动生产构建
 
 ```bash
 NEXT_PUBLIC_INSFORGE_URL=https://your-project.us-east.insforge.app
-NEXT_PUBLIC_INSFORGE_API_KEY=your-public-or-project-key
+NEXT_PUBLIC_INSFORGE_ANON_KEY=your-public-anon-key
 INSFORGE_URL=https://your-project.us-east.insforge.app
 INSFORGE_API_KEY=your-server-side-key
 ```
@@ -138,7 +138,6 @@ Trigger 配置在 `trigger.config.ts`，任务目录为 `src/trigger`：
 - `ai-voice.ts`：语音克隆、TTS、语音处理。
 - `ai-video-avatar.ts`：数字人视频生成和回调收尾。
 - `ai-video-agent.ts`：多场景视频生成、字幕、B-roll、数字人片段、Remotion 渲染。
-- `example.ts`：示例任务。
 
 本地调试生成任务时，需要同时启动 Next.js 开发服务，并确保 Trigger.dev 环境中配置了同一组服务端密钥。
 

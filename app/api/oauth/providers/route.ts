@@ -11,8 +11,8 @@ type OAuthConfigList = {
 }
 
 function getInsForgeConfig() {
-  const baseUrl = process.env.INSFORGE_URL || process.env.NEXT_PUBLIC_INSFORGE_URL
-  const apiKey = process.env.INSFORGE_API_KEY || process.env.NEXT_PUBLIC_INSFORGE_API_KEY
+  const baseUrl = process.env.INSFORGE_URL
+  const apiKey = process.env.INSFORGE_API_KEY
 
   if (!baseUrl || !apiKey) {
     throw new Error("InsForge is not configured. Add INSFORGE_URL and INSFORGE_API_KEY.")

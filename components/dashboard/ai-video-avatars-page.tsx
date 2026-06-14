@@ -2,21 +2,14 @@
 
 import Link from "next/link"
 import {
-  CalendarDays,
-  Download,
-  Eye,
   Film,
-  Maximize2,
-  Play,
   Plus,
   Sparkles,
   Trash2,
-  UserRound,
-  WandSparkles,
 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
+import { AiVideoAvatarVideoCard } from "@/components/dashboard/library-asset-cards"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -34,8 +27,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { showAppToast } from "@/components/ui/app-toast"
 import { getValidAccessToken, refreshSession } from "@/lib/insforge"
 import type { AiVideoAvatarVideo } from "@/lib/video-avatar-types"
-import { getVideoAvatarStatusLabel } from "@/lib/video-avatar-types"
-import { cn } from "@/lib/utils"
 
 export function AiVideoAvatarsPage() {
   const [videos, setVideos] = useState<AiVideoAvatarVideo[]>([])
@@ -134,7 +125,7 @@ export function AiVideoAvatarsPage() {
         {loading ? <VideoSkeletons /> : null}
 
         {!loading && videos.map((video) => (
-          <VideoCard
+          <AiVideoAvatarVideoCard
             key={video.id}
             deleting={deletingId === video.id}
             video={video}
@@ -187,123 +178,6 @@ export function AiVideoAvatarsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  )
-}
-
-function VideoCard({
-  deleting,
-  onPreview,
-  onRequestDelete,
-  video,
-}: {
-  deleting: boolean
-  onPreview: () => void
-  onRequestDelete: () => void
-  video: AiVideoAvatarVideo
-}) {
-  const completed = video.status === "completed" && Boolean(video.video_url)
-  const createdAt = new Date(video.created_at).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-
-  return (
-    <article className="group flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
-      <div className={cn("relative overflow-hidden bg-muted", video.aspect_ratio === "9:16" ? "aspect-[9/12]" : "aspect-video")}>
-        {video.thumbnail_url ? (
-          <img alt={video.title} className="size-full object-cover transition duration-300 group-hover:scale-[1.03]" src={video.thumbnail_url} />
-        ) : video.avatar_image_url ? (
-          <img alt={video.avatar_name} className="size-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03]" src={video.avatar_image_url} />
-        ) : (
-          <div className="grid size-full place-items-center bg-[linear-gradient(135deg,#0f766e,#2563eb)] text-white">
-            <Film className="size-10" />
-          </div>
-        )}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-          <Badge variant={video.status === "completed" ? "default" : video.status === "failed" ? "destructive" : "secondary"}>
-            {getVideoAvatarStatusLabel(video.status)}
-          </Badge>
-          <Badge className="bg-background/90" variant="outline">{video.aspect_ratio}</Badge>
-          <Badge className="bg-background/90" variant="outline">{video.duration_seconds}s</Badge>
-        </div>
-        <Button
-          aria-label="Preview video"
-          className="absolute bottom-3 right-3 shadow-md"
-          disabled={!completed}
-          size="icon"
-          variant="secondary"
-          onClick={onPreview}
-        >
-          <Play />
-        </Button>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold">{video.title}</h3>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{video.script}</p>
-        </div>
-
-        <div className="grid gap-2 text-sm">
-          <MetadataRow icon={<UserRound className="size-4" />} label="Avatar" value={video.avatar_name || "Avatar"} />
-          <MetadataRow icon={<WandSparkles className="size-4" />} label="Voice" value={video.voice_name || "Voice"} />
-          <MetadataRow icon={<CalendarDays className="size-4" />} label="Created" value={createdAt} />
-        </div>
-
-        {video.error ? <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{video.error}</p> : null}
-
-        <div className="mt-auto grid grid-cols-2 gap-2">
-          <Button
-            className="border-sky-200 bg-sky-50 text-sky-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 hover:shadow-md dark:border-sky-400/30 dark:bg-sky-400/10 dark:text-sky-200 dark:hover:bg-sky-400/20"
-            disabled={!completed}
-            variant="outline"
-            onClick={onPreview}
-          >
-            <Eye />
-            Preview
-          </Button>
-          <Button
-            className="border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 hover:shadow-md dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/20"
-            disabled={!completed}
-            nativeButton={false}
-            render={completed ? <a href={video.video_url} download /> : undefined}
-            variant="outline"
-          >
-            <Download />
-            Download
-          </Button>
-          <Button
-            className="border-violet-200 bg-violet-50 text-violet-700 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800 hover:shadow-md dark:border-violet-400/30 dark:bg-violet-400/10 dark:text-violet-200 dark:hover:bg-violet-400/20"
-            nativeButton={false}
-            render={<Link href={`/dashboard/ai-video-avatar/${video.id}`} />}
-            variant="outline"
-          >
-            <Maximize2 />
-            Open
-          </Button>
-          <Button
-            className="border-rose-200 bg-rose-50 text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 hover:shadow-md dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200 dark:hover:bg-rose-400/20"
-            disabled={deleting}
-            variant="outline"
-            onClick={onRequestDelete}
-          >
-            <Trash2 />
-            {deleting ? "Deleting" : "Delete"}
-          </Button>
-        </div>
-      </div>
-    </article>
-  )
-}
-
-function MetadataRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-muted/20 px-3 py-2">
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="shrink-0 text-xs font-medium uppercase text-muted-foreground">{label}</span>
-      <span className="truncate font-medium">{value}</span>
     </div>
   )
 }

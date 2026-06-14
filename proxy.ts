@@ -12,7 +12,7 @@ export function proxy(request: NextRequest) {
   const unprefixedPathname = stripLocale(pathname)
   const hasSessionHint = request.cookies.has(appSessionCookie)
 
-  if (unprefixedPathname.startsWith("/studio") && !hasSessionHint) {
+  if (isProtectedAppPath(unprefixedPathname) && !hasSessionHint) {
     const signInUrl = new URL(`/${locale}/sign-in`, request.url)
     signInUrl.searchParams.set("next", pathname)
     return NextResponse.redirect(signInUrl)
@@ -37,4 +37,8 @@ function stripLocale(pathname: string) {
   return pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
     ? pathname.slice(locale.length + 1) || "/"
     : pathname
+}
+
+function isProtectedAppPath(pathname: string) {
+  return pathname.startsWith("/studio") || pathname.startsWith("/dashboard")
 }

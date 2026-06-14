@@ -22,6 +22,10 @@ type AuthSession = {
   user?: AuthUser
 }
 
+type SignUpSession = AuthSession & {
+  needsEmailVerification?: boolean
+}
+
 type InsForgeRequestInit = RequestInit & {
   skipAuthorization?: boolean
 }
@@ -46,7 +50,7 @@ type OAuthInitResponse = {
 type ProfileSyncEvent = "sign_in" | "sign_up" | "oauth"
 
 const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL
-const apiKey = process.env.NEXT_PUBLIC_INSFORGE_API_KEY
+const apiKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY
 
 const accessTokenKey = "kravix.insforge.accessToken"
 const csrfTokenKey = "kravix.insforge.csrfToken"
@@ -58,7 +62,7 @@ const profileSyncTimeoutMs = 8_000
 
 function requireConfig() {
   if (!baseUrl || !apiKey) {
-    throw new Error("InsForge is not configured. Add NEXT_PUBLIC_INSFORGE_URL and NEXT_PUBLIC_INSFORGE_API_KEY.")
+    throw new Error("InsForge is not configured. Add NEXT_PUBLIC_INSFORGE_URL and NEXT_PUBLIC_INSFORGE_ANON_KEY.")
   }
 }
 
@@ -400,6 +404,11 @@ export async function signInWithPassword(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   })
   const session = normalizeSession(body)
+  if (!session.accessToken) {
+    clearLocalSession()
+    throw new Error("Please verify your email before signing in.")
+  }
+
   storeSession(session)
   await syncCurrentUserProfileSafely(session, "sign_in")
   return session
@@ -410,7 +419,12 @@ export async function signUpWithPassword(name: string, email: string, password: 
     method: "POST",
     body: JSON.stringify({ name, email, password }),
   })
-  const session = normalizeSession(body)
+  const session: SignUpSession = normalizeSession(body)
+  if (!session.accessToken) {
+    clearLocalSession()
+    return { ...session, needsEmailVerification: true }
+  }
+
   storeSession(session)
   await syncCurrentUserProfileSafely(session, "sign_up")
   return session
