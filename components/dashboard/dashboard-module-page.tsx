@@ -21,14 +21,14 @@ export function DashboardModulePage({
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-        <div className="relative min-h-[320px] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+        <div className="relative min-h-[320px] overflow-hidden rounded-lg border border-border/70 bg-card shadow-[0_1px_2px_rgb(0_0_0_/_0.05),0_14px_34px_rgb(0_0_0_/_0.08)]">
           <DashboardMediaSurface
             alt={item.title}
             mediaSrc={item.mediaSrc}
             mediaType={item.mediaType}
           />
           <div className="relative flex h-full flex-col justify-end p-6 text-white sm:p-8">
-            <div className="mb-5 inline-flex size-12 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur">
+            <div className="mb-5 inline-flex size-12 items-center justify-center rounded-lg border border-white/20 bg-white/14 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.2)] backdrop-blur-md">
               <Icon className="size-6" />
             </div>
             <p className="text-sm font-medium text-white/72">
@@ -44,7 +44,7 @@ export function DashboardModulePage({
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_10px_24px_rgb(0_0_0_/_0.05)] backdrop-blur-xl">
             <p className="text-sm font-medium text-muted-foreground">
               {t("module.statusLabel")}
             </p>
@@ -56,7 +56,7 @@ export function DashboardModulePage({
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_10px_24px_rgb(0_0_0_/_0.05)] backdrop-blur-xl">
             <p className="text-sm font-medium text-muted-foreground">
               {t("module.includesLabel")}
             </p>

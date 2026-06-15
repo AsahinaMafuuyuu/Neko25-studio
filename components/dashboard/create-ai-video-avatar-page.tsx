@@ -313,14 +313,14 @@ export function CreateAiVideoAvatarPage() {
           <ArrowLeft />
           Library
         </Button>
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm shadow-sm">
+        <div className="rounded-lg border border-border/70 bg-card/95 px-4 py-2 text-sm shadow-sm">
           <span className="text-muted-foreground">Credits </span>
           <span className="font-semibold">{creditBalance ?? "..."}</span>
         </div>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -353,7 +353,7 @@ export function CreateAiVideoAvatarPage() {
             </div>
 
             {scriptMode === "ai" ? (
-              <div className="grid gap-4 rounded-xl border border-border/70 bg-muted/20 p-4">
+              <div className="grid gap-4 rounded-lg border border-border/70 bg-muted/20 p-4">
                 <div className="grid gap-2">
                   <Label htmlFor="script-topic">Topic</Label>
                   <Input
@@ -411,7 +411,7 @@ export function CreateAiVideoAvatarPage() {
           <Panel title="Avatar" icon={<UserRound className="size-4" />}>
             <div className="grid gap-4">
               <ChoiceGroupCard
-                contentClassName="max-h-[430px] overflow-y-scroll overscroll-contain rounded-2xl bg-slate-950/[0.045] p-3 ring-1 ring-border/70 dark:bg-black/25"
+                contentClassName="max-h-[430px] overflow-y-scroll overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedAvatars.custom.length}
                 description="Your uploaded and AI-created characters."
                 icon={<Sparkles className="size-4" />}
@@ -433,7 +433,7 @@ export function CreateAiVideoAvatarPage() {
               </ChoiceGroupCard>
 
               <ChoiceGroupCard
-                contentClassName="max-h-[430px] overflow-y-scroll overscroll-contain rounded-2xl bg-slate-950/[0.045] p-3 ring-1 ring-border/70 dark:bg-black/25"
+                contentClassName="max-h-[430px] overflow-y-scroll overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedAvatars.default.length}
                 description="Studio-ready avatars bundled with the product."
                 icon={<LayoutTemplate className="size-4" />}
@@ -515,7 +515,7 @@ export function CreateAiVideoAvatarPage() {
                     <button
                       key={ratio}
                       className={cn(
-                        "rounded-xl border p-4 text-left transition hover:bg-muted/40",
+                        "rounded-lg border p-4 text-left transition hover:bg-muted/40",
                         aspectRatio === ratio ? "border-primary bg-primary/10 ring-2 ring-primary/20" : "border-border bg-card"
                       )}
                       type="button"
@@ -534,7 +534,7 @@ export function CreateAiVideoAvatarPage() {
                     <button
                       key={duration}
                       className={cn(
-                        "rounded-xl border px-2 py-4 text-sm font-semibold transition hover:bg-muted/40",
+                        "rounded-lg border px-2 py-4 text-sm font-semibold transition hover:bg-muted/40",
                         durationSeconds === duration ? "border-primary bg-primary/10 ring-2 ring-primary/20" : "border-border bg-card"
                       )}
                       type="button"
@@ -573,10 +573,10 @@ export function CreateAiVideoAvatarPage() {
       </div>
 
       <Dialog open={completionDialogOpen} onOpenChange={setCompletionDialogOpen}>
-        <DialogContent className="overflow-hidden border-primary/20 bg-[linear-gradient(135deg,var(--popover),color-mix(in_oklch,var(--accent),transparent_88%))] sm:max-w-lg">
-          <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--primary),var(--accent),oklch(0.68_0.16_55))]" />
+        <DialogContent className="overflow-hidden border-border/70 bg-popover/96 sm:max-w-lg">
+          <div className="absolute inset-x-0 top-0 h-1 bg-primary/80" />
           <DialogHeader>
-            <div className="mb-1 grid size-12 place-items-center rounded-xl bg-primary/10 text-primary shadow-sm">
+            <div className="mb-1 grid size-12 place-items-center rounded-lg bg-primary/10 text-primary shadow-sm">
               <Check className="size-6" />
             </div>
             <DialogTitle>Avatar video is ready</DialogTitle>
@@ -585,7 +585,7 @@ export function CreateAiVideoAvatarPage() {
             </DialogDescription>
           </DialogHeader>
           {outputVideo?.video_url ? (
-            <div className="overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+            <div className="overflow-hidden rounded-lg border border-border bg-muted shadow-sm">
               <video className="aspect-video w-full bg-black object-contain" controls src={outputVideo.video_url} />
             </div>
           ) : null}
@@ -607,7 +607,7 @@ export function CreateAiVideoAvatarPage() {
 
 function Panel({ children, icon, title }: { children: React.ReactNode; icon: React.ReactNode; title: string }) {
   return (
-    <section className="rounded-2xl border border-border/70 bg-[linear-gradient(145deg,var(--card),color-mix(in_oklch,var(--secondary),transparent_68%))] p-4 shadow-sm transition duration-300 hover:shadow-md sm:p-5">
+    <section className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm transition duration-200 hover:shadow-[0_10px_28px_rgb(0_0_0_/_0.07)] sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</span>
         <h3 className="text-base font-semibold">{title}</h3>
@@ -668,7 +668,7 @@ function PreviewPanel({
 
   return (
     <aside className="xl:sticky xl:top-24 xl:self-start">
-      <div className="space-y-4 rounded-2xl border border-border/70 bg-[linear-gradient(155deg,var(--card),color-mix(in_oklch,var(--primary),transparent_92%),color-mix(in_oklch,var(--accent),transparent_90%))] p-4 shadow-lg shadow-primary/5 sm:p-5">
+      <div className="space-y-4 rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">Live preview</h3>
@@ -703,7 +703,7 @@ function PreviewPanel({
           <PreviewStat icon={<Clock3 className="size-4" />} label="Duration" value={`${durationSeconds}s`} />
         </div>
 
-        <div className="rounded-2xl border border-primary/15 bg-background/60 p-4 shadow-inner">
+        <div className="rounded-lg border border-border/70 bg-background/60 p-4 shadow-inner">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-base font-semibold">Generation progress</p>
@@ -719,7 +719,7 @@ function PreviewPanel({
             ) : null}
           </div>
           <Progress
-            className="avatar-progress [&_[data-slot=progress-track]]:h-3 [&_[data-slot=progress-track]]:bg-primary/10 [&_[data-slot=progress-indicator]]:bg-[linear-gradient(90deg,var(--primary),var(--accent),oklch(0.68_0.16_55))]"
+            className="avatar-progress [&_[data-slot=progress-track]]:h-3 [&_[data-slot=progress-track]]:bg-primary/10 [&_[data-slot=progress-indicator]]:bg-primary"
             value={Math.round(visibleProgress)}
           >
             <ProgressLabel>{activeJob?.message || outputVideo?.message || "Ready to generate."}</ProgressLabel>
@@ -792,7 +792,7 @@ function CreateSkeleton() {
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
       <div className="space-y-5">
         {[0, 1, 2, 3].map((item) => (
-          <div key={item} className="rounded-xl border border-border/70 bg-card p-5">
+          <div key={item} className="rounded-lg border border-border/70 bg-card/95 p-5">
             <Skeleton className="h-5 w-48" />
             <Skeleton className="mt-4 h-28 w-full" />
           </div>

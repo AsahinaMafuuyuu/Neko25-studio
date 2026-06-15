@@ -87,10 +87,10 @@ export function AiVideoAgentClient() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
+            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
               <Sparkles className="size-4" />
               AI Video Agent
             </div>
@@ -101,7 +101,7 @@ export function AiVideoAgentClient() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
+            <div className="rounded-lg border border-border/70 bg-muted/25 px-4 py-3">
               <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
             </div>
@@ -117,7 +117,7 @@ export function AiVideoAgentClient() {
         </div>
       </section>
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {loading ? <ProjectSkeletons /> : null}
@@ -174,7 +174,7 @@ export function AiVideoAgentClient() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={Boolean(deletingId)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="border border-rose-300/60 bg-rose-500/15 text-rose-700 shadow-[0_0_18px_rgba(244,63,94,.18)] transition hover:-translate-y-0.5 hover:bg-rose-500/25 hover:text-rose-800 hover:shadow-[0_0_28px_rgba(244,63,94,.34)] dark:border-rose-400/30 dark:text-rose-200" disabled={Boolean(deletingId)} onClick={deleteProject}>
+            <AlertDialogAction variant="destructive" disabled={Boolean(deletingId)} onClick={deleteProject}>
               {deletingId ? <LoaderCircle className="animate-spin" /> : <Trash2 />}
               {deletingId ? "Deleting" : "Delete project"}
             </AlertDialogAction>
@@ -253,8 +253,8 @@ function buildScenePreviewComposition(composition: AiVideoAgentProject["composit
 
 function EmptyState() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
-      <div className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
+    <div className="rounded-lg border border-dashed border-border bg-card/95 p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
+      <div className="mx-auto grid size-12 place-items-center rounded-lg bg-primary/10 text-primary">
         <Film className="size-6" />
       </div>
       <h3 className="mt-4 text-base font-semibold">No AI video projects yet</h3>
@@ -273,7 +273,7 @@ function ProjectSkeletons() {
   return (
     <>
       {[0, 1, 2].map((item) => (
-        <div key={item} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
+        <div key={item} className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm">
           <Skeleton className="aspect-video w-full rounded-lg" />
           <Skeleton className="mt-4 h-5 w-2/3" />
           <Skeleton className="mt-3 h-4 w-full" />

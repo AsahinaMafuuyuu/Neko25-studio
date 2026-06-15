@@ -27,11 +27,11 @@ export function ChoiceGroupCard({
   title: string
 }) {
   return (
-    <section className="group/choice-card min-h-[220px] rounded-xl border border-border/70 bg-[linear-gradient(150deg,var(--card),color-mix(in_oklch,var(--primary),transparent_94%),color-mix(in_oklch,var(--accent),transparent_93%))] p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10">
+    <section className="group/choice-card min-h-[220px] rounded-lg border border-border/70 bg-card/95 p-4 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_10px_24px_rgb(0_0_0_/_0.05)] backdrop-blur-xl transition duration-200 hover:border-border hover:shadow-[0_1px_2px_rgb(0_0_0_/_0.05),0_14px_30px_rgb(0_0_0_/_0.07)]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-xl bg-background/80 text-primary shadow-sm ring-1 ring-border/70 transition group-hover/choice-card:scale-105">
+            <span className="grid size-8 place-items-center rounded-md bg-background/80 text-primary shadow-sm ring-1 ring-border/70">
               {icon}
             </span>
             <h4 className="text-sm font-semibold uppercase text-foreground">{title}</h4>
@@ -47,7 +47,7 @@ export function ChoiceGroupCard({
 
 export function ChoiceEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-border/80 bg-background/55 px-4 py-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-lg border border-dashed border-border/80 bg-background/60 px-4 py-6 text-center text-sm text-muted-foreground">
       {message}
     </div>
   )
@@ -90,14 +90,14 @@ export function AvatarChoice({
   return (
     <button
       className={cn(
-        "overflow-hidden rounded-xl border bg-card/90 text-left shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70"
+        "overflow-hidden rounded-lg border bg-card/95 text-left shadow-sm transition duration-200 hover:border-border hover:shadow-[0_10px_26px_rgb(0_0_0_/_0.07)] disabled:cursor-not-allowed disabled:opacity-60",
+        selected ? "border-primary ring-3 ring-primary/14" : "border-border/70"
       )}
       disabled={disabled}
       type="button"
       onClick={onSelect}
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(62px,0.52fr)] items-center gap-2 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--secondary),transparent_38%),color-mix(in_oklch,var(--accent),transparent_86%))] p-2">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(62px,0.52fr)] items-center gap-2 bg-muted/34 p-2">
         <AvatarRatioPreview imageUrl={desktopImageUrl} label="16:9" name={avatar.name} ratioClassName="aspect-video" />
         <AvatarRatioPreview imageUrl={mobileImageUrl} label="9:16" name={avatar.name} ratioClassName="aspect-[9/16]" />
       </div>
@@ -132,8 +132,8 @@ export function VoiceChoice({
   return (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border bg-card/90 p-3 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md",
-        selected ? "border-primary ring-2 ring-primary/25" : "border-border/70",
+        "grid gap-3 rounded-lg border bg-card/95 p-3 shadow-sm transition duration-200 hover:border-border hover:shadow-[0_10px_26px_rgb(0_0_0_/_0.07)]",
+        selected ? "border-primary ring-3 ring-primary/14" : "border-border/70",
         disabled && "opacity-60"
       )}
     >
@@ -169,7 +169,7 @@ export function DefaultAvatarChoiceGroup({
 }) {
   return (
     <ChoiceGroupCard
-      contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+      contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
       count={count}
       description="Studio-ready avatars bundled with the product."
       icon={<LayoutTemplate className="size-4" />}
@@ -189,7 +189,7 @@ export function CustomAvatarChoiceGroup({
 }) {
   return (
     <ChoiceGroupCard
-      contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+      contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
       count={count}
       description="Your uploaded and AI-created characters."
       icon={<Sparkles className="size-4" />}
@@ -234,7 +234,7 @@ export function VoiceImage({ className, voice }: { className?: string; voice: Pi
   return (
     <span
       className={cn(
-        "grid shrink-0 place-items-center overflow-hidden bg-[linear-gradient(135deg,var(--accent),var(--primary))] text-xs font-semibold text-white shadow-sm",
+        "grid shrink-0 place-items-center overflow-hidden bg-primary/12 text-xs font-semibold text-primary shadow-sm ring-1 ring-primary/20",
         className
       )}
     >

@@ -387,13 +387,13 @@ export function CreateAiVideoAgentClient() {
           <ArrowLeft />
           Library
         </Button>
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm shadow-sm">
+        <div className="rounded-lg border border-border/70 bg-card/95 px-4 py-2 text-sm shadow-sm">
           <span className="text-muted-foreground">Credits </span>
           <span className="font-semibold">{creditBalance ?? "..."}</span>
         </div>
       </div>
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className="space-y-5">
@@ -439,7 +439,7 @@ export function CreateAiVideoAgentClient() {
           <Panel title="Avatar" icon={<UserRound className="size-4" />}>
             <div className="grid gap-4">
               <ChoiceGroupCard
-                contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+                contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedAvatars.custom.length}
                 description="Your uploaded and AI-created characters."
                 icon={<Sparkles className="size-4" />}
@@ -460,7 +460,7 @@ export function CreateAiVideoAgentClient() {
               </ChoiceGroupCard>
 
               <ChoiceGroupCard
-                contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+                contentClassName="max-h-[430px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedAvatars.default.length}
                 description="Studio-ready avatars bundled with the product."
                 icon={<LayoutTemplate className="size-4" />}
@@ -485,7 +485,7 @@ export function CreateAiVideoAgentClient() {
           <Panel title="Voice" icon={<Mic2 className="size-4" />}>
             <div className="grid gap-4 lg:grid-cols-2">
               <ChoiceGroupCard
-                contentClassName="max-h-[288px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+                contentClassName="max-h-[288px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedVoices.custom.length}
                 description="Cloned voices prepared from your samples."
                 icon={<WandSparkles className="size-4" />}
@@ -509,7 +509,7 @@ export function CreateAiVideoAgentClient() {
               </ChoiceGroupCard>
 
               <ChoiceGroupCard
-                contentClassName="max-h-[288px] overflow-y-auto overscroll-contain rounded-xl bg-muted/25 p-3 ring-1 ring-border/70"
+                contentClassName="max-h-[288px] overflow-y-auto overscroll-contain rounded-lg bg-muted/25 p-3 ring-1 ring-border/70"
                 count={groupedVoices.default.length}
                 description="Curated voices for fast AI Video Agent generation."
                 icon={<Mic2 className="size-4" />}
@@ -648,7 +648,7 @@ export function CreateAiVideoAgentClient() {
 
 function Panel({ children, icon, title }: { children: React.ReactNode; icon: React.ReactNode; title: string }) {
   return (
-    <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+    <section className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur-xl sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</span>
         <h3 className="text-base font-semibold">{title}</h3>
@@ -701,14 +701,14 @@ function CaptionStyleChoice({
   return (
     <button
       className={cn(
-        "rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
+        "rounded-lg border bg-card/95 p-4 text-left transition hover:border-border hover:shadow-[0_10px_28px_rgb(0_0_0_/_0.07)] disabled:cursor-not-allowed disabled:opacity-60",
         active ? "border-primary ring-2 ring-primary/25" : "border-border/70"
       )}
       disabled={disabled}
       type="button"
       onClick={onClick}
     >
-      <div className="relative mb-4 grid aspect-video place-items-center overflow-hidden rounded-xl border border-dashed border-border/80 bg-transparent p-4">
+      <div className="relative mb-4 grid aspect-video place-items-center overflow-hidden rounded-lg border border-dashed border-border/80 bg-transparent p-4">
         <div className="flex size-full items-center justify-center">
           <span className={cn("inline-block max-w-full whitespace-nowrap text-center leading-tight", previewStyle.className, effectStyle.className)}>
             {demoCaptionText}
@@ -743,7 +743,7 @@ function DescriptiveChoice({
   return (
     <button
       className={cn(
-        "min-h-28 rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
+        "min-h-28 rounded-lg border bg-card/95 p-4 text-left transition hover:border-border hover:shadow-[0_10px_28px_rgb(0_0_0_/_0.07)] disabled:cursor-not-allowed disabled:opacity-60",
         active ? "border-primary ring-2 ring-primary/25" : "border-border/70"
       )}
       disabled={disabled}
@@ -752,7 +752,7 @@ function DescriptiveChoice({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
             {icon}
           </span>
           <h4 className="text-sm font-semibold">{label}</h4>
@@ -878,7 +878,7 @@ function TimelineEditor({
     <Panel title="Script timeline" icon={<Film className="size-4" />}>
       <div className="grid gap-4">
         {timeline.scenes.map((scene, sceneIndex) => (
-          <section key={scene.id || sceneIndex} className="rounded-xl border border-border/70 bg-muted/15 p-4">
+          <section key={scene.id || sceneIndex} className="rounded-lg border border-border/70 bg-muted/15 p-4">
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px_160px]">
               <div className="grid gap-2">
                 <Label>Scene title</Label>
@@ -1013,7 +1013,7 @@ function PreviewPanel({
 
   return (
     <aside className="xl:sticky xl:top-24 xl:self-start">
-      <div className="space-y-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+      <div className="space-y-4 rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">Live preview</h3>

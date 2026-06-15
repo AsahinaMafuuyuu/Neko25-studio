@@ -56,7 +56,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
 
   if (error || !video) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
         {error || "AI video avatar not found."}
       </div>
     )
@@ -92,14 +92,14 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
             )}
           </div>
 
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h2 className="text-2xl font-semibold tracking-tight">{video.title}</h2>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{video.script}</p>
           </div>
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h3 className="text-base font-semibold">Generation status</h3>
             <Progress className="mt-4" value={video.progress}>
               <ProgressLabel>{video.message || getVideoAvatarStatusLabel(video.status)}</ProgressLabel>
@@ -110,7 +110,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h3 className="text-base font-semibold">Metadata</h3>
             <div className="mt-4 grid gap-3">
               <DetailRow icon={<UserRound className="size-4" />} label="Avatar" value={video.avatar_name} />
@@ -121,7 +121,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
             </div>
           </div>
 
-          <div className="grid gap-2 rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="grid gap-2 rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <Button disabled={!completed} nativeButton={false} render={completed ? <a href={video.video_url} download /> : undefined}>
               <Download />
               Download Video

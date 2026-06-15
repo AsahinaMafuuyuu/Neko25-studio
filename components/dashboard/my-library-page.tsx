@@ -192,10 +192,10 @@ export function MyLibraryPage() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-2xl border border-border/70 bg-[linear-gradient(145deg,var(--card),color-mix(in_oklch,var(--primary),transparent_94%),color-mix(in_oklch,var(--accent),transparent_92%))] p-5 shadow-sm sm:p-6">
+      <section className="overflow-hidden rounded-lg border border-border/70 bg-card/95 p-5 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_12px_30px_rgb(0_0_0_/_0.05)] backdrop-blur-xl sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-4">
-            <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
+            <div className="grid size-14 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
               <FolderKanban className="size-7" />
             </div>
             <div className="min-w-0">
@@ -213,7 +213,7 @@ export function MyLibraryPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border/70 bg-card/95 p-4 shadow-sm sm:p-5">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur-xl sm:p-5">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto] lg:items-end">
           <div className="grid gap-2">
             <label className="text-xs font-medium uppercase text-muted-foreground" htmlFor="library-search">Search by name</label>
@@ -257,7 +257,7 @@ export function MyLibraryPage() {
             <button
               key={tab.value}
               className={cn(
-                "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-sm",
+                "inline-flex h-10 shrink-0 items-center gap-2 rounded-md border px-3 text-sm font-medium transition hover:shadow-sm",
                 filters.tab === tab.value
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border/70 bg-background text-muted-foreground hover:text-foreground"
@@ -279,7 +279,7 @@ export function MyLibraryPage() {
         <StatCard icon={<Database className="size-5" />} label="Storage Upload" value={loading ? "..." : visibleStats.storageLabel} tone="violet" />
       </section>
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
       {loading ? <LibrarySkeleton /> : null}
 
       {!loading && showVoice ? (
@@ -409,10 +409,10 @@ function LibrarySection({
   title: string
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm sm:p-5">
+    <section className="space-y-4 rounded-lg border border-border/70 bg-card/90 p-4 shadow-sm backdrop-blur-xl sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+          <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
             {icon}
           </span>
           <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
@@ -437,19 +437,19 @@ function StatCard({
 }) {
   const tones = {
     primary: "bg-primary/10 text-primary ring-primary/15",
-    sky: "bg-sky-400/10 text-sky-700 ring-sky-300/35 dark:text-sky-200",
-    emerald: "bg-emerald-400/10 text-emerald-700 ring-emerald-300/35 dark:text-emerald-200",
-    violet: "bg-violet-400/10 text-violet-700 ring-violet-300/35 dark:text-violet-200",
+    sky: "bg-primary/10 text-primary ring-primary/15",
+    emerald: "bg-primary/10 text-primary ring-primary/15",
+    violet: "bg-primary/10 text-primary ring-primary/15",
   }
 
   return (
-    <div className="group rounded-2xl border border-border/70 bg-card p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md">
+    <div className="group rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm transition duration-200 hover:border-border hover:shadow-[0_10px_28px_rgb(0_0_0_/_0.07)]">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase text-muted-foreground">{label}</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
         </div>
-        <span className={cn("grid size-11 place-items-center rounded-xl ring-1", tones[tone])}>{icon}</span>
+        <span className={cn("grid size-11 place-items-center rounded-lg ring-1", tones[tone])}>{icon}</span>
       </div>
     </div>
   )
@@ -457,7 +457,7 @@ function StatCard({
 
 function EmptyLibraryState({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-background/60 p-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-lg border border-dashed border-border bg-background/60 p-6 text-center text-sm text-muted-foreground">
       {label}
     </div>
   )
@@ -469,7 +469,7 @@ function LibrarySkeleton() {
       <Skeleton className="h-24 rounded-2xl" />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {[0, 1, 2].map((item) => (
-          <div key={item} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
+          <div key={item} className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm">
             <Skeleton className="aspect-video w-full rounded-lg" />
             <Skeleton className="mt-4 h-5 w-2/3" />
             <Skeleton className="mt-3 h-4 w-full" />

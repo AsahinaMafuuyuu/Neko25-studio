@@ -30,7 +30,7 @@ export function BillingCheckoutPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <Badge variant="outline" className="h-7 gap-2 rounded-md px-3 text-primary">
           <CreditCard className="size-3.5" />
           Checkout Preview

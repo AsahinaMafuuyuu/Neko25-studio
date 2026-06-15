@@ -13,10 +13,10 @@ export default function DashboardHomePage() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card px-6 py-8 shadow-[0_20px_60px_rgba(16,18,34,0.08)] sm:px-8 sm:py-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,color-mix(in_oklch,var(--accent),transparent_58%),transparent_32%),radial-gradient(circle_at_86%_18%,color-mix(in_oklch,var(--primary),transparent_80%),transparent_26%)]" />
+      <section className="relative overflow-hidden rounded-lg border border-border/70 bg-card/95 px-6 py-8 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_14px_36px_rgb(0_0_0_/_0.06)] backdrop-blur-xl sm:px-8 sm:py-10">
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--primary),transparent_93%),transparent_46%)]" />
         <div className="relative max-w-3xl">
-          <div className="mb-5 inline-flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <div className="mb-5 inline-flex size-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_1px_2px_rgb(0_0_0_/_0.12)]">
             <HeroIcon className="size-5" />
           </div>
           <p className="text-sm font-medium text-primary">

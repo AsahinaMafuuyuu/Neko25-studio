@@ -1,0 +1,10 @@
+[browser] Base UI: A component that acts as a button expected a native <button> because the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, which can impact forms and accessibility. Use a real <button> in the `render` prop, or set `nativeButton` to `false`.
+    at Button (http://localhost:3000/_next/static/chunks/_04ywu-8._.js:64:214)
+    at AccountHoverCard (http://localhost:3000/_next/static/chunks/_0anbij3._.js:3198:231)
+    at DashboardShell (http://localhost:3000/_next/static/chunks/_0anbij3._.js:2969:243)
+    at DashboardLayout (about://React/Server/D:%5Cweb_project2%5CAIProject%5Ckravix-ai-studio%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C_0dgpd1r._.js?6:50:263) 
+[browser] Base UI: A component that acts as a button expected a native <button> because the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, which can impact forms and accessibility. Use a real <button> in the `render` prop, or set `nativeButton` to `false`.
+    at Button (http://localhost:3000/_next/static/chunks/_04ywu-8._.js:64:214)
+    at AccountHoverCard (http://localhost:3000/_next/static/chunks/_0anbij3._.js:3221:231)
+    at DashboardShell (http://localhost:3000/_next/static/chunks/_0anbij3._.js:2969:243)
+    at DashboardLayout (about://React/Server/D:%5Cweb_project2%5CAIProject%5Ckravix-ai-studio%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C_0dgpd1r._.js?6:50:263) 

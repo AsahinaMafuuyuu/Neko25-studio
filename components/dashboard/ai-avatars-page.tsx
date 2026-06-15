@@ -534,12 +534,12 @@ export function AiAvatarsPage() {
     <div className="space-y-6">
       <section className={cn("grid gap-4", activeJob && "xl:grid-cols-[minmax(0,1fr)_360px]")}>
         <div className="space-y-2">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
+          <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
             <Sparkles className="size-4" />
             AI Avatars
           </div>
 
-          <div className="rounded-xl border border-border/70 bg-card shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 shadow-sm backdrop-blur-xl">
             <div className="flex min-h-44 min-w-0 flex-col p-4 sm:p-5">
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight sm:text-4xl">Podcast Avatar</h2>
@@ -598,7 +598,7 @@ export function AiAvatarsPage() {
                           <Label htmlFor="avatar-image">Avatar image</Label>
                           <label
                             className={cn(
-                              "grid min-h-56 cursor-pointer place-items-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/30 text-center transition hover:bg-muted/50",
+                              "grid min-h-56 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30 text-center transition hover:bg-muted/50",
                               (submitting || isJobActive) && "pointer-events-none opacity-50"
                             )}
                             htmlFor="avatar-image"
@@ -732,13 +732,13 @@ export function AiAvatarsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {isGenerationCoolingDown ? (
-        <div className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Image maker is returning 429 TooManyRequests. Please wait about one minute before generating again.
         </div>
       ) : null}
@@ -781,7 +781,7 @@ export function AiAvatarsPage() {
           ))}
 
           {!savedAvatars.length && !loading ? (
-            <div className="rounded-xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-border bg-card/95 p-6 text-sm text-muted-foreground">
               No saved avatars yet. Pick a default or create a new one.
             </div>
           ) : null}
@@ -838,7 +838,7 @@ function StatusPanel({
 }) {
   if (loading) {
     return (
-      <div className="grid min-h-48 place-items-center rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+      <div className="grid min-h-48 place-items-center rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Spinner />
           Loading avatars
@@ -848,9 +848,9 @@ function StatusPanel({
   }
 
   return (
-    <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+    <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground">
+        <div className="grid size-11 place-items-center rounded-lg bg-primary text-primary-foreground">
           {isJobActive ? <Spinner /> : <UserRound className="size-5" />}
         </div>
         <div>
@@ -923,7 +923,7 @@ function DialogGenerationStatus({
     <aside
       aria-hidden={!show}
       className={cn(
-        "flex min-h-[360px] flex-col rounded-xl border border-border/70 bg-muted/20 p-4 transition-opacity",
+        "flex min-h-[360px] flex-col rounded-lg border border-border/70 bg-muted/20 p-4 transition-opacity",
         !show && "pointer-events-none opacity-0"
       )}
     >
@@ -989,7 +989,7 @@ function GeneratedAvatarPreview({
   label: string
 }) {
   return (
-    <div className="grid gap-2 rounded-xl border border-border/70 bg-card/70 p-2 shadow-sm">
+    <div className="grid gap-2 rounded-lg border border-border/70 bg-card/70 p-2 shadow-sm">
       <div className={cn("overflow-hidden rounded-lg bg-muted", aspect)}>
         <img alt={label} className="size-full object-cover" src={imageUrl} />
       </div>
@@ -1073,7 +1073,7 @@ function normalizeAvatarName(name: string) {
 
 function AvatarMetadataPendingCard() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-6 shadow-sm">
+    <div className="rounded-lg border border-dashed border-border bg-card/95 p-6 shadow-sm">
       <div className="space-y-4">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-3 w-56" />

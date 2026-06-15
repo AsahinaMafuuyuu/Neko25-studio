@@ -73,7 +73,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
   }
 
   if (loading) return <Skeleton className="h-[720px] rounded-xl" />
-  if (error || !project) return <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">{error || "Project not found."}</div>
+  if (error || !project) return <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">{error || "Project not found."}</div>
 
   const dimensions = getAiVideoAgentDimensions(project.aspect_ratio)
   const hasFinalVideo = Boolean(project.final_video_url)
@@ -129,14 +129,14 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
               <div className="grid size-full place-items-center text-sm text-white/70">Composition is not ready yet.</div>
             )}
           </div>
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h2 className="text-2xl font-semibold tracking-tight">{project.title}</h2>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{project.script || project.topic}</p>
           </div>
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h3 className="text-base font-semibold">Generation status</h3>
             <Progress className="mt-4" value={project.progress}>
               <ProgressLabel>{project.message || getAiVideoAgentStatusLabel(project.status)}</ProgressLabel>
@@ -144,7 +144,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
             </Progress>
             {project.error ? <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{project.error}</p> : null}
           </div>
-          <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <h3 className="text-base font-semibold">Assets</h3>
             <div className="mt-4 grid gap-2 text-sm">
               <Detail label="Scenes" value={String(scenes.length)} />
@@ -153,7 +153,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
               <Detail label="Format" value={`${project.aspect_ratio}, ${project.duration_seconds}s`} />
             </div>
           </div>
-          <div className="grid gap-2 rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+          <div className="grid gap-2 rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm">
             <Button disabled={!project.composition || rendering || hasFinalVideo} onClick={renderProject}>
               {rendering ? <LoaderCircle className="animate-spin" /> : <WandSparkles />}
               {hasFinalVideo ? "Final video rendered" : "Render Final"}

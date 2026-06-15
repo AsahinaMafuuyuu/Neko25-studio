@@ -69,18 +69,18 @@ const categoryColors = {
 const creditMeterStyles: Record<string, { width: string; bar: string; glow: string }> = {
   "1000": {
     width: "33%",
-    bar: "from-red-500 via-rose-400 to-orange-300",
-    glow: "shadow-[0_0_22px_rgba(244,63,94,0.32)]",
+    bar: "from-primary/70 via-primary/60 to-primary/35",
+    glow: "",
   },
   "5000": {
     width: "66%",
-    bar: "from-amber-400 via-yellow-300 to-lime-300",
-    glow: "shadow-[0_0_22px_rgba(245,158,11,0.3)]",
+    bar: "from-primary/80 via-primary/65 to-primary/40",
+    glow: "",
   },
   "10000": {
     width: "100%",
-    bar: "from-emerald-400 via-teal-300 to-cyan-300",
-    glow: "shadow-[0_0_22px_rgba(20,184,166,0.32)]",
+    bar: "from-primary via-primary/75 to-primary/45",
+    glow: "",
   },
 }
 
@@ -339,7 +339,7 @@ export function BillingPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_12px_30px_rgb(0_0_0_/_0.05)] backdrop-blur-xl sm:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
             <Badge variant="outline" className="h-7 gap-2 rounded-md px-3 text-primary">
@@ -365,7 +365,7 @@ export function BillingPage() {
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -401,7 +401,7 @@ export function BillingPage() {
         />
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur-xl sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold tracking-tight">Usage Trend</h3>
@@ -453,7 +453,7 @@ export function BillingPage() {
         </div>
       </section>
 
-      <section ref={rechargeRef} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+      <section ref={rechargeRef} className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur-xl sm:p-5">
         <div>
           <h3 className="text-lg font-semibold tracking-tight">Recharge Credits</h3>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
@@ -473,8 +473,8 @@ export function BillingPage() {
         <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
         <Button
           className={cn(
-            "mt-5 h-12 w-full rounded-full border border-black/10 bg-white text-base font-semibold text-slate-950 shadow-[0_16px_38px_rgba(15,23,42,0.16)] hover:bg-white/92 disabled:bg-white/45 disabled:text-slate-400 dark:border-white/20 dark:bg-white dark:text-slate-950",
-            selectedPackage && "hover:scale-[1.005]"
+            "mt-5 h-12 w-full rounded-md text-base font-semibold",
+            selectedPackage && "shadow-[0_10px_28px_rgb(0_0_0_/_0.10)]"
           )}
           disabled={!selectedPackage}
           onClick={buyCredits}
@@ -545,7 +545,7 @@ export function BillingPage() {
         </Card>
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur-xl sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold tracking-tight">Credits Costs</h3>
@@ -589,10 +589,7 @@ function SummaryCard({
   description: string
 }) {
   return (
-    <Card className="relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover/card:opacity-100">
-        <div className="absolute -right-16 -top-16 size-40 rounded-full bg-primary/10 blur-3xl" />
-      </div>
+    <Card className="relative overflow-hidden transition-all hover:border-border hover:shadow-[0_10px_28px_rgb(0_0_0_/_0.07)]">
       <CardHeader>
         <div className={cn("mb-3 grid size-11 place-items-center rounded-lg", tone)}>
           <Icon className="size-5" />
@@ -656,11 +653,10 @@ function CreditPackageCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "group relative overflow-hidden rounded-xl border p-4 text-left transition-all",
-        "bg-[linear-gradient(135deg,color-mix(in_oklch,var(--card),white_8%),color-mix(in_oklch,var(--muted),transparent_36%))]",
+        "group relative overflow-hidden rounded-lg border bg-card/95 p-4 text-left transition-all",
         selected
-          ? "border-primary shadow-[0_0_0_3px_color-mix(in_oklch,var(--primary),transparent_82%),0_18px_44px_rgba(15,23,42,0.12)]"
-          : "border-border/70 hover:border-primary/45 hover:shadow-sm"
+          ? "border-primary ring-3 ring-primary/14 shadow-[0_10px_30px_rgb(0_0_0_/_0.08)]"
+          : "border-border/70 hover:border-border hover:shadow-sm"
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -668,7 +664,7 @@ function CreditPackageCard({
           <span className="block text-base font-semibold">{formatNumber(item.credits)} credits</span>
           <span className="mt-1 block text-sm text-muted-foreground">Instant package for creative generation.</span>
         </span>
-        <span className="rounded-full bg-background/80 px-3 py-1 text-xl font-semibold tracking-tight shadow-sm">
+        <span className="rounded-md bg-background/80 px-3 py-1 text-xl font-semibold tracking-tight shadow-sm">
           {item.price}
         </span>
       </div>
@@ -785,7 +781,7 @@ function PaymentMethodPicker({
           type="button"
           onClick={() => onChange(option.value)}
           className={cn(
-            "flex items-start justify-between rounded-xl border p-3 text-left transition-all",
+            "flex items-start justify-between rounded-lg border p-3 text-left transition-all",
             value === option.value
               ? "border-primary bg-primary/10 shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
               : "border-border/70 bg-muted/20 hover:bg-muted/40"
@@ -812,8 +808,8 @@ function PaymentIcon({ method, active }: { method: PaymentMethod; active: boolea
     return (
       <span
         className={cn(
-          "grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-sm font-bold text-white shadow-md",
-          active && "shadow-[0_0_24px_rgba(37,99,235,0.35)]"
+          "grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-bold text-primary shadow-sm ring-1 ring-primary/20",
+          active && "bg-primary text-primary-foreground"
         )}
         aria-hidden
       >
@@ -825,8 +821,8 @@ function PaymentIcon({ method, active }: { method: PaymentMethod; active: boolea
   return (
     <span
       className={cn(
-        "relative grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 text-white shadow-md",
-        active && "shadow-[0_0_24px_rgba(22,163,74,0.35)]"
+        "relative grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20",
+        active && "bg-primary text-primary-foreground"
       )}
       aria-hidden
     >

@@ -293,10 +293,10 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 lg:grid-cols-[1fr_520px]">
         <section className="relative flex min-h-[42vh] flex-col justify-between overflow-hidden px-6 py-6 sm:px-10 lg:min-h-screen lg:px-12">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_22%,color-mix(in_oklch,var(--accent),transparent_50%),transparent_32%),radial-gradient(circle_at_82%_18%,color-mix(in_oklch,var(--primary),transparent_78%),transparent_28%)]" />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--background),white_30%),var(--background))]" />
           <nav className="flex items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-3 font-semibold">
-              <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <span className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_1px_2px_rgb(0_0_0_/_0.12)]">
                 <Sparkles className="size-4" />
               </span>
               {common("brand")}
@@ -308,7 +308,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           </nav>
 
           <div className="max-w-2xl py-12 lg:py-0">
-            <p className="mb-5 w-fit rounded-full border border-border bg-card/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur">
+            <p className="mb-5 w-fit rounded-md border border-border/70 bg-card/82 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur-xl">
               {t("heroEyebrow")}
             </p>
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
@@ -323,7 +323,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             {(["oauth", "theme", "routing"] as const).map((item) => (
               <div
                 key={item}
-                className="rounded-xl border border-border bg-card/70 px-3 py-3 text-muted-foreground shadow-sm backdrop-blur"
+                className="rounded-lg border border-border/70 bg-card/82 px-3 py-3 text-muted-foreground shadow-sm backdrop-blur-xl"
               >
                 {t(`heroPills.${item}`)}
               </div>
@@ -332,7 +332,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         </section>
 
         <section className="flex items-center px-4 py-8 sm:px-8 lg:px-0 lg:pr-10">
-          <Card className="w-full border-border/80 bg-card/90 shadow-2xl shadow-primary/10 backdrop-blur">
+          <Card className="w-full border-border/70 bg-card/96 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_24px_64px_rgb(0_0_0_/_0.10)] backdrop-blur-2xl">
             <CardHeader className="gap-2">
               <CardTitle className="text-2xl font-semibold tracking-tight">{title}</CardTitle>
               <CardDescription>{description}</CardDescription>

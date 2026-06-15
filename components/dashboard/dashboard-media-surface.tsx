@@ -37,8 +37,8 @@ export function DashboardMediaSurface({
           <source src={mediaSrc} />
         </video>
       )}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,12,18,0.1)_0%,rgba(10,12,18,0.55)_48%,rgba(10,12,18,0.92)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_36%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(12_14_18_/_0.04)_0%,rgb(12_14_18_/_0.42)_54%,rgb(12_14_18_/_0.82)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgb(255_255_255_/_0.16),transparent_34%)]" />
     </div>
   )
 }

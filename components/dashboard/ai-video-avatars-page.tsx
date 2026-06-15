@@ -89,10 +89,10 @@ export function AiVideoAvatarsPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
+            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
               <Sparkles className="size-4" />
               AI Video Avatars
             </div>
@@ -103,7 +103,7 @@ export function AiVideoAvatarsPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
+            <div className="rounded-lg border border-border/70 bg-muted/25 px-4 py-3">
               <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
             </div>
@@ -116,7 +116,7 @@ export function AiVideoAvatarsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -142,7 +142,7 @@ export function AiVideoAvatarsPage() {
           <DialogHeader>
             <DialogTitle>{previewVideo?.title || "Video preview"}</DialogTitle>
           </DialogHeader>
-          <div className="overflow-hidden rounded-xl border border-border bg-muted">
+          <div className="overflow-hidden rounded-lg border border-border bg-muted">
             {previewVideo?.video_url ? (
               <video className="aspect-video w-full bg-black" controls src={previewVideo.video_url} />
             ) : (
@@ -184,8 +184,8 @@ export function AiVideoAvatarsPage() {
 
 function EmptyVideoState() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
-      <div className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
+    <div className="rounded-lg border border-dashed border-border bg-card/95 p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
+      <div className="mx-auto grid size-12 place-items-center rounded-lg bg-primary/10 text-primary">
         <Film className="size-6" />
       </div>
       <h3 className="mt-4 text-base font-semibold">No avatar videos yet</h3>
@@ -204,7 +204,7 @@ function VideoSkeletons() {
   return (
     <>
       {[0, 1, 2].map((item) => (
-        <div key={item} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
+        <div key={item} className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm">
           <Skeleton className="aspect-video w-full rounded-lg" />
           <Skeleton className="mt-4 h-5 w-2/3" />
           <Skeleton className="mt-3 h-4 w-full" />

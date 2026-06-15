@@ -22,7 +22,7 @@ export function DashboardFeatureCard({
     <Link
       href={href}
       className={cn(
-        "group relative flex min-h-[220px] overflow-hidden rounded-2xl border border-border/70 bg-card text-white shadow-[0_18px_48px_rgba(16,18,34,0.16)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_rgba(16,18,34,0.22)]",
+        "group relative flex min-h-[220px] overflow-hidden rounded-lg border border-border/70 bg-card text-white shadow-[0_1px_2px_rgb(0_0_0_/_0.06),0_14px_34px_rgb(0_0_0_/_0.10)] transition duration-200 hover:border-border hover:shadow-[0_1px_2px_rgb(0_0_0_/_0.08),0_18px_42px_rgb(0_0_0_/_0.14)]",
         className
       )}
     >
@@ -30,11 +30,11 @@ export function DashboardFeatureCard({
 
       <div className="relative flex w-full flex-col justify-between p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
-          <div className="inline-flex size-11 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur">
+          <div className="inline-flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/14 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.2)] backdrop-blur-md">
             <Icon className="size-5" />
           </div>
           {eyebrow ? (
-            <span className="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs font-medium text-white/82 backdrop-blur">
+            <span className="rounded-md border border-white/18 bg-black/20 px-3 py-1 text-xs font-medium text-white/82 backdrop-blur-md">
               {eyebrow}
             </span>
           ) : null}

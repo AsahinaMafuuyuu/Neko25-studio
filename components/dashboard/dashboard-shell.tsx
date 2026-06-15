@@ -184,7 +184,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
-        <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
+        <div className="flex items-center gap-3 rounded-md border border-border/70 bg-card/90 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-xl">
           <Loader2 className="size-4 animate-spin text-primary" />
           {common("loadingDashboard")}
         </div>
@@ -197,7 +197,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
     return (
       <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card px-6 py-5 text-center shadow-sm">
+        <div className="flex flex-col items-center gap-4 rounded-lg border border-border/70 bg-card/95 px-6 py-5 text-center shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_12px_30px_rgb(0_0_0_/_0.06)] backdrop-blur-xl">
           <p className="text-sm text-muted-foreground">{common("redirecting")}</p>
           <Link
             href={signInPath}
@@ -212,14 +212,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider defaultOpen>
-      <Sidebar className="border-r border-sidebar-border/70" side="left">
+      <Sidebar className="border-r border-sidebar-border/70 shadow-[1px_0_0_rgb(255_255_255_/_0.35)]" side="left">
         <SidebarHeader className="gap-4 px-3 py-4">
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold"
+            className="flex items-center gap-3 rounded-lg px-2 py-2 font-semibold transition-colors hover:bg-sidebar-accent/60"
             onClick={() => onNavigationStart("/dashboard")}
           >
-            <span className="grid size-10 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <span className="grid size-10 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.18),0_1px_2px_rgb(0_0_0_/_0.12)]">
               <BrandIcon className="size-4" />
             </span>
             <span className="flex min-w-0 flex-col">
@@ -255,11 +255,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <SidebarSeparator />
           <Link
             href="/dashboard/billing"
-            className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 transition-colors hover:bg-sidebar-accent/70"
+            className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/48 p-3 transition-colors hover:bg-sidebar-accent/78"
             onClick={() => onNavigationStart("/dashboard/billing")}
           >
             <div className="flex items-center gap-3">
-              <div className="grid size-9 place-items-center rounded-lg bg-background/80 text-foreground shadow-sm">
+              <div className="grid size-9 place-items-center rounded-md bg-background/80 text-foreground shadow-sm">
                 <BillingIcon className="size-4" />
               </div>
               <div className="min-w-0">
@@ -271,12 +271,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+          <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/42 p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="min-w-0 truncate text-xs font-medium uppercase tracking-[0.12em] text-sidebar-foreground/66">
                 {t("creditsTitle")}
               </p>
-              <span className="rounded-full border border-lime-300/60 bg-lime-300 px-2.5 py-1 text-xs font-semibold tabular-nums text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.42)]">
+              <span className="rounded-md border border-primary/20 bg-background/85 px-2.5 py-1 text-xs font-semibold tabular-nums text-foreground shadow-sm">
                 {creditBalanceFailed ? "--" : creditBalance === null ? "..." : creditBalance.toLocaleString("en")}
               </span>
             </div>
@@ -284,10 +284,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/dashboard/personal-settings"
-            className="flex items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 text-left transition-colors hover:bg-sidebar-accent/70"
+            className="flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/48 p-3 text-left transition-colors hover:bg-sidebar-accent/78"
             onClick={() => onNavigationStart("/dashboard/personal-settings")}
           >
-            <span className="grid size-9 place-items-center rounded-lg bg-background/60 text-foreground shadow-sm">
+            <span className="grid size-9 place-items-center rounded-md bg-background/70 text-foreground shadow-sm">
               <UserCog className="size-4" />
             </span>
             <span className="min-w-0">
@@ -301,7 +301,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="min-h-screen">
         <PageRouteTransition show={routeTransitioning} />
 
-        <header className="sticky top-0 z-20 border-b border-border/70 bg-background/82 backdrop-blur-xl">
+        <header className="sticky top-0 z-20 border-b border-border/70 bg-background/78 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/68">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <SidebarTrigger className="md:hidden" />
@@ -367,7 +367,7 @@ function AccountHoverCard({
         render={
           <button
             type="button"
-            className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted/60"
+            className="flex items-center gap-2 rounded-md border border-border/70 bg-card/86 py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm backdrop-blur-xl transition-colors hover:bg-muted/60"
           />
         }
       >
@@ -382,8 +382,8 @@ function AccountHoverCard({
               <p className="truncate text-base font-semibold">{username}</p>
               <p className="mt-1 truncate text-sm text-muted-foreground">{email}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Badge variant="outline" className="rounded-full">{plan}</Badge>
-                <Badge className="rounded-full bg-lime-300 text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.45)]">
+                <Badge variant="outline">{plan}</Badge>
+                <Badge className="border-primary/20 bg-background/80 text-foreground">
                   {creditsLabel} credits
                 </Badge>
               </div>
@@ -465,11 +465,11 @@ function PageRouteTransition({ show }: { show: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200",
+        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[3px] transition-opacity duration-200",
         show ? "opacity-100" : "opacity-0"
       )}
     >
-      <div className="w-44 overflow-hidden rounded-full border border-border/70 bg-card/90 p-1.5 shadow-lg">
+      <div className="w-44 overflow-hidden rounded-md border border-border/70 bg-card/92 p-1.5 shadow-[0_12px_36px_rgb(0_0_0_/_0.12)] backdrop-blur-xl">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
         </div>

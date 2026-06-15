@@ -491,10 +491,10 @@ export function AiVoiceCloningPage() {
   return (
     <div className="space-y-6">
       <section className="space-y-4">
-        <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+        <div className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
+              <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
                 <Mic2 className="size-4" />
                 AI Voice Cloning
               </div>
@@ -503,7 +503,7 @@ export function AiVoiceCloningPage() {
                 Save reusable reference audio and generate TTS with custom Qwen3-TTS or Deepgram default voices.
               </p>
             </div>
-            <div className="w-fit rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
+            <div className="w-fit rounded-lg border border-border/70 bg-muted/25 px-4 py-3">
               <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
               <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
             </div>
@@ -514,7 +514,7 @@ export function AiVoiceCloningPage() {
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -626,10 +626,10 @@ function StatusPanel({ tasks }: { tasks: AudioTaskQueueItem[] }) {
   const hasMoreTasks = visibleCount < tasks.length
 
   return (
-    <div className="rounded-2xl border border-white/15 bg-card/60 p-5 shadow-[0_18px_50px_rgb(0_0_0_/_0.14)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/45">
+    <div className="rounded-lg border border-border/70 bg-card/90 p-5 shadow-[0_1px_2px_rgb(0_0_0_/_0.04),0_12px_30px_rgb(0_0_0_/_0.06)] backdrop-blur-xl">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-xl border border-primary/20 bg-primary/15 text-primary shadow-sm">
+          <div className="grid size-11 place-items-center rounded-lg border border-primary/20 bg-primary/12 text-primary shadow-sm">
             {activeCount ? <Spinner /> : <ListChecks className="size-5" />}
           </div>
           <div>
@@ -653,7 +653,7 @@ function StatusPanel({ tasks }: { tasks: AudioTaskQueueItem[] }) {
             ))}
           </div>
         ) : (
-          <p className="rounded-xl border border-dashed border-white/15 bg-background/35 px-4 py-5 text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border/70 bg-background/55 px-4 py-5 text-sm text-muted-foreground">
             No active audio tasks yet. New voice uploads and generated speech jobs will appear here.
           </p>
         )}
@@ -673,14 +673,14 @@ function TaskQueueCard({ task }: { task: AudioTaskQueueItem }) {
   const meta = getTaskStatusMeta(task.status)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/15 bg-background/35 shadow-sm backdrop-blur-md">
+    <div className="overflow-hidden rounded-lg border border-border/70 bg-background/55 shadow-sm backdrop-blur-md">
       <div className={cn("h-1", meta.accentClass)} />
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
             <div
               className={cn(
-                "grid size-10 shrink-0 place-items-center rounded-xl border shadow-sm",
+                "grid size-10 shrink-0 place-items-center rounded-lg border shadow-sm",
                 task.type === "voice"
                   ? "border-primary/20 bg-primary/12 text-primary"
                   : "border-sky-400/20 bg-sky-400/12 text-sky-500"
@@ -693,7 +693,7 @@ function TaskQueueCard({ task }: { task: AudioTaskQueueItem }) {
               <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{task.detail}</p>
             </div>
           </div>
-          <div className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-medium", meta.badgeClass)}>
+          <div className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium", meta.badgeClass)}>
             {meta.icon}
             {meta.label}
           </div>
@@ -827,7 +827,7 @@ function CloneVoiceDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="voice-sample">10 second voice sample</Label>
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+            <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4">
               <Input
                 id="voice-sample"
                 accept="audio/*"
@@ -863,7 +863,7 @@ function CloneVoiceDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="voice-image">Voice impression image</Label>
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+            <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4">
               <Input
                 id="voice-image"
                 accept="image/*"
@@ -887,7 +887,7 @@ function CloneVoiceDialog({
               </Label>
               {imageFile && imageUrl ? (
                 <div className="mt-4 flex min-w-0 max-w-full items-center gap-3 overflow-hidden rounded-lg border border-border/70 bg-card p-3">
-                  <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-border/70 bg-muted">
+                  <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-border/70 bg-muted">
                     <img alt={imageFile.name} className="size-full object-cover" src={imageUrl} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1019,7 +1019,7 @@ function TtsDialog({
 
           <div
             className={cn(
-              "grid gap-3 rounded-xl border p-4 sm:grid-cols-3",
+              "grid gap-3 rounded-lg border p-4 sm:grid-cols-3",
               insufficientCredits ? "border-destructive/40 bg-destructive/10" : "border-border/70 bg-muted/20"
             )}
           >
@@ -1120,8 +1120,8 @@ function EmptyState({
   title: string
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-6 text-center shadow-sm sm:col-span-2 xl:col-span-3">
-      <div className="mx-auto grid size-11 place-items-center rounded-xl bg-muted text-muted-foreground">{icon}</div>
+    <div className="rounded-lg border border-dashed border-border bg-card/95 p-6 text-center shadow-sm sm:col-span-2 xl:col-span-3">
+      <div className="mx-auto grid size-11 place-items-center rounded-lg bg-muted text-muted-foreground">{icon}</div>
       <p className="mt-3 text-sm font-semibold">{title}</p>
       <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
@@ -1132,7 +1132,7 @@ function VoiceSkeleton() {
   return (
     <>
       {[0, 1, 2].map((item) => (
-        <div key={item} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
+        <div key={item} className="rounded-lg border border-border/70 bg-card/95 p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <Skeleton className="size-14 rounded-xl" />
             <div className="space-y-2">

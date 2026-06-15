@@ -350,7 +350,7 @@ export function PersonalSettingsPage() {
   if (loading) {
     return (
       <div className="grid min-h-[50vh] place-items-center">
-        <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
+        <div className="flex items-center gap-3 rounded-md border border-border/70 bg-card/90 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur-xl">
           <Loader2 className="size-4 animate-spin text-primary" />
           Loading account settings...
         </div>
@@ -360,7 +360,7 @@ export function PersonalSettingsPage() {
 
   if (error || !data) {
     return (
-      <section className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
+      <section className="rounded-lg border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
         {error || "Could not load account settings."}
       </section>
     )
@@ -368,7 +368,7 @@ export function PersonalSettingsPage() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">Personal Settings</p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight">Account Settings</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -376,7 +376,7 @@ export function PersonalSettingsPage() {
         </p>
       </section>
 
-      <form onSubmit={saveProfile} className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <form onSubmit={saveProfile} className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <SectionHeader icon={UserRound} title="Profile" description="Control how your profile appears across the studio." />
         <div className="mt-5 grid gap-5">
           <div className="rounded-lg border border-border/70 bg-muted/20 p-4 sm:p-5">
@@ -425,7 +425,7 @@ export function PersonalSettingsPage() {
         </div>
       </form>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <SectionHeader icon={ShieldCheck} title="Security" description="Protect your account and manage high-risk actions." />
         <div className="mt-5 divide-y divide-border/70 rounded-lg border border-border/70">
           <SettingsRow
@@ -460,7 +460,7 @@ export function PersonalSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <SectionHeader icon={Monitor} title="Preference" description="Set your workspace defaults." />
         <div className="mt-5 grid gap-4">
           <PreferenceRow title="Theme" description="Choose how the interface should render.">
@@ -507,13 +507,13 @@ export function PersonalSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
+      <section className="rounded-lg border border-border/70 bg-card/95 p-5 shadow-sm backdrop-blur-xl sm:p-6">
         <SectionHeader icon={WalletCards} title="Workspace" description="Review your plan, workload, and available credits." />
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <WorkspacePanel title="Plan">
             <div className="flex items-center justify-between gap-3">
               <p className="text-2xl font-semibold tracking-tight">{data.workspace.planTier}</p>
-              <Badge className="rounded-full" variant="outline">
+              <Badge variant="outline">
                 <BadgeCheck className="size-3.5" />
                 {data.workspace.planStatus}
               </Badge>
@@ -524,7 +524,7 @@ export function PersonalSettingsPage() {
             <p className="mt-1 text-sm text-muted-foreground">{formatNumber(data.workspace.monthlyCreditRemaining)} remaining</p>
             <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-300 to-fuchsia-400 shadow-[0_0_22px_rgba(45,212,191,0.42)]"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${100 - monthlyUsagePercent}%` }}
               />
             </div>
