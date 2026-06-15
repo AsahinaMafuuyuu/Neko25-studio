@@ -149,6 +149,50 @@
   }
 }
 
+@keyframes studio-loader-spin {
+  0% {
+    transform: rotate(0deg) scale(0.96);
+  }
+  48% {
+    transform: rotate(184deg) scale(1.04);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.96);
+  }
+}
+
+@keyframes studio-loader-breathe {
+  0%, 100% {
+    opacity: 0.64;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes studio-skeleton-sheen {
+  0% {
+    transform: translateX(-115%);
+  }
+  100% {
+    transform: translateX(215%);
+  }
+}
+
+@keyframes studio-route-progress {
+  0% {
+    transform: translateX(-72%) scaleX(0.36);
+  }
+  46% {
+    transform: translateX(18%) scaleX(0.88);
+  }
+  100% {
+    transform: translateX(148%) scaleX(0.42);
+  }
+}
+
 @layer components {
   .avatar-progress [data-slot="progress-indicator"] {
     position: relative;
@@ -163,5 +207,75 @@
     inset: 0;
     position: absolute;
     width: 46%;
+  }
+
+  .studio-skeleton {
+    background:
+      linear-gradient(
+        110deg,
+        color-mix(in oklch, var(--muted), var(--primary) 3%),
+        color-mix(in oklch, var(--muted), var(--accent) 8%),
+        color-mix(in oklch, var(--muted), var(--primary) 3%)
+      );
+    overflow: hidden;
+    position: relative;
+  }
+
+  .studio-skeleton::after {
+    animation: studio-skeleton-sheen 1.65s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklch, var(--background), transparent 34%),
+      transparent
+    );
+    content: "";
+    inset: 0;
+    position: absolute;
+    width: 44%;
+  }
+
+  .studio-route-loader {
+    background:
+      linear-gradient(90deg, color-mix(in oklch, var(--primary), transparent 82%), transparent),
+      var(--muted);
+    position: relative;
+  }
+
+  .studio-route-loader__bar {
+    animation: studio-route-progress 1.05s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--primary), var(--accent) 16%),
+      var(--accent),
+      color-mix(in oklch, var(--primary), var(--background) 12%)
+    );
+    box-shadow: 0 0 18px color-mix(in oklch, var(--primary), transparent 48%);
+    transform-origin: left center;
+  }
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: studio-loader-spin 0.9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    transform-origin: center;
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: studio-loader-breathe 1.6s ease-in-out infinite;
+  }
+
+  .studio-skeleton::after,
+  .studio-route-loader__bar,
+  .avatar-progress [data-slot="progress-indicator"]::after {
+    animation: none;
+  }
+
+  .studio-route-loader__bar {
+    opacity: 0.72;
+    transform: none;
   }
 }

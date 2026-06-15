@@ -1,0 +1,107 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - link "Kravix AI Studio" [ref=e5] [cursor=pointer]:
+        - /url: /zh
+        - img [ref=e7]
+        - text: Kravix AI Studio
+      - navigation [ref=e10]:
+        - link "功能" [ref=e11] [cursor=pointer]:
+          - /url: "#features"
+        - link "安全" [ref=e12] [cursor=pointer]:
+          - /url: "#security"
+        - link "指标" [ref=e13] [cursor=pointer]:
+          - /url: "#metrics"
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img
+          - generic [ref=e16]:
+            - combobox "切换语言" [ref=e17]:
+              - option "中文" [selected]
+              - option "English"
+              - option "日本語"
+            - img
+        - button "Toggle theme" [ref=e18]
+        - link "登录" [ref=e20] [cursor=pointer]:
+          - /url: /zh/sign-in?next=%2Fdashboard
+        - link "开始" [ref=e21] [cursor=pointer]:
+          - /url: /zh/sign-up?next=%2Fdashboard
+    - generic [ref=e22]:
+      - generic [ref=e24]:
+        - paragraph [ref=e25]:
+          - img [ref=e26]
+          - text: 由 InsForge 驱动的 AI Studio SaaS
+        - heading "面向生产级 AI 产品的从容控制台。" [level=1] [ref=e28]
+        - paragraph [ref=e29]: Kravix 将认证、提示词工作流、知识资产和发布准备聚合进一个精致的日常工作室。
+        - generic [ref=e30]:
+          - link "创建工作区" [ref=e31] [cursor=pointer]:
+            - /url: /zh/sign-up?next=%2Fdashboard
+            - generic [ref=e32]: 创建工作区
+            - img [ref=e33]
+          - link "打开工作室" [ref=e35] [cursor=pointer]:
+            - /url: /zh/sign-in?next=%2Fdashboard
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - paragraph [ref=e41]: 工作流质量
+              - paragraph [ref=e42]: 98.4%
+            - generic [ref=e43]: 实时
+          - generic [ref=e44]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: 评估通道 1
+              - generic [ref=e48]: 82%
+            - generic [ref=e52]:
+              - generic [ref=e53]: 评估通道 2
+              - generic [ref=e54]: 94%
+            - generic [ref=e58]:
+              - generic [ref=e59]: 评估通道 3
+              - generic [ref=e60]: 68%
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - img [ref=e65]
+            - paragraph [ref=e69]: 安全访问
+            - paragraph [ref=e70]: 支持邮箱认证以及 Google 和 X OAuth 入口。
+          - generic [ref=e71]:
+            - img [ref=e72]
+            - paragraph [ref=e75]: 精致工作台
+            - paragraph [ref=e76]: 浅色和深色主题共享一致的设计令牌。
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - paragraph [ref=e79]: 为日常产品工作而设计
+        - heading "所有能力都触手可及。" [level=2] [ref=e80]
+      - generic [ref=e81]:
+        - generic [ref=e83]:
+          - img [ref=e85]
+          - generic [ref=e88]: 提示词运营
+          - generic [ref=e89]: 用可重复的评估习惯设计、比较并发布提示词。
+        - generic [ref=e91]:
+          - img [ref=e93]
+          - generic [ref=e97]: 上下文资产库
+          - generic [ref=e98]: 为每个产品界面准备数据集、文档和检索上下文。
+        - generic [ref=e100]:
+          - img [ref=e102]
+          - generic [ref=e106]: 发布工作流
+          - generic [ref=e107]: 在一个工作区协调模型运行、QA 和发布信号。
+    - generic [ref=e110]:
+      - generic [ref=e111]:
+        - paragraph [ref=e112]: InsForge 后端
+        - heading "认证和产品状态共享同一个基础设施。" [level=2] [ref=e113]
+        - paragraph [ref=e114]: 应用已连接 InsForge，用于认证、数据库、存储、实时能力和后端函数，同时避免在 UI 中暴露密钥。
+      - generic [ref=e115]:
+        - generic [ref=e116]: OAuth 登录
+        - generic [ref=e117]: 受保护的工作室路由
+        - generic [ref=e118]: 主题安全组件
+    - generic [ref=e120]:
+      - generic [ref=e121]:
+        - paragraph [ref=e122]: 3.8x
+        - paragraph [ref=e123]: 实验周期更快
+      - generic [ref=e124]:
+        - paragraph [ref=e125]: 99.9%
+        - paragraph [ref=e126]: 后端可用性目标
+      - generic [ref=e127]:
+        - paragraph [ref=e128]: 24/7
+        - paragraph [ref=e129]: 工作室工作流随时可用
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e135] [cursor=pointer]:
+    - img [ref=e136]

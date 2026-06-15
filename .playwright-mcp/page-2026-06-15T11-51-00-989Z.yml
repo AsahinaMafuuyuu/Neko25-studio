@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - navigation [ref=e6]:
+          - link "Kravix AI Studio" [ref=e7] [cursor=pointer]:
+            - /url: /zh
+            - img [ref=e9]
+            - text: Kravix AI Studio
+          - generic [ref=e12]:
+            - generic [ref=e13]:
+              - img
+              - generic [ref=e14]:
+                - combobox "切换语言" [ref=e15]:
+                  - option "中文" [selected]
+                  - option "English"
+                  - option "日本語"
+                - img
+            - button "Toggle theme" [ref=e16]
+        - generic [ref=e18]:
+          - paragraph [ref=e19]: 由 InsForge 驱动的认证
+          - heading "在一个专注的工作室中构建精致 AI 产品。" [level=1] [ref=e20]
+          - paragraph [ref=e21]: 安全登录、精致工作区和生产级界面模式已为你的 SaaS 工作流准备就绪。
+        - generic [ref=e22]:
+          - generic [ref=e23]: OAuth 就绪
+          - generic [ref=e24]: 深色模式
+          - generic [ref=e25]: 工作室路由
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]: 欢迎回来
+          - generic [ref=e30]: 登录以继续使用你的 AI Studio 工作区。
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - button "G Google" [ref=e33]:
+              - generic [ref=e34]: G
+              - text: Google
+            - button "X X" [ref=e35]:
+              - generic [ref=e36]: X
+              - text: X
+          - generic [ref=e37]: 邮箱
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - group [ref=e42]:
+                - generic [ref=e43]: 邮箱
+                - textbox "邮箱" [ref=e44]:
+                  - /placeholder: you@company.com
+              - group [ref=e45]:
+                - generic [ref=e46]: 密码
+                - textbox "密码" [ref=e47]
+                - paragraph [ref=e48]: 使用你的工作区密码。
+            - button "登录" [ref=e49]
+          - paragraph [ref=e50]:
+            - text: 第一次使用 Kravix？
+            - link "创建账号" [ref=e51] [cursor=pointer]:
+              - /url: /zh/sign-up?next=%2Fzh%2Fdashboard
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e57] [cursor=pointer]:
+    - img [ref=e58]
