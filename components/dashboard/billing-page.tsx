@@ -77,17 +77,23 @@ const categoryColors = {
 const creditMeterStyles: Record<string, { width: string; bar: string }> = {
   "1000": {
     width: "33%",
-    bar: "bg-primary",
+    bar: "bg-[color-mix(in_oklch,var(--primary),var(--accent)_12%)]",
   },
   "5000": {
     width: "66%",
-    bar: "bg-primary",
+    bar: "bg-[color-mix(in_oklch,var(--primary),var(--accent)_16%)]",
   },
   "10000": {
     width: "100%",
-    bar: "bg-primary",
+    bar: "bg-[color-mix(in_oklch,var(--primary),var(--accent)_20%)]",
   },
 }
+
+const billingDateInputClasses =
+  "h-8 w-36 border-border/70 bg-[color-mix(in_oklch,var(--secondary),var(--background)_42%)] text-foreground transition-[background-color,border-color,box-shadow] duration-200 hover:border-primary/30 hover:bg-background focus-visible:bg-background"
+
+const billingChoiceClasses =
+  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/35 motion-reduce:transition-none"
 
 export function BillingPage() {
   const router = useRouter()
@@ -254,8 +260,15 @@ export function BillingPage() {
             ]),
           },
           emphasis: {
-            focus: "series",
-            scale: 1.25,
+            focus: "none",
+            scale: 1.18,
+            lineStyle: { width: 4, opacity: 1 },
+            itemStyle: { opacity: 1 },
+          },
+          blur: {
+            lineStyle: { opacity: 1 },
+            itemStyle: { opacity: 1 },
+            areaStyle: { opacity: 1 },
           },
         },
       ],
@@ -328,17 +341,30 @@ export function BillingPage() {
         axisLabel: { color: "#8b93a7" },
         splitLine: { lineStyle: { color: "rgba(148,163,184,0.18)" } },
       },
-      series: Object.keys(categoryColors).map((name) => ({
-        name,
-        type: "line",
-        smooth: true,
-        data: categoryTrend.map((point) => point[name as keyof typeof categoryColors] || 0),
-        symbol: "circle",
-        symbolSize: 6,
-        lineStyle: { width: 3 },
-        emphasis: { focus: "series" },
-        itemStyle: { color: getThemeColor(categoryColors[name as keyof typeof categoryColors]) },
-      })),
+      series: Object.keys(categoryColors).map((name) => {
+        const color = getThemeColor(categoryColors[name as keyof typeof categoryColors])
+
+        return {
+          name,
+          type: "line",
+          smooth: true,
+          data: categoryTrend.map((point) => point[name as keyof typeof categoryColors] || 0),
+          symbol: "circle",
+          symbolSize: 6,
+          lineStyle: { width: 3, color, opacity: 1 },
+          emphasis: {
+            focus: "none",
+            scale: 1.12,
+            lineStyle: { width: 3, color, opacity: 1 },
+            itemStyle: { color, opacity: 1 },
+          },
+          blur: {
+            lineStyle: { opacity: 1 },
+            itemStyle: { opacity: 1 },
+          },
+          itemStyle: { color },
+        }
+      }),
     }
   }, [categoryTrend])
 
@@ -495,9 +521,9 @@ export function BillingPage() {
               <CardTitle>Billing History</CardTitle>
               <CardDescription>Recent credit movement in the selected date range.</CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Input className="h-8 w-36" type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} />
-              <Input className="h-8 w-36" type="date" value={customTo} onChange={(event) => setCustomTo(event.target.value)} />
+            <div className="flex gap-2 rounded-lg border border-border/60 bg-secondary/35 p-1 shadow-xs">
+              <Input className={billingDateInputClasses} type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} />
+              <Input className={billingDateInputClasses} type="date" value={customTo} onChange={(event) => setCustomTo(event.target.value)} />
               <Button size="sm" variant="outline" onClick={() => setRange("custom")}>Filter</Button>
             </div>
           </CardHeader>
@@ -642,26 +668,31 @@ function CreditPackageCard({
     <button
       type="button"
       onClick={onSelect}
+      aria-pressed={selected}
       className={cn(
-        "group relative overflow-hidden rounded-xl border p-4 text-left transition-all",
-        "bg-card",
+        "group relative overflow-hidden rounded-xl border p-4 text-left shadow-xs transition-[background-color,border-color,box-shadow,transform]",
+        "duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 active:translate-y-0",
+        billingChoiceClasses,
         selected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-          : "border-border/70 hover:border-foreground/20 hover:bg-muted/25"
+          ? "border-primary/55 bg-[color-mix(in_oklch,var(--primary),var(--background)_92%)] ring-2 ring-primary/20"
+          : "border-border/70 bg-card hover:border-primary/25 hover:bg-[color-mix(in_oklch,var(--secondary),var(--background)_50%)] hover:shadow-sm"
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <span>
-          <span className="block text-base font-semibold">{formatNumber(item.credits)} credits</span>
+          <span className="block text-base font-semibold text-foreground">{formatNumber(item.credits)} credits</span>
           <span className="mt-1 block text-sm text-muted-foreground">Instant package for creative generation.</span>
         </span>
-        <span className="rounded-full bg-background/80 px-3 py-1 text-xl font-semibold tracking-tight shadow-sm">
+        <span className={cn(
+          "rounded-full px-3 py-1 text-xl font-semibold tracking-tight shadow-sm transition-colors",
+          selected ? "bg-primary text-primary-foreground" : "bg-background/85 text-foreground group-hover:bg-accent/20"
+        )}>
           {item.price}
         </span>
       </div>
-      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted shadow-inner">
+      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[color-mix(in_oklch,var(--secondary),var(--background)_30%)] shadow-inner">
         <div
-          className={cn("h-full rounded-full transition-all duration-500", meter.bar)}
+          className={cn("h-full rounded-full transition-[width,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-105 motion-reduce:transition-none", meter.bar)}
           style={{ width: meter.width }}
         />
       </div>
@@ -720,7 +751,7 @@ function ChartControls({
   onSave?: () => void
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-secondary/35 p-1 shadow-xs">
       <Button size="sm" variant="outline" onClick={onRefresh} disabled={loading}>
         {loading ? <Loader2 className="animate-spin" /> : <RefreshCcw />}
         Refresh
@@ -735,8 +766,8 @@ function ChartControls({
           {item}
         </Button>
       ))}
-      <Input className="h-8 w-36" type="date" value={customFrom} onChange={(event) => onCustomFromChange(event.target.value)} />
-      <Input className="h-8 w-36" type="date" value={customTo} onChange={(event) => onCustomToChange(event.target.value)} />
+      <Input className={billingDateInputClasses} type="date" value={customFrom} onChange={(event) => onCustomFromChange(event.target.value)} />
+      <Input className={billingDateInputClasses} type="date" value={customTo} onChange={(event) => onCustomToChange(event.target.value)} />
       <Button size="sm" variant={range === "custom" ? "default" : "outline"} onClick={() => onRangeChange("custom")}>
         Filter
       </Button>
@@ -771,11 +802,14 @@ function PaymentMethodPicker({
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
+          aria-pressed={value === option.value}
           className={cn(
-            "flex items-start justify-between rounded-xl border p-3 text-left transition-all",
+            "flex items-start justify-between rounded-xl border p-3 text-left shadow-xs transition-[background-color,border-color,box-shadow,transform]",
+            "duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 active:translate-y-0",
+            billingChoiceClasses,
             value === option.value
-              ? "border-primary bg-primary/5 ring-2 ring-primary/15"
-              : "border-border/70 bg-muted/20 hover:bg-muted/40"
+              ? "border-primary/55 bg-[color-mix(in_oklch,var(--primary),var(--background)_93%)] ring-2 ring-primary/15"
+              : "border-border/70 bg-[color-mix(in_oklch,var(--secondary),var(--background)_58%)] hover:border-accent/45 hover:bg-[color-mix(in_oklch,var(--accent),var(--background)_92%)] hover:shadow-sm"
           )}
         >
           <span className="flex min-w-0 gap-3">
@@ -785,7 +819,10 @@ function PaymentMethodPicker({
               <span className="mt-1 block text-xs leading-5 text-muted-foreground">{option.description}</span>
             </span>
           </span>
-          <span className={cn("grid size-5 place-items-center rounded-full border", value === option.value ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+          <span className={cn(
+            "grid size-5 place-items-center rounded-full border transition-[background-color,border-color,transform] duration-200",
+            value === option.value ? "scale-105 border-primary bg-primary text-primary-foreground" : "border-border bg-background/70"
+          )}>
             {value === option.value ? <Check className="size-3" /> : null}
           </span>
         </button>
