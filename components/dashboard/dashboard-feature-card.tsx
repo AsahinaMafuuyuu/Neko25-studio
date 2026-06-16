@@ -22,15 +22,11 @@ export function DashboardFeatureCard({
     <Link
       href={href}
       className={cn(
-        "group relative flex min-h-[220px] overflow-hidden rounded-2xl border border-foreground/10 bg-card text-white shadow-[0_18px_48px_rgba(16,18,34,0.16)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_rgba(16,18,34,0.22)]",
+        "group relative flex min-h-[220px] overflow-hidden rounded-xl border border-border/70 bg-card text-background shadow-sm transition-colors hover:border-foreground/20",
         className
       )}
     >
       <DashboardMediaSurface alt={title} mediaSrc={mediaSrc} mediaType={mediaType} />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,color-mix(in_oklch,var(--primary),transparent_58%),transparent_34%),radial-gradient(circle_at_82%_22%,color-mix(in_oklch,var(--accent),transparent_72%),transparent_28%)] opacity-90 transition-opacity duration-200 group-hover:opacity-100"
-      />
 
       <div className="relative flex w-full flex-col justify-between p-5 sm:p-7">
         <div className="flex items-start justify-between gap-4">
@@ -38,7 +34,7 @@ export function DashboardFeatureCard({
             <Icon className="size-5" />
           </div>
           {eyebrow ? (
-            <span className="rounded-full border border-white/18 bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+            <span className="rounded-md border border-background/18 bg-background/12 px-3 py-1 text-xs font-semibold text-background">
               {eyebrow}
             </span>
           ) : null}

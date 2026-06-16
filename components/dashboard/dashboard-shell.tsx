@@ -336,8 +336,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--secondary),transparent_70%),transparent_240px)] px-3 py-4 sm:px-5 lg:px-6 lg:py-5">
-          <div className="mx-auto flex w-full max-w-[1480px] flex-col gap-5">
+        <div className="flex-1 bg-background px-3 py-5 sm:px-5 lg:px-6 lg:py-6">
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
             {children}
           </div>
         </div>
@@ -396,6 +396,7 @@ function AccountHoverCard({
         <div className="grid grid-cols-2 gap-2 border-t border-border/70 p-3">
           <Button
             variant="outline"
+            nativeButton={false}
             onClick={() => onNavigate("/dashboard/personal-settings")}
             render={<Link href="/dashboard/personal-settings" />}
           >
@@ -404,6 +405,7 @@ function AccountHoverCard({
           </Button>
           <Button
             variant="outline"
+            nativeButton={false}
             onClick={() => onNavigate("/dashboard/billing")}
             render={<Link href="/dashboard/billing" />}
           >

@@ -25,6 +25,14 @@ import type { EChartsOption } from "echarts"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
+  DashboardActionGroup,
+  DashboardError,
+  DashboardPage,
+  DashboardPageHeader,
+  DashboardPanel,
+  DashboardSectionHeader,
+} from "@/components/dashboard/dashboard-layout"
+import {
   Card,
   CardContent,
   CardDescription,
@@ -60,27 +68,24 @@ const creditPackages: CreditPackage[] = [
 ]
 
 const categoryColors = {
-  "AI Voice Cloning": "#7c3aed",
-  "AI Avatar": "#ec4899",
-  "AI Video Agent": "#14b8a6",
-  "AI Video Avatar": "#f59e0b",
+  "AI Voice Cloning": "--primary",
+  "AI Avatar": "--foreground",
+  "AI Video Agent": "--accent",
+  "AI Video Avatar": "--secondary-foreground",
 } as const
 
-const creditMeterStyles: Record<string, { width: string; bar: string; glow: string }> = {
+const creditMeterStyles: Record<string, { width: string; bar: string }> = {
   "1000": {
     width: "33%",
-    bar: "from-red-500 via-rose-400 to-orange-300",
-    glow: "shadow-[0_0_22px_rgba(244,63,94,0.32)]",
+    bar: "bg-primary",
   },
   "5000": {
     width: "66%",
-    bar: "from-amber-400 via-yellow-300 to-lime-300",
-    glow: "shadow-[0_0_22px_rgba(245,158,11,0.3)]",
+    bar: "bg-primary",
   },
   "10000": {
     width: "100%",
-    bar: "from-emerald-400 via-teal-300 to-cyan-300",
-    glow: "shadow-[0_0_22px_rgba(20,184,166,0.32)]",
+    bar: "bg-primary",
   },
 }
 
@@ -196,7 +201,7 @@ export function BillingPage() {
   const usageOption = useMemo<EChartsOption>(() => {
     return {
       animationDuration: 720,
-      color: ["#7c3aed"],
+      color: [getThemeColor("--primary")],
       grid: { left: 34, right: 22, top: 28, bottom: 34 },
       tooltip: {
         trigger: "axis",
@@ -290,7 +295,7 @@ export function BillingPage() {
           data: categoryCosts.map((item) => ({
             name: item.name,
             value: item.value,
-            itemStyle: { color: categoryColors[item.name] },
+            itemStyle: { color: getThemeColor(categoryColors[item.name as keyof typeof categoryColors] || "--primary") },
           })),
         },
       ],
@@ -332,26 +337,20 @@ export function BillingPage() {
         symbolSize: 6,
         lineStyle: { width: 3 },
         emphasis: { focus: "series" },
-        itemStyle: { color: categoryColors[name as keyof typeof categoryColors] },
+        itemStyle: { color: getThemeColor(categoryColors[name as keyof typeof categoryColors]) },
       })),
     }
   }, [categoryTrend])
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
-            <Badge variant="outline" className="h-7 gap-2 rounded-md px-3 text-primary">
-              <BarChart3 className="size-3.5" />
-              Billing Overview
-            </Badge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl">Billing & Credits</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Track credit usage, review billing movement, and prepare recharge flows for Alipay or WeChat payments.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={BarChart3}
+        eyebrow="Billing Overview"
+        title="Billing & Credits"
+        description="Track credit usage, review billing movement, and prepare recharge flows for Alipay or WeChat payments."
+        actions={
+          <DashboardActionGroup>
             <Button onClick={() => rechargeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>
               <Zap />
               Recharge Credits
@@ -360,55 +359,50 @@ export function BillingPage() {
               <FileText />
               View Invoices
             </Button>
-          </div>
-        </div>
-      </section>
+          </DashboardActionGroup>
+        }
+      />
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <DashboardError>{error}</DashboardError>
       ) : null}
 
       <section className="grid gap-4 md:grid-cols-2">
         <SummaryCard
           icon={WalletCards}
-          tone="text-emerald-600 bg-emerald-500/12"
+          tone="bg-accent/16 text-foreground ring-accent/25"
           title="Total Credits"
           value={loading ? "..." : formatNumber(data?.summary.totalCredits || 0)}
           description="Available credits ready for generation jobs."
         />
         <SummaryCard
           icon={TrendingDown}
-          tone="text-rose-600 bg-rose-500/12"
+          tone="bg-destructive/10 text-destructive ring-destructive/20"
           title="Spent This Month"
           value={loading ? "..." : formatNumber(data?.summary.spentThisMonth || 0)}
           description="Credits consumed in the current billing cycle."
         />
         <SummaryCard
           icon={Sparkles}
-          tone="text-violet-600 bg-violet-500/12"
+          tone="bg-primary/10 text-primary ring-primary/20"
           title="Active Plan"
           value={loading ? "..." : data?.summary.activePlan || "Starter"}
           description="Plan data is a placeholder until subscriptions are wired."
         />
         <SummaryCard
           icon={TrendingUp}
-          tone="text-amber-600 bg-amber-500/12"
+          tone="bg-foreground/[0.06] text-foreground ring-foreground/15"
           title="Compare With Last Month"
           value={loading ? "..." : formatSignedNumber(data?.summary.compareWithLastMonth || 0)}
           description="Positive values mean higher spend than last month."
         />
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold tracking-tight">Usage Trend</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Cost over time with day-over-day context on hover.
-            </p>
-          </div>
+      <DashboardPanel compact>
+        <DashboardSectionHeader
+          title="Usage Trend"
+          description="Cost over time with day-over-day context on hover."
+          action={
           <ChartControls
             range={range}
             customFrom={customFrom}
@@ -421,7 +415,8 @@ export function BillingPage() {
             onRefresh={onRefresh}
             onSave={saveTrendChart}
           />
-        </div>
+          }
+        />
 
         <div className="mt-5">
           <EChart
@@ -451,41 +446,38 @@ export function BillingPage() {
             description={loading ? "Loading average." : `Across ${data?.analytics.averageDaily.label || "0 days"}.`}
           />
         </div>
-      </section>
+      </DashboardPanel>
 
-      <section ref={rechargeRef} className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight">Recharge Credits</h3>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Select a credit package. Checkout is a placeholder for Alipay or WeChat integration.
-          </p>
-        </div>
-        <div className="mt-5 grid gap-3">
-          {creditPackages.map((item) => (
-            <CreditPackageCard
-              key={item.value}
-              item={item}
-              selected={selectedPackage?.value === item.value}
-              onSelect={() => setSelectedPackage(item)}
-            />
-          ))}
-        </div>
-        <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-        <Button
-          className={cn(
-            "mt-5 h-12 w-full rounded-full border border-black/10 bg-white text-base font-semibold text-slate-950 shadow-[0_16px_38px_rgba(15,23,42,0.16)] hover:bg-white/92 disabled:bg-white/45 disabled:text-slate-400 dark:border-white/20 dark:bg-white dark:text-slate-950",
-            selectedPackage && "hover:scale-[1.005]"
-          )}
-          disabled={!selectedPackage}
-          onClick={buyCredits}
-        >
-          <CreditCard />
-          Buy Credits
-        </Button>
-      </section>
+      <div ref={rechargeRef}>
+        <DashboardPanel compact>
+          <DashboardSectionHeader
+            title="Recharge Credits"
+            description="Select a credit package. Checkout is a placeholder for Alipay or WeChat integration."
+          />
+          <div className="mt-5 grid gap-3">
+            {creditPackages.map((item) => (
+              <CreditPackageCard
+                key={item.value}
+                item={item}
+                selected={selectedPackage?.value === item.value}
+                onSelect={() => setSelectedPackage(item)}
+              />
+            ))}
+          </div>
+          <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+          <Button
+            className="mt-5 h-11 w-full text-base font-semibold"
+            disabled={!selectedPackage}
+            onClick={buyCredits}
+          >
+            <CreditCard />
+            Buy Credits
+          </Button>
+        </DashboardPanel>
+      </div>
 
       <section ref={summaryRef} className="space-y-4">
-        <Card>
+        <Card className="border border-border/70">
           <CardHeader>
             <CardTitle>Billing Summary</CardTitle>
             <CardDescription>Current cycle information and consumed amount.</CardDescription>
@@ -497,7 +489,7 @@ export function BillingPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border/70">
           <CardHeader className="gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Billing History</CardTitle>
@@ -527,7 +519,7 @@ export function BillingPage() {
                     <TableCell>{item.type}</TableCell>
                     <TableCell><Badge variant="outline">{item.status}</Badge></TableCell>
                     <TableCell>{item.amount}</TableCell>
-                    <TableCell className={item.credits >= 0 ? "text-emerald-600" : "text-rose-600"}>
+                    <TableCell className={item.credits >= 0 ? "text-foreground" : "text-destructive"}>
                       {formatSignedNumber(item.credits)}
                     </TableCell>
                   </TableRow>
@@ -545,14 +537,11 @@ export function BillingPage() {
         </Card>
       </section>
 
-      <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold tracking-tight">Credits Costs</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Category share and daily cost by product.
-            </p>
-          </div>
+      <DashboardPanel compact>
+        <DashboardSectionHeader
+          title="Credits Costs"
+          description="Category share and daily cost by product."
+          action={
           <ChartControls
             range={range}
             customFrom={customFrom}
@@ -564,14 +553,15 @@ export function BillingPage() {
             onCustomToChange={setCustomTo}
             onRefresh={onRefresh}
           />
-        </div>
+          }
+        />
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
           <EChart className="h-80 w-full" option={categoryPieOption} />
           <EChart key={`category-${chartVersion}`} className="h-80 w-full" option={categoryLineOption} />
         </div>
-      </section>
-    </div>
+      </DashboardPanel>
+    </DashboardPage>
   )
 }
 
@@ -589,12 +579,9 @@ function SummaryCard({
   description: string
 }) {
   return (
-    <Card className="relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-md">
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover/card:opacity-100">
-        <div className="absolute -right-16 -top-16 size-40 rounded-full bg-primary/10 blur-3xl" />
-      </div>
+    <Card className="relative overflow-hidden border border-border/70 transition-colors hover:ring-foreground/15">
       <CardHeader>
-        <div className={cn("mb-3 grid size-11 place-items-center rounded-lg", tone)}>
+        <div className={cn("mb-3 grid size-11 place-items-center rounded-lg ring-1", tone)}>
           <Icon className="size-5" />
         </div>
         <CardTitle>{title}</CardTitle>
@@ -657,10 +644,10 @@ function CreditPackageCard({
       onClick={onSelect}
       className={cn(
         "group relative overflow-hidden rounded-xl border p-4 text-left transition-all",
-        "bg-[linear-gradient(135deg,color-mix(in_oklch,var(--card),white_8%),color-mix(in_oklch,var(--muted),transparent_36%))]",
+        "bg-card",
         selected
-          ? "border-primary shadow-[0_0_0_3px_color-mix(in_oklch,var(--primary),transparent_82%),0_18px_44px_rgba(15,23,42,0.12)]"
-          : "border-border/70 hover:border-primary/45 hover:shadow-sm"
+          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+          : "border-border/70 hover:border-foreground/20 hover:bg-muted/25"
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -674,7 +661,7 @@ function CreditPackageCard({
       </div>
       <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted shadow-inner">
         <div
-          className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", meter.bar, meter.glow)}
+          className={cn("h-full rounded-full transition-all duration-500", meter.bar)}
           style={{ width: meter.width }}
         />
       </div>
@@ -787,7 +774,7 @@ function PaymentMethodPicker({
           className={cn(
             "flex items-start justify-between rounded-xl border p-3 text-left transition-all",
             value === option.value
-              ? "border-primary bg-primary/10 shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+              ? "border-primary bg-primary/5 ring-2 ring-primary/15"
               : "border-border/70 bg-muted/20 hover:bg-muted/40"
           )}
         >
@@ -812,8 +799,8 @@ function PaymentIcon({ method, active }: { method: PaymentMethod; active: boolea
     return (
       <span
         className={cn(
-          "grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 text-sm font-bold text-white shadow-md",
-          active && "shadow-[0_0_24px_rgba(37,99,235,0.35)]"
+          "grid size-10 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-sm",
+          active && "ring-2 ring-primary/20"
         )}
         aria-hidden
       >
@@ -825,14 +812,14 @@ function PaymentIcon({ method, active }: { method: PaymentMethod; active: boolea
   return (
     <span
       className={cn(
-        "relative grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 text-white shadow-md",
-        active && "shadow-[0_0_24px_rgba(22,163,74,0.35)]"
+        "relative grid size-10 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground shadow-sm",
+        active && "ring-2 ring-accent/30"
       )}
       aria-hidden
     >
-      <span className="absolute left-2 top-2 size-4 rounded-full bg-white/95" />
-      <span className="absolute bottom-2 right-2 size-4 rounded-full bg-white/80" />
-      <span className="relative text-[10px] font-bold text-green-700">WX</span>
+      <span className="absolute left-2 top-2 size-4 rounded-full bg-background/95" />
+      <span className="absolute bottom-2 right-2 size-4 rounded-full bg-background/80" />
+      <span className="relative text-[10px] font-bold text-foreground">WX</span>
     </span>
   )
 }
@@ -875,7 +862,13 @@ function formatSignedNumber(value: number) {
 function getCanvasBackground() {
   if (typeof window === "undefined") return "#ffffff"
   const value = getComputedStyle(document.documentElement).getPropertyValue("--background").trim()
-  return value ? `oklch(${value})` : "#ffffff"
+  return value || "#ffffff"
+}
+
+function getThemeColor(tokenName: string | undefined, fallback = "oklch(0.56 0.19 267)") {
+  if (!tokenName || typeof window === "undefined") return fallback
+  const value = getComputedStyle(document.documentElement).getPropertyValue(tokenName).trim()
+  return value || fallback
 }
 
 async function apiFetch(path: string, init: RequestInit = {}) {

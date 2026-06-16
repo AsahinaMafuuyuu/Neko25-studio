@@ -2,6 +2,7 @@
 
 import { createBrowserClient } from "@insforge/sdk/ssr"
 
+import { getDevelopmentAuthBypassUser, isDevelopmentAuthBypassEnabled } from "@/lib/auth/dev-bypass"
 import type { AuthResult, AuthSession, AuthUser, OAuthProvider, SignUpResult, VerifyEmailResult } from "@/lib/auth/types"
 
 const legacyAccessTokenKey = "kravix.insforge.accessToken"
@@ -155,10 +156,12 @@ export async function getCurrentUser() {
       Accept: "application/json",
     },
   })
-  if (!response.ok) return null
+  if (!response.ok) {
+    return isDevelopmentAuthBypassEnabled() ? getDevelopmentAuthBypassUser() : null
+  }
 
   const body = (await response.json().catch(() => ({}))) as { user?: AuthUser | null }
-  return body.user || null
+  return body.user || (isDevelopmentAuthBypassEnabled() ? getDevelopmentAuthBypassUser() : null)
 }
 
 export function isTwoFactorChallenge(value: unknown): value is Extract<AuthResult, { requiresTwoFactor: true }> {

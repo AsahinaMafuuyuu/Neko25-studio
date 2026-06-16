@@ -1,8 +1,13 @@
 "use client"
 
-import { Check, Download, ImagePlus, RefreshCcw, Sparkles, Upload, UserRound, Wand2, X } from "lucide-react"
+import { Check, Download, ImagePlus, RefreshCcw, Upload, UserRound, Wand2, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
+import {
+  DashboardError,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { AvatarAssetCard } from "@/components/dashboard/library-asset-cards"
 import {
   AlertDialog,
@@ -531,24 +536,16 @@ export function AiAvatarsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardPage>
       <section className={cn("grid gap-4", activeJob && "xl:grid-cols-[minmax(0,1fr)_360px]")}>
-        <div className="space-y-2">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-            <Sparkles className="size-4" />
-            AI Avatars
-          </div>
-
-          <div className="rounded-xl border border-border/70 bg-card shadow-sm">
-            <div className="flex min-h-44 min-w-0 flex-col p-4 sm:p-5">
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight sm:text-4xl">Podcast Avatar</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Build a reusable identity for videos, podcasts, chat profiles, and generated media.
-                </p>
-              </div>
-
-              <div className="mt-auto flex justify-end pt-6">
+        <div className="grid gap-5">
+          <DashboardPageHeader
+            icon={UserRound}
+            eyebrow="AI Avatars"
+            title="Podcast Avatar"
+            description="Build a reusable identity for videos, podcasts, chat profiles, and generated media."
+            actions={
+              <>
                 <Dialog open={dialogOpen} onOpenChange={onDialogOpenChange} disablePointerDismissal>
                   <DialogTrigger render={<Button />}>
                     <ImagePlus />
@@ -701,7 +698,7 @@ export function AiAvatarsPage() {
                         <span className="block font-medium text-destructive">
                           注：系统可能会丢失已经填写的表单信息
                         </span>
-                        <span className="block">若已保存或者已上传至云端则可以安心退出</span>
+                        <span className="block">Saved or uploaded work remains available in the library.</span>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -712,9 +709,9 @@ export function AiAvatarsPage() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
-            </div>
-          </div>
+              </>
+            }
+          />
         </div>
 
         {activeJob ? (
@@ -732,13 +729,11 @@ export function AiAvatarsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <DashboardError>{error}</DashboardError>
       ) : null}
 
       {isGenerationCoolingDown ? (
-        <div className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="rounded-xl border border-primary/25 bg-primary/10 px-4 py-3 text-sm text-foreground">
           Image maker is returning 429 TooManyRequests. Please wait about one minute before generating again.
         </div>
       ) : null}
@@ -813,7 +808,7 @@ export function AiAvatarsPage() {
           ))}
         </div>
       </section>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -938,7 +933,7 @@ function DialogGenerationStatus({
           className={cn(
             "grid size-9 shrink-0 place-items-center rounded-full border transition-colors duration-300",
             isGenerationComplete
-              ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+              ? "border-accent/35 bg-accent/16 text-foreground"
               : "border-border bg-background text-muted-foreground"
           )}
         >

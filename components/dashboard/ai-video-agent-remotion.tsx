@@ -144,7 +144,7 @@ function MediaLayer({
   const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url)
 
   if (!url || failed) {
-    return <AbsoluteFill style={{ background: fallbackGradient || "linear-gradient(135deg,#0f766e,#2563eb,#7c3aed)" }} />
+    return <AbsoluteFill style={{ background: fallbackGradient || "linear-gradient(135deg,var(--foreground),var(--primary),var(--accent))" }} />
   }
 
   if (isVideo) {

@@ -3,8 +3,11 @@
 import { AlertCircle, Check, CreditCard, ShieldCheck, WalletCards, type LucideIcon } from "lucide-react"
 import { useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import {
   Card,
   CardContent,
@@ -29,17 +32,13 @@ export function BillingCheckoutPage({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(method)
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <Badge variant="outline" className="h-7 gap-2 rounded-md px-3 text-primary">
-          <CreditCard className="size-3.5" />
-          Checkout Preview
-        </Badge>
-        <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Buy Credits</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          This page confirms the selected package and payment preference. Real Alipay and WeChat payment integration is pending.
-        </p>
-      </section>
+    <DashboardPage className="mx-auto w-full max-w-3xl">
+      <DashboardPageHeader
+        icon={CreditCard}
+        eyebrow="Checkout Preview"
+        title="Buy Credits"
+        description="This page confirms the selected package and payment preference. Real Alipay and WeChat payment integration is pending."
+      />
 
       <Card>
         <CardHeader>
@@ -52,7 +51,7 @@ export function BillingCheckoutPage({
             <SummaryTile icon={ShieldCheck} label="Package price" value={price} />
           </div>
 
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
+          <div className="rounded-lg border border-border/70 bg-muted/25 p-4 text-sm text-foreground">
             <div className="flex gap-3">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <div>
@@ -93,7 +92,7 @@ export function BillingCheckoutPage({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPage>
   )
 }
 

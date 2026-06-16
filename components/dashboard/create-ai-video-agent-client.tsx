@@ -8,6 +8,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { AiVideoAgentRemotion } from "@/components/dashboard/ai-video-agent-remotion"
 import {
+  DashboardActionGroup,
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
+import {
   AvatarChoice,
   ChoiceEmptyState,
   ChoiceGroupCard,
@@ -381,19 +388,24 @@ export function CreateAiVideoAgentClient() {
   if (loading) return <Skeleton className="h-[720px] rounded-xl" />
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <Button nativeButton={false} render={<Link href="/dashboard/ai-video-agent" />} variant="outline">
-          <ArrowLeft />
-          Library
-        </Button>
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm shadow-sm">
-          <span className="text-muted-foreground">Credits </span>
-          <span className="font-semibold">{creditBalance ?? "..."}</span>
-        </div>
-      </div>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={Film}
+        eyebrow="AI Video Agent"
+        title="Create Multi-Scene Video"
+        description="Build the script, cast, voice, format, caption style, and final render path for one production-ready video."
+        meta={<DashboardMetric label="Credits" value={creditBalance ?? "..."} />}
+        actions={
+          <DashboardActionGroup>
+            <Button nativeButton={false} render={<Link href="/dashboard/ai-video-agent" />} variant="outline">
+              <ArrowLeft />
+              Library
+            </Button>
+          </DashboardActionGroup>
+        }
+      />
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <DashboardError>{error}</DashboardError> : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className="space-y-5">
@@ -642,7 +654,7 @@ export function CreateAiVideoAgentClient() {
           }))}
         />
       </div>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -701,8 +713,8 @@ function CaptionStyleChoice({
   return (
     <button
       className={cn(
-        "rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
-        active ? "border-primary ring-2 ring-primary/25" : "border-border/70"
+        "rounded-xl border bg-card p-4 text-left transition-colors hover:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-60",
+        active ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border/70"
       )}
       disabled={disabled}
       type="button"
@@ -743,8 +755,8 @@ function DescriptiveChoice({
   return (
     <button
       className={cn(
-        "min-h-28 rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60",
-        active ? "border-primary ring-2 ring-primary/25" : "border-border/70"
+        "min-h-28 rounded-xl border bg-card p-4 text-left transition-colors hover:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-60",
+        active ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border/70"
       )}
       disabled={disabled}
       type="button"

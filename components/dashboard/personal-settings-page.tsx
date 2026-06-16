@@ -22,6 +22,13 @@ import type { LucideIcon } from "lucide-react"
 import { ChangeEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react"
 
 import { useTheme } from "@/components/theme-provider"
+import {
+  DashboardError,
+  DashboardPage,
+  DashboardPageHeader,
+  DashboardPanel,
+  DashboardSectionHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -360,21 +367,18 @@ export function PersonalSettingsPage() {
 
   if (error || !data) {
     return (
-      <section className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
-        {error || "Could not load account settings."}
-      </section>
+      <DashboardError>{error || "Could not load account settings."}</DashboardError>
     )
   }
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">Personal Settings</p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight">Account Settings</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Manage your profile, security, workspace preferences, and credits from one account surface.
-        </p>
-      </section>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={UserRound}
+        eyebrow="Personal Settings"
+        title="Account Settings"
+        description="Manage your profile, security, workspace preferences, and credits from one account surface."
+      />
 
       <form onSubmit={saveProfile} className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
         <SectionHeader icon={UserRound} title="Profile" description="Control how your profile appears across the studio." />
@@ -425,8 +429,11 @@ export function PersonalSettingsPage() {
         </div>
       </form>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <SectionHeader icon={ShieldCheck} title="Security" description="Protect your account and manage high-risk actions." />
+      <DashboardPanel>
+        <DashboardSectionHeader
+          title={<span className="inline-flex items-center gap-2"><ShieldCheck className="size-5" />Security</span>}
+          description="Protect your account and manage high-risk actions."
+        />
         <div className="mt-5 divide-y divide-border/70 rounded-lg border border-border/70">
           <SettingsRow
             title="Password"
@@ -458,10 +465,13 @@ export function PersonalSettingsPage() {
             action={<Button variant="destructive" onClick={() => setDeleteOpen(true)}><Trash2 />Delete account</Button>}
           />
         </div>
-      </section>
+      </DashboardPanel>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <SectionHeader icon={Monitor} title="Preference" description="Set your workspace defaults." />
+      <DashboardPanel>
+        <DashboardSectionHeader
+          title={<span className="inline-flex items-center gap-2"><Monitor className="size-5" />Preference</span>}
+          description="Set your workspace defaults."
+        />
         <div className="mt-5 grid gap-4">
           <PreferenceRow title="Theme" description="Choose how the interface should render.">
             <div className="flex flex-wrap gap-2">
@@ -505,10 +515,13 @@ export function PersonalSettingsPage() {
             </div>
           </PreferenceRow>
         </div>
-      </section>
+      </DashboardPanel>
 
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <SectionHeader icon={WalletCards} title="Workspace" description="Review your plan, workload, and available credits." />
+      <DashboardPanel>
+        <DashboardSectionHeader
+          title={<span className="inline-flex items-center gap-2"><WalletCards className="size-5" />Workspace</span>}
+          description="Review your plan, workload, and available credits."
+        />
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <WorkspacePanel title="Plan">
             <div className="flex items-center justify-between gap-3">
@@ -524,7 +537,7 @@ export function PersonalSettingsPage() {
             <p className="mt-1 text-sm text-muted-foreground">{formatNumber(data.workspace.monthlyCreditRemaining)} remaining</p>
             <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-300 to-fuchsia-400 shadow-[0_0_22px_rgba(45,212,191,0.42)]"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${100 - monthlyUsagePercent}%` }}
               />
             </div>
@@ -534,7 +547,7 @@ export function PersonalSettingsPage() {
             <p className="mt-1 text-sm text-muted-foreground">Credits from direct recharge.</p>
           </WorkspacePanel>
         </div>
-      </section>
+      </DashboardPanel>
 
       <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
         <DialogContent>
@@ -648,7 +661,7 @@ export function PersonalSettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 

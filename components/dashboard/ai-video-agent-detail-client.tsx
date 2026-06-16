@@ -6,6 +6,10 @@ import { Player } from "@remotion/player"
 import { useCallback, useEffect, useState } from "react"
 
 import { AiVideoAgentRemotion } from "@/components/dashboard/ai-video-agent-remotion"
+import {
+  DashboardError,
+  DashboardPage,
+} from "@/components/dashboard/dashboard-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
@@ -73,7 +77,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
   }
 
   if (loading) return <Skeleton className="h-[720px] rounded-xl" />
-  if (error || !project) return <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">{error || "Project not found."}</div>
+  if (error || !project) return <DashboardError>{error || "Project not found."}</DashboardError>
 
   const dimensions = getAiVideoAgentDimensions(project.aspect_ratio)
   const hasFinalVideo = Boolean(project.final_video_url)
@@ -83,7 +87,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
   const previewSceneKey = String(previewComposition.scenes?.[0]?.id || activeSceneIndex)
 
   return (
-    <div className="space-y-6">
+    <DashboardPage>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button nativeButton={false} render={<Link href="/dashboard/ai-video-agent" />} variant="outline">
           <ArrowLeft />
@@ -169,7 +173,7 @@ export function AiVideoAgentDetailClient({ projectId }: { projectId: string }) {
           </div>
         </aside>
       </div>
-    </div>
+    </DashboardPage>
   )
 }
 
