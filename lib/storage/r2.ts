@@ -1,10 +1,12 @@
 import {
   DeleteObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
   type _Object,
 } from "@aws-sdk/client-s3"
+import { createHash, createHmac } from "node:crypto"
 
 type StorageObject = {
   name?: string
@@ -77,6 +79,71 @@ export function createR2StorageAdapter() {
   }
 }
 
+export function getR2PublicObjectUrl(logicalBucket: string, key: string) {
+  const config = getR2Config()
+  return toPublicUrl(config.publicBaseUrl, toObjectKey(logicalBucket, key))
+}
+
+export async function createPresignedR2Upload(
+  logicalBucket: string,
+  key: string,
+  options: {
+    contentType: string
+    expiresInSeconds?: number
+  }
+) {
+  const config = getR2Config()
+  const objectKey = toObjectKey(logicalBucket, key)
+  const contentType = normalizeHeaderValue(options.contentType || "application/octet-stream")
+  const expiresInSeconds = Math.min(Math.max(options.expiresInSeconds || 600, 60), 3600)
+  const host = `${config.accountId}.r2.cloudflarestorage.com`
+  const canonicalUri = `/${encodePathSegments(config.bucket)}/${encodePathSegments(objectKey)}`
+  const now = new Date()
+  const amzDate = formatAmzDate(now)
+  const dateStamp = amzDate.slice(0, 8)
+  const credentialScope = `${dateStamp}/auto/s3/aws4_request`
+  const signedHeaders = "content-type;host"
+  const query = {
+    "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+    "X-Amz-Content-Sha256": "UNSIGNED-PAYLOAD",
+    "X-Amz-Credential": `${config.accessKeyId}/${credentialScope}`,
+    "X-Amz-Date": amzDate,
+    "X-Amz-Expires": String(expiresInSeconds),
+    "X-Amz-SignedHeaders": signedHeaders,
+  }
+  const canonicalQuery = toCanonicalQueryString(query)
+  const canonicalHeaders = `content-type:${contentType}\nhost:${host}\n`
+  const canonicalRequest = [
+    "PUT",
+    canonicalUri,
+    canonicalQuery,
+    canonicalHeaders,
+    signedHeaders,
+    "UNSIGNED-PAYLOAD",
+  ].join("\n")
+  const stringToSign = [
+    "AWS4-HMAC-SHA256",
+    amzDate,
+    credentialScope,
+    sha256Hex(canonicalRequest),
+  ].join("\n")
+  const signature = hmacHex(getSigningKey(config.secretAccessKey, dateStamp), stringToSign)
+  const uploadUrl = `https://${host}${canonicalUri}?${toCanonicalQueryString({
+    ...query,
+    "X-Amz-Signature": signature,
+  })}`
+
+  return {
+    key,
+    url: toPublicUrl(config.publicBaseUrl, objectKey),
+    uploadUrl,
+    headers: {
+      "Content-Type": contentType,
+    },
+    expiresAt: new Date(now.getTime() + expiresInSeconds * 1000).toISOString(),
+  }
+}
+
 export async function uploadR2Object(logicalBucket: string, key: string, body: Blob | Buffer | Uint8Array | string) {
   try {
     const config = getR2Config()
@@ -97,6 +164,30 @@ export async function uploadR2Object(logicalBucket: string, key: string, body: B
       data: {
         key,
         url: toPublicUrl(config.publicBaseUrl, objectKey),
+      },
+      error: null,
+    }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
+export async function headR2Object(logicalBucket: string, key: string) {
+  try {
+    const config = getR2Config()
+    const result = await getR2Client().send(
+      new HeadObjectCommand({
+        Bucket: config.bucket,
+        Key: toObjectKey(logicalBucket, key),
+      })
+    )
+
+    return {
+      data: {
+        key,
+        url: getR2PublicObjectUrl(logicalBucket, key),
+        contentType: result.ContentType || "",
+        size: result.ContentLength || 0,
       },
       error: null,
     }
@@ -153,6 +244,52 @@ function toObjectKey(logicalBucket: string, key: string) {
 
 function toPublicUrl(publicBaseUrl: string, objectKey: string) {
   return `${publicBaseUrl}/${objectKey.split("/").map(encodeURIComponent).join("/")}`
+}
+
+function normalizeHeaderValue(value: string) {
+  return value.replace(/[\r\n]/g, "").trim() || "application/octet-stream"
+}
+
+function encodeRfc3986(value: string) {
+  return encodeURIComponent(value).replace(/[!'()*]/g, (character) =>
+    `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  )
+}
+
+function encodePathSegments(value: string) {
+  return value.split("/").map(encodeRfc3986).join("/")
+}
+
+function toCanonicalQueryString(values: Record<string, string>) {
+  return Object.keys(values)
+    .sort()
+    .map((key) => `${encodeRfc3986(key)}=${encodeRfc3986(values[key])}`)
+    .join("&")
+}
+
+function formatAmzDate(date: Date) {
+  return date
+    .toISOString()
+    .replace(/[:-]|\.\d{3}/g, "")
+}
+
+function sha256Hex(value: string) {
+  return createHash("sha256").update(value, "utf8").digest("hex")
+}
+
+function hmac(key: string | Buffer, value: string) {
+  return createHmac("sha256", key).update(value, "utf8").digest()
+}
+
+function hmacHex(key: string | Buffer, value: string) {
+  return createHmac("sha256", key).update(value, "utf8").digest("hex")
+}
+
+function getSigningKey(secretAccessKey: string, dateStamp: string) {
+  const dateKey = hmac(`AWS4${secretAccessKey}`, dateStamp)
+  const regionKey = hmac(dateKey, "auto")
+  const serviceKey = hmac(regionKey, "s3")
+  return hmac(serviceKey, "aws4_request")
 }
 
 async function toBody(body: Blob | Buffer | Uint8Array | string) {

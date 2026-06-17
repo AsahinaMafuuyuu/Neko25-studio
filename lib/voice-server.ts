@@ -6,6 +6,7 @@ import {
   requireCurrentUserId,
 } from "@/lib/avatar-server"
 import { requestVoiceSampleTranscription } from "@/lib/ai-voice-cloning-requests"
+import { getR2PublicObjectUrl, headR2Object } from "@/lib/storage/r2"
 import {
   type AiTtsJob,
   type AiTtsOutput,
@@ -19,7 +20,7 @@ import {
 
 export { avatarErrorStatus, jsonError, requireBearerToken, requireCurrentUserId }
 
-const voiceBucket = "ai-voices"
+export const voiceBucket = "ai-voices"
 const defaultInitialCredits = 1280
 
 type SdkResponse<T> = {
@@ -48,11 +49,11 @@ function throwIfSdkError(error: unknown, fallback: string) {
   if (error) throw new Error(sdkErrorMessage(error, fallback))
 }
 
-function safeFileName(filename: string, fallback: string) {
+export function safeVoiceStorageFileName(filename: string, fallback: string) {
   return filename.replace(/[^a-z0-9.-]/gi, "-").toLowerCase() || fallback
 }
 
-function getExtension(contentType: string, fallback = "bin") {
+export function getVoiceStorageExtension(contentType: string, fallback = "bin") {
   if (contentType.includes("mpeg") || contentType.includes("mp3")) return "mp3"
   if (contentType.includes("wav") || contentType.includes("wave")) return "wav"
   if (contentType.includes("ogg")) return "ogg"
@@ -80,8 +81,8 @@ function readScalarNumber(value: unknown) {
 
 export async function uploadVoiceBlob(blob: Blob, keyPrefix: string, filename: string) {
   const contentType = blob.type || "application/octet-stream"
-  const fallback = `audio.${getExtension(contentType)}`
-  const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
+  const fallback = `audio.${getVoiceStorageExtension(contentType)}`
+  const key = `${keyPrefix}/${Date.now()}-${safeVoiceStorageFileName(filename, fallback)}`
   const admin = await getBackendAdmin()
   const { data, error } = await admin.storage.from(voiceBucket).upload(key, blob)
   throwIfSdkError(error, "Could not upload voice audio.")
@@ -98,8 +99,8 @@ export async function uploadVoiceBlob(blob: Blob, keyPrefix: string, filename: s
 
 export async function uploadVoiceImageBlob(blob: Blob, keyPrefix: string, filename: string) {
   const contentType = blob.type || "image/png"
-  const fallback = `image.${getExtension(contentType, "png")}`
-  const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
+  const fallback = `image.${getVoiceStorageExtension(contentType, "png")}`
+  const key = `${keyPrefix}/${Date.now()}-${safeVoiceStorageFileName(filename, fallback)}`
   const admin = await getBackendAdmin()
   const { data, error } = await admin.storage.from(voiceBucket).upload(key, blob)
   throwIfSdkError(error, "Could not upload voice image.")
@@ -112,6 +113,32 @@ export async function uploadVoiceImageBlob(blob: Blob, keyPrefix: string, filena
     url: data.url,
     key: data.key,
   }
+}
+
+export function createVoiceUploadKey(input: {
+  userId: string
+  kind: "sample" | "image"
+  filename: string
+  contentType: string
+}) {
+  const prefix = input.kind === "sample" ? "voice-samples" : "voice-images"
+  const fallbackPrefix = input.kind === "sample" ? "audio" : "image"
+  const fallbackExtension = getVoiceStorageExtension(input.contentType, input.kind === "sample" ? "bin" : "png")
+  return `${prefix}/${input.userId}/${Date.now()}-${safeVoiceStorageFileName(
+    input.filename,
+    `${fallbackPrefix}.${fallbackExtension}`
+  )}`
+}
+
+export function getVoiceStorageUrl(key: string) {
+  return getR2PublicObjectUrl(voiceBucket, key)
+}
+
+export async function getVoiceStorageObject(key: string) {
+  const { data, error } = await headR2Object(voiceBucket, key)
+  throwIfSdkError(error, "Could not verify uploaded voice asset.")
+  if (!data) throw new Error("Uploaded voice asset was not found.")
+  return data
 }
 
 async function removeVoiceStorageKeys(keys: Array<string | null | undefined>) {

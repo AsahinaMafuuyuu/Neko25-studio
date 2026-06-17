@@ -73,6 +73,15 @@ type AudioTaskQueueItem = {
   createdAt: number
 }
 
+type VoiceUploadKind = "sample" | "image"
+
+type VoiceUploadResult = {
+  key: string
+  url: string
+  contentType: string
+  size: number
+}
+
 export function AiVoiceCloningPage() {
   const [voices, setVoices] = useState<VoiceListItem[]>([])
   const [defaultVoices, setDefaultVoices] = useState<DefaultVoice[]>([])
@@ -289,6 +298,47 @@ export function AiVoiceCloningPage() {
     setVoiceImageUrl(url)
   }
 
+  async function uploadVoiceAsset(kind: VoiceUploadKind, file: File): Promise<VoiceUploadResult> {
+    const response = await apiFetch("/api/voices/uploads", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kind,
+        filename: file.name,
+        contentType: file.type,
+        size: file.size,
+      }),
+    })
+    const body = await readJson<{
+      upload: {
+        key: string
+        url: string
+        uploadUrl: string
+        headers?: Record<string, string>
+      }
+    }>(response)
+    const uploadResponse = await fetch(body.upload.uploadUrl, {
+      method: "PUT",
+      headers: body.upload.headers || {
+        "Content-Type": file.type || "application/octet-stream",
+      },
+      body: file,
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error(kind === "sample" ? "Could not upload voice sample." : "Could not upload voice image.")
+    }
+
+    return {
+      key: body.upload.key,
+      url: body.upload.url,
+      contentType: file.type,
+      size: file.size,
+    }
+  }
+
   async function submitClone() {
     if (!canSubmitClone || !voiceSample) return
 
@@ -307,17 +357,22 @@ export function AiVoiceCloningPage() {
     })
 
     try {
-      const form = new FormData()
-      form.append("name", trimmedName)
-      form.append("file", voiceSample)
-      if (voiceImage) form.append("image", voiceImage)
+      const uploadedSample = await uploadVoiceAsset("sample", voiceSample)
+      const uploadedImage = voiceImage ? await uploadVoiceAsset("image", voiceImage) : null
       updateTaskQueueItem(taskId, {
         detail: "Analyzing voice sample and preparing clone.",
         progress: 48,
       })
       const response = await apiFetch("/api/voices/clone", {
         method: "POST",
-        body: form,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: trimmedName,
+          sampleAudio: uploadedSample,
+          avatarImage: uploadedImage,
+        }),
       })
       const body = await readJson<{ voice: VoiceListItem }>(response)
       await loadVoices()
