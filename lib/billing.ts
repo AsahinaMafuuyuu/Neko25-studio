@@ -1,4 +1,4 @@
-import { getInsForgeAdmin } from "@/lib/avatar-server"
+import { getBackendAdmin } from "@/lib/avatar-server"
 import { ensureWorkspaceSummary } from "@/lib/account-settings-server"
 import { ensureCreditBalance } from "@/lib/voice-server"
 
@@ -179,7 +179,7 @@ function getDayKeys(start: Date, end: Date) {
 }
 
 async function listCreditLedger(userId: string, start: Date, end: Date) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("credit_ledger")

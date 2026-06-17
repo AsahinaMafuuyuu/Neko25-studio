@@ -1,6 +1,6 @@
 import {
   avatarErrorStatus,
-  getInsForgeAdmin,
+  getBackendAdmin,
   jsonError,
   requireBearerToken,
   requireCurrentUserId,
@@ -82,12 +82,12 @@ export async function uploadVoiceBlob(blob: Blob, keyPrefix: string, filename: s
   const contentType = blob.type || "application/octet-stream"
   const fallback = `audio.${getExtension(contentType)}`
   const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin.storage.from(voiceBucket).upload(key, blob)
   throwIfSdkError(error, "Could not upload voice audio.")
 
   if (!data?.url || !data?.key) {
-    throw new Error("InsForge did not return the uploaded audio URL and key.")
+    throw new Error("Supabase did not return the uploaded audio URL and key.")
   }
 
   return {
@@ -100,12 +100,12 @@ export async function uploadVoiceImageBlob(blob: Blob, keyPrefix: string, filena
   const contentType = blob.type || "image/png"
   const fallback = `image.${getExtension(contentType, "png")}`
   const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin.storage.from(voiceBucket).upload(key, blob)
   throwIfSdkError(error, "Could not upload voice image.")
 
   if (!data?.url || !data?.key) {
-    throw new Error("InsForge did not return the uploaded voice image URL and key.")
+    throw new Error("Supabase did not return the uploaded voice image URL and key.")
   }
 
   return {
@@ -119,7 +119,7 @@ async function removeVoiceStorageKeys(keys: Array<string | null | undefined>) {
   if (!uniqueKeys.length) return
 
   try {
-    const admin = await getInsForgeAdmin()
+    const admin = await getBackendAdmin()
     await Promise.all(uniqueKeys.map((key) => admin.storage.from(voiceBucket).remove(key)))
   } catch {
     // Storage cleanup is best-effort; the database record is the source of truth for the UI.
@@ -127,7 +127,7 @@ async function removeVoiceStorageKeys(keys: Array<string | null | undefined>) {
 }
 
 export async function listVoiceClones(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clones")
@@ -185,7 +185,7 @@ export async function listAllVoices(userId: string) {
 }
 
 export async function listDefaultVoices() {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("default_voices")
@@ -199,7 +199,7 @@ export async function listDefaultVoices() {
 }
 
 export async function getDefaultVoiceById(voiceId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const query = admin
     .database
     .from("default_voices")
@@ -217,7 +217,7 @@ export async function getDefaultVoiceById(voiceId: string) {
 }
 
 export async function getVoiceCloneById(voiceId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clones")
@@ -237,7 +237,7 @@ export async function createVoiceCloneJob(input: {
   sampleAudioUrl: string
   sampleAudioKey: string
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clone_jobs")
@@ -257,7 +257,7 @@ export async function createVoiceCloneJob(input: {
 
   throwIfSdkError(error, "Could not create voice clone job.")
   const job = ((data || []) as AiVoiceCloneJob[])[0] || null
-  if (!job) throw new Error("InsForge did not return the created voice clone job.")
+  if (!job) throw new Error("Supabase did not return the created voice clone job.")
   return job
 }
 
@@ -272,7 +272,7 @@ export async function updateVoiceCloneJob(
     error: string
   }>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clone_jobs")
@@ -285,7 +285,7 @@ export async function updateVoiceCloneJob(
 }
 
 export async function getVoiceCloneJob(jobId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clone_jobs")
@@ -315,7 +315,7 @@ export async function createVoiceClone(input: {
     await clearSelectedVoiceClone(input.userId)
   }
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clones")
@@ -339,7 +339,7 @@ export async function createVoiceClone(input: {
 
   throwIfSdkError(error, "Could not create voice clone.")
   const voice = ((data || []) as AiVoiceClone[])[0] || null
-  if (!voice) throw new Error("InsForge did not return the created voice clone.")
+  if (!voice) throw new Error("Supabase did not return the created voice clone.")
   if (input.isSelected) {
     await saveVoicePreference({
       userId: input.userId,
@@ -356,7 +356,7 @@ export async function selectVoiceClone(voiceId: string, userId: string) {
   if (!voice) throw new Error("Voice clone not found.")
 
   await clearSelectedVoiceClone(userId)
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_voice_clones")
@@ -404,7 +404,7 @@ export async function deleteVoiceClone(voiceId: string, userId: string) {
   const voice = await getVoiceCloneById(voiceId, userId)
   if (!voice) return null
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_voice_clones")
@@ -420,7 +420,7 @@ export async function deleteVoiceClone(voiceId: string, userId: string) {
 }
 
 async function clearSelectedVoiceClone(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_voice_clones")
@@ -455,7 +455,7 @@ function toDefaultVoiceListItem(record: Record<string, unknown>): DefaultVoice {
 }
 
 async function getUserVoicePreference(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("user_voice_preferences")
@@ -473,7 +473,7 @@ async function saveVoicePreference(input: {
   selectedCustomVoiceId: string | null
   selectedDefaultVoiceId: string | null
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const existing = await getUserVoicePreference(input.userId)
   const values = {
     selected_source: input.selectedSource,
@@ -502,7 +502,7 @@ async function clearVoicePreferenceIfSelected(userId: string, voiceId: string) {
   const preference = await getUserVoicePreference(userId)
   if (preference?.selected_source !== "custom" || preference.selected_custom_voice_id !== voiceId) return
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("user_voice_preferences")
@@ -513,7 +513,7 @@ async function clearVoicePreferenceIfSelected(userId: string, voiceId: string) {
 }
 
 export async function listTtsOutputs(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_outputs")
@@ -536,7 +536,7 @@ export async function createTtsJob(input: {
   characterCount: number
   creditsCost: number
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_jobs")
@@ -560,7 +560,7 @@ export async function createTtsJob(input: {
 
   throwIfSdkError(error, "Could not create TTS job.")
   const job = ((data || []) as AiTtsJob[])[0] || null
-  if (!job) throw new Error("InsForge did not return the created TTS job.")
+  if (!job) throw new Error("Supabase did not return the created TTS job.")
   return job
 }
 
@@ -576,7 +576,7 @@ export async function updateTtsJob(
     credits_refunded: boolean
   }>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_jobs")
@@ -589,7 +589,7 @@ export async function updateTtsJob(
 }
 
 export async function getTtsJob(jobId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_jobs")
@@ -603,7 +603,7 @@ export async function getTtsJob(jobId: string, userId: string) {
 }
 
 export async function getTtsOutput(outputId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_outputs")
@@ -630,7 +630,7 @@ export async function createTtsOutput(input: {
   audioKey: string
   audioFormat: "mp3" | "wav" | "audio"
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_tts_outputs")
@@ -654,7 +654,7 @@ export async function createTtsOutput(input: {
 
   throwIfSdkError(error, "Could not save generated audio.")
   const output = ((data || []) as AiTtsOutput[])[0] || null
-  if (!output) throw new Error("InsForge did not return the generated audio record.")
+  if (!output) throw new Error("Supabase did not return the generated audio record.")
   return output
 }
 
@@ -662,7 +662,7 @@ export async function deleteTtsOutput(outputId: string, userId: string) {
   const output = await getTtsOutput(outputId, userId)
   if (!output) return null
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_tts_outputs")
@@ -677,7 +677,7 @@ export async function deleteTtsOutput(outputId: string, userId: string) {
 }
 
 export async function ensureCreditBalance(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const result = (await admin.database.rpc("ensure_user_credit_balance", {
     p_user_id: userId,
     p_default_balance: defaultInitialCredits,
@@ -694,7 +694,7 @@ export async function deductCredits(input: {
   referenceType: string
   referenceId: string
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const result = (await admin.database.rpc("deduct_user_credits", {
     p_user_id: input.userId,
     p_amount: input.amount,
@@ -716,7 +716,7 @@ export async function refundCredits(input: {
   referenceType: string
   referenceId: string
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const result = (await admin.database.rpc("refund_user_credits", {
     p_user_id: input.userId,
     p_amount: input.amount,

@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server"
 
 import { createTwoFactorChallenge, getTwoFactorStatus } from "@/lib/account-settings-server"
-import { createAuthServerClient, syncUserProfile, writeAuthCookies } from "@/lib/auth/server"
+import { createAuthServerClient, normalizeSupabaseSession, syncUserProfile, writeAuthCookies } from "@/lib/auth/server"
 import type { AuthUser } from "@/lib/auth/types"
 
-function authErrorResponse(error: { message?: string; statusCode?: number; error?: string } | null | undefined) {
+function authErrorResponse(error: { message?: string; status?: number; code?: string } | null | undefined) {
   const message = error?.message || "Sign in failed."
   const isEmailVerificationError =
-    (error?.statusCode === 403 && message.toLowerCase().includes("verification")) ||
-    error?.error === "EMAIL_VERIFICATION_REQUIRED"
+    (error?.status === 403 && message.toLowerCase().includes("verification")) ||
+    error?.code === "email_not_confirmed"
 
   return Response.json(
     {
-      error: error?.error || "AUTH_SIGN_IN_FAILED",
+      error: error?.code || "AUTH_SIGN_IN_FAILED",
       message: isEmailVerificationError
         ? "Please verify your email with the code we sent before signing in."
         : message,
     },
-    { status: error?.statusCode || 401 }
+    { status: error?.status || 401 }
   )
 }
 
@@ -33,22 +33,23 @@ export async function POST(request: Request) {
 
     const client = createAuthServerClient()
     const { data, error } = await client.auth.signInWithPassword({ email, password })
+    const session = normalizeSupabaseSession(data.session)
 
-    if (error || !data?.accessToken) {
+    if (error || !session.accessToken) {
       return authErrorResponse(error)
     }
 
-    await syncUserProfile(data.accessToken, data.user as AuthUser, "sign_in")
+    await syncUserProfile(session.accessToken, session.user, "sign_in")
 
-    const user = data.user as AuthUser
+    const user = session.user as AuthUser
     const userId = typeof user.id === "string" ? user.id : ""
     if (userId) {
       const twoFactor = await getTwoFactorStatus(userId)
       if (twoFactor.enabled) {
         const challenge = await createTwoFactorChallenge({
           userId,
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
+          accessToken: session.accessToken,
+          refreshToken: session.refreshToken,
           user,
         })
 
@@ -64,10 +65,10 @@ export async function POST(request: Request) {
     }
 
     const response = NextResponse.json({
-      accessToken: data.accessToken,
-      user: data.user,
+      accessToken: session.accessToken,
+      user: session.user,
     })
-    writeAuthCookies(response, data)
+    writeAuthCookies(response, session)
     return response
   } catch (error) {
     return Response.json(

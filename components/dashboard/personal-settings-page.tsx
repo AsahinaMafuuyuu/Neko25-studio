@@ -46,7 +46,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { showAppToast } from "@/components/ui/app-toast"
-import { clearLocalSession, getValidAccessToken, refreshSession } from "@/lib/insforge"
+import { clearLocalSession, getValidAccessToken, refreshSession } from "@/lib/backend"
 import type { AccountSettingsPayload, DefaultAspectRatio } from "@/lib/settings-types"
 import { cn } from "@/lib/utils"
 import { usePathname, useRouter } from "@/src/i18n/navigation"
@@ -107,7 +107,7 @@ export function PersonalSettingsPage() {
   const [deleteBusy, setDeleteBusy] = useState(false)
 
   const username = data?.profile.username || "User"
-  const deleteText = `我确认删除账户${username}`
+  const deleteText = `DELETE ${username}`
   const monthlyUsagePercent = useMemo(() => {
     if (!data?.workspace.monthlyCreditAllowance) return 0
     const used = data.workspace.monthlyCreditAllowance - data.workspace.monthlyCreditRemaining

@@ -1,7 +1,7 @@
 import {
   getAvatarById,
   getDefaultAvatarById,
-  getInsForgeAdmin,
+  getBackendAdmin,
   jsonError,
   requireBearerToken,
   requireCurrentUserId,
@@ -69,7 +69,7 @@ function getExtension(contentType: string, fallback = "bin") {
 }
 
 export async function listVideoAvatarVideos(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_videos")
@@ -82,7 +82,7 @@ export async function listVideoAvatarVideos(userId: string) {
 }
 
 export async function getVideoAvatarVideo(videoId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_videos")
@@ -99,7 +99,7 @@ export async function deleteVideoAvatarVideo(videoId: string, userId: string) {
   const video = await getVideoAvatarVideo(videoId, userId)
   if (!video) return null
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_video_avatar_videos")
@@ -114,7 +114,7 @@ export async function deleteVideoAvatarVideo(videoId: string, userId: string) {
 }
 
 export async function getVideoAvatarJob(jobId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_jobs")
@@ -128,7 +128,7 @@ export async function getVideoAvatarJob(jobId: string, userId: string) {
 }
 
 export async function getVideoAvatarJobByProviderTaskId(providerTaskId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_jobs")
@@ -158,7 +158,7 @@ export async function createVideoAvatarVideo(input: {
   durationSeconds: VideoAvatarDuration
   creditsCost: number
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_videos")
@@ -189,7 +189,7 @@ export async function createVideoAvatarVideo(input: {
 
   throwIfSdkError(error, "Could not create AI video avatar.")
   const video = ((data || []) as AiVideoAvatarVideo[])[0] || null
-  if (!video) throw new Error("InsForge did not return the created AI video avatar.")
+  if (!video) throw new Error("Supabase did not return the created AI video avatar.")
   return video
 }
 
@@ -197,7 +197,7 @@ export async function createVideoAvatarJob(input: {
   userId: string
   videoId: string
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_jobs")
@@ -220,7 +220,7 @@ export async function createVideoAvatarJob(input: {
 
   throwIfSdkError(error, "Could not create AI video avatar job.")
   const job = ((data || []) as AiVideoAvatarJob[])[0] || null
-  if (!job) throw new Error("InsForge did not return the created AI video avatar job.")
+  if (!job) throw new Error("Supabase did not return the created AI video avatar job.")
   return job
 }
 
@@ -237,7 +237,7 @@ export async function updateVideoAvatarVideo(
     thumbnail_key: string
   }>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_videos")
@@ -264,7 +264,7 @@ export async function updateVideoAvatarJob(
     callback_payload: Record<string, unknown>
   }>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_video_avatar_jobs")
@@ -308,7 +308,7 @@ export async function uploadVideoAvatarBlob(blob: Blob, keyPrefix: string, filen
   const contentType = blob.type || "application/octet-stream"
   const fallback = `asset.${getExtension(contentType)}`
   const key = `${keyPrefix}/${Date.now()}-${safeFileName(filename, fallback)}`
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const result = (await admin.storage.from(videoAvatarBucket).upload(key, blob)) as SdkResponse<{
     url?: string
     key?: string
@@ -316,7 +316,7 @@ export async function uploadVideoAvatarBlob(blob: Blob, keyPrefix: string, filen
 
   throwIfSdkError(result.error, "Could not upload AI video avatar asset.")
   if (!result.data?.url || !result.data?.key) {
-    throw new Error("InsForge did not return the uploaded video avatar URL and key.")
+    throw new Error("Supabase did not return the uploaded video avatar URL and key.")
   }
 
   return {
@@ -330,7 +330,7 @@ async function removeVideoAvatarStorageKeys(keys: Array<string | null | undefine
   if (!uniqueKeys.length) return
 
   try {
-    const admin = await getInsForgeAdmin()
+    const admin = await getBackendAdmin()
     await Promise.all(uniqueKeys.map((key) => admin.storage.from(videoAvatarBucket).remove(key)))
   } catch {
     // Storage cleanup is best-effort; the database record is the source of truth for the library.

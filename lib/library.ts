@@ -1,4 +1,4 @@
-import { getInsForgeAdmin, jsonError, requireBearerToken, requireCurrentUserId } from "@/lib/avatar-server"
+import { getBackendAdmin, jsonError, requireBearerToken, requireCurrentUserId } from "@/lib/avatar-server"
 import { listAvatars } from "@/lib/avatar-server"
 import { listAiVideoAgentProjects } from "@/lib/ai-video-agent-server"
 import { listVideoAvatarVideos } from "@/lib/video-avatar-server"
@@ -91,7 +91,7 @@ export async function getLibraryStorageBytes(userId: string) {
     { bucket: "ai-video-agent", prefixes: [`${userId}/ai-video-agent`] },
   ]
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const totals = await Promise.all(
     targets.flatMap((target) =>
       target.prefixes.map((prefix) => sumStoragePrefixBytes(admin, target.bucket, prefix))
@@ -103,7 +103,7 @@ export async function getLibraryStorageBytes(userId: string) {
 
 export { jsonError, requireBearerToken, requireCurrentUserId }
 
-async function sumStoragePrefixBytes(admin: Awaited<ReturnType<typeof getInsForgeAdmin>>, bucket: string, prefix: string) {
+async function sumStoragePrefixBytes(admin: Awaited<ReturnType<typeof getBackendAdmin>>, bucket: string, prefix: string) {
   const limit = 1000
   let offset = 0
   let total = 0

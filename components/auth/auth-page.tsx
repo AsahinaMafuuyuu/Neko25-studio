@@ -33,7 +33,7 @@ import {
   startOAuth,
   verifyTwoFactorChallenge,
   verifyEmailCode,
-} from "@/lib/insforge"
+} from "@/lib/backend"
 import type { TwoFactorAuthChallenge } from "@/lib/auth/types"
 import { showAppToast } from "@/components/ui/app-toast"
 import { Link, useRouter } from "@/src/i18n/navigation"

@@ -1,9 +1,9 @@
 -- AI Video Agent workflow v2 main tables.
 --
 -- This migration intentionally does not ALTER the legacy ai_video_* tables.
--- Some existing legacy tables are owned by the platform postgres role, which
--- prevents project_admin migrations from evolving them. These v2 tables are the
--- new source of truth for AI Video Agent projects going forward.
+-- These v2 tables are the new source of truth for AI Video Agent projects going
+-- forward. On Supabase, access is granted to authenticated users through RLS
+-- and to service_role for server-side admin code.
 
 create table if not exists public.ai_video_v2_projects (
   id uuid primary key default gen_random_uuid(),
@@ -181,18 +181,12 @@ create policy "ai_video_v2_jobs_owner_all"
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
-grant usage on schema public to project_admin;
+grant usage on schema public to authenticated, service_role;
 
-grant select, insert, update, delete on public.ai_video_v2_projects to project_admin;
-grant select, insert, update, delete on public.ai_video_v2_scenes to project_admin;
-grant select, insert, update, delete on public.ai_video_v2_dialogues to project_admin;
-grant select, insert, update, delete on public.ai_video_v2_assets to project_admin;
-grant select, insert, update, delete on public.ai_video_v2_jobs to project_admin;
+grant select, insert, update, delete on public.ai_video_v2_projects to authenticated, service_role;
+grant select, insert, update, delete on public.ai_video_v2_scenes to authenticated, service_role;
+grant select, insert, update, delete on public.ai_video_v2_dialogues to authenticated, service_role;
+grant select, insert, update, delete on public.ai_video_v2_assets to authenticated, service_role;
+grant select, insert, update, delete on public.ai_video_v2_jobs to authenticated, service_role;
 
-grant usage, select, update on all sequences in schema public to project_admin;
-
-alter table public.ai_video_v2_projects owner to project_admin;
-alter table public.ai_video_v2_scenes owner to project_admin;
-alter table public.ai_video_v2_dialogues owner to project_admin;
-alter table public.ai_video_v2_assets owner to project_admin;
-alter table public.ai_video_v2_jobs owner to project_admin;
+grant usage, select, update on all sequences in schema public to authenticated, service_role;

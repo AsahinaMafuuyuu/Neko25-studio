@@ -1,12 +1,9 @@
 import type { AiAvatar, AiAvatarJob, AvatarJobStatus, AvatarSource, AvatarStyle } from "@/lib/avatar-types"
+import { createR2StorageAdapter } from "@/lib/storage/r2"
+import { createSupabaseAdminClient, toAuthUser } from "@/lib/supabase/server"
 import { installDep0040WarningFilter } from "@/warning-filter"
 
 const avatarBucket = "ai-avatars"
-
-type InsForgeResult<T = unknown> = {
-  response: Response
-  body: T
-}
 
 type UserAvatarPreference = {
   user_id: string
@@ -15,39 +12,18 @@ type UserAvatarPreference = {
   selected_default_avatar_id: string | null
 }
 
-function getInsForgeConfig() {
-  const baseUrl = process.env.INSFORGE_URL
-  const apiKey = process.env.INSFORGE_API_KEY
-
-  if (!baseUrl || !apiKey) {
-    throw new Error("InsForge is not configured. Add INSFORGE_URL and INSFORGE_API_KEY.")
-  }
-
-  return { baseUrl, apiKey }
-}
-
-export async function getInsForgeAdmin() {
-  const { baseUrl, apiKey } = getInsForgeConfig()
+export async function getBackendAdmin() {
   installDep0040WarningFilter()
-  const { createAdminClient } = await import("@insforge/sdk")
-  return createAdminClient({ baseUrl, apiKey })
-}
+  const admin = createSupabaseAdminClient()
 
-function tryParseJson(text: string): unknown {
-  try {
-    return JSON.parse(text)
-  } catch {
-    return { message: text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() }
+  return {
+    auth: admin.auth,
+    database: {
+      from: admin.from.bind(admin),
+      rpc: admin.rpc.bind(admin),
+    },
+    storage: createR2StorageAdapter(),
   }
-}
-
-function getErrorMessage(body: unknown, fallback: string) {
-  if (body && typeof body === "object") {
-    const record = body as Record<string, unknown>
-    return String(record.message || record.error || fallback)
-  }
-
-  return fallback
 }
 
 function sdkErrorMessage(error: unknown, fallback: string) {
@@ -80,66 +56,24 @@ export function requireBearerToken(request: Request) {
   return token
 }
 
-export async function insforgeRequest<T = unknown>(
-  path: string,
-  init: RequestInit = {},
-  accessToken?: string
-): Promise<InsForgeResult<T>> {
-  const { baseUrl, apiKey } = getInsForgeConfig()
-  const headers = new Headers(init.headers)
-  headers.set("x-insforge-api-key", apiKey)
-
-  if (!(init.body instanceof FormData) && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json")
-  }
-
-  if (accessToken) {
-    headers.set("Authorization", `Bearer ${accessToken}`)
-  }
-
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
-    headers,
-  })
-
-  const text = await response.text()
-  const body = (text ? tryParseJson(text) : {}) as T
-
-  return { response, body }
-}
-
 export async function requireCurrentUserId(accessToken: string) {
-  const result = await insforgeRequest<Record<string, unknown>>("/api/auth/sessions/current", {}, accessToken)
-
-  if (!result.response.ok) {
-    throw new Error(getErrorMessage(result.body, "Could not read the current user."))
+  const admin = createSupabaseAdminClient()
+  const { data, error } = await admin.auth.getUser(accessToken)
+  if (error) {
+    throw new Error(error.message || "Could not read the current user.")
   }
 
-  const user = findUserRecord(result.body)
-  if (!user?.id || typeof user.id !== "string") {
+  const user = toAuthUser(data.user)
+  if (!user?.id) {
     throw new Error("Could not determine the authenticated user id.")
   }
 
   return user.id
 }
 
-function findUserRecord(value: unknown): Record<string, unknown> | null {
-  if (!value || typeof value !== "object") return null
-
-  const record = value as Record<string, unknown>
-  if (typeof record.id === "string") return record
-
-  for (const key of ["user", "data", "session", "auth"]) {
-    const nested = findUserRecord(record[key])
-    if (nested) return nested
-  }
-
-  return null
-}
-
 export async function listAvatars(userId: string, accessToken: string) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const [customResult, defaultAvatars, preference] = await Promise.all([
     admin
     .database
@@ -176,7 +110,7 @@ export async function listAvatars(userId: string, accessToken: string) {
 
 export async function getAvatarJob(jobId: string, userId: string, accessToken?: string) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatar_jobs")
@@ -191,7 +125,7 @@ export async function getAvatarJob(jobId: string, userId: string, accessToken?: 
 
 export async function getAvatarById(avatarId: string, userId: string, accessToken?: string) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatars")
@@ -205,7 +139,7 @@ export async function getAvatarById(avatarId: string, userId: string, accessToke
 }
 
 export async function getDefaultAvatarById(avatarId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const query = admin
     .database
     .from("default_avatars")
@@ -242,7 +176,7 @@ export async function createAvatar(
     await clearSelectedAvatar(input.userId, accessToken)
   }
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatars")
@@ -267,7 +201,7 @@ export async function createAvatar(
   throwIfSdkError(error, "Could not create avatar.")
 
   const avatar = ((data || []) as AiAvatar[])[0] || null
-  if (!avatar) throw new Error("InsForge did not return the created avatar.")
+  if (!avatar) throw new Error("Supabase did not return the created avatar.")
   if (input.isSelected) {
     await saveAvatarPreference({
       userId: input.userId,
@@ -301,7 +235,7 @@ export async function selectAvatar(avatarId: string, userId: string, accessToken
   if (!avatar) throw new Error("Avatar not found.")
 
   await clearSelectedAvatar(userId, accessToken)
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatars")
@@ -329,7 +263,7 @@ export async function deleteAvatar(avatarId: string, userId: string, accessToken
   if (!avatar) return null
   if (avatar.source === "default") throw new Error("Default avatars cannot be deleted.")
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_avatars")
@@ -346,7 +280,7 @@ export async function deleteAvatar(avatarId: string, userId: string, accessToken
 
 async function clearSelectedAvatar(userId: string, accessToken?: string) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("ai_avatars")
@@ -368,7 +302,7 @@ export async function createAvatarJob(
   accessToken?: string
 ) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatar_jobs")
@@ -389,7 +323,7 @@ export async function createAvatarJob(
   throwIfSdkError(error, "Could not create avatar job.")
 
   const job = ((data || []) as AiAvatarJob[])[0] || null
-  if (!job) throw new Error("InsForge did not return the created avatar job.")
+  if (!job) throw new Error("Supabase did not return the created avatar job.")
 
   return job
 }
@@ -407,7 +341,7 @@ export async function updateAvatarJob(
   accessToken?: string
 ) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("ai_avatar_jobs")
@@ -426,12 +360,12 @@ export async function uploadAvatarFile(file: Blob, keyPrefix: string, filename: 
   const key = `${keyPrefix}/${Date.now()}-${safeName}`
 
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin.storage.from(avatarBucket).upload(key, file)
   throwIfSdkError(error, "Could not upload avatar file.")
 
   if (!data?.url || !data?.key) {
-    throw new Error("InsForge did not return the uploaded avatar URL and key.")
+    throw new Error("Supabase did not return the uploaded avatar URL and key.")
   }
 
   return {
@@ -446,7 +380,7 @@ async function removeAvatarStorageKeys(keys: Array<string | null | undefined>) {
   )
   if (!uniqueKeys.length) return
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   await Promise.all(uniqueKeys.map((key) => admin.storage.from(avatarBucket).remove(key)))
 }
 
@@ -455,7 +389,7 @@ function isUuid(value: string) {
 }
 
 async function listDefaultAvatars() {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("default_avatars")
@@ -498,7 +432,7 @@ function toDefaultAvatarListItem(record: Record<string, unknown>, isSelected: bo
 }
 
 async function getUserAvatarPreference(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("user_avatar_preferences")
@@ -516,7 +450,7 @@ async function saveAvatarPreference(input: {
   selectedCustomAvatarId: string | null
   selectedDefaultAvatarId: string | null
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const existing = await getUserAvatarPreference(input.userId)
   const values = {
     selected_source: input.selectedSource,
@@ -545,7 +479,7 @@ async function clearAvatarPreferenceIfSelected(userId: string, avatarId: string)
   const preference = await getUserAvatarPreference(userId)
   if (preference?.selected_source !== "custom" || preference.selected_custom_avatar_id !== avatarId) return
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { error } = await admin
     .database
     .from("user_avatar_preferences")

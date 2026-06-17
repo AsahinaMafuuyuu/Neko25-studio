@@ -48,7 +48,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getValidAccessToken, refreshSession } from "@/lib/insforge"
+import { getValidAccessToken, refreshSession } from "@/lib/backend"
 import { cn } from "@/lib/utils"
 import type { BillingPayload, BillingRange } from "@/lib/billing"
 

@@ -43,7 +43,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { showAppToast } from "@/components/ui/app-toast"
-import { getValidAccessToken, refreshSession } from "@/lib/insforge"
+import { getValidAccessToken, refreshSession } from "@/lib/backend"
 import type {
   AiTtsJob,
   AiTtsOutput,

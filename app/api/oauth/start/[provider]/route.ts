@@ -1,8 +1,9 @@
-import { createServerClient } from "@insforge/sdk/ssr"
 import { NextRequest, NextResponse } from "next/server"
 
+import { createSupabaseRouteClient, mapOAuthProvider } from "@/lib/supabase/server"
+import type { OAuthProvider } from "@/lib/auth/types"
+
 const allowedProviders = new Set(["google", "x"])
-const verifierCookie = "insforge_code_verifier"
 
 type OAuthInitResponse = {
   authUrl?: string
@@ -38,33 +39,28 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pro
       return Response.json({ message: "Invalid OAuth redirect URI." }, { status: 400 })
     }
 
-    const client = createServerClient()
-    const { data, error } = await client.auth.signInWithOAuth(provider, {
-      redirectTo: redirectUri,
-      skipBrowserRedirect: true,
+    const routeClient = createSupabaseRouteClient(request)
+    const { data, error } = await routeClient.client.auth.signInWithOAuth({
+      provider: mapOAuthProvider(provider as OAuthProvider),
+      options: {
+        redirectTo: redirectUri,
+        skipBrowserRedirect: true,
+      },
     })
 
     if (error) {
       return Response.json(
         { message: getErrorMessage(error, `${provider} OAuth could not be started.`) },
-        { status: error.statusCode || 400 }
+        { status: error.status || 400 }
       )
     }
 
-    if (!data.url || !data.codeVerifier) {
+    if (!data.url) {
       return Response.json({ message: `${provider} OAuth did not return an authorization URL.` }, { status: 502 })
     }
 
     const response = NextResponse.json({ authUrl: data.url })
-    response.cookies.set(verifierCookie, data.codeVerifier, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 600,
-    })
-
-    return response
+    return routeClient.applyCookies(response)
   } catch (error) {
     return Response.json(
       {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { completeOAuth, getOAuthNext, isTwoFactorChallenge, verifyTwoFactorChallenge } from "@/lib/insforge"
+import { completeOAuth, getOAuthNext, isTwoFactorChallenge, verifyTwoFactorChallenge } from "@/lib/backend"
 import type { TwoFactorAuthChallenge } from "@/lib/auth/types"
 
 function AuthCallbackContent() {
@@ -78,7 +78,7 @@ function AuthCallbackContent() {
       <Card className="w-full max-w-md border-border/80 bg-card/90 text-center shadow-xl">
         <CardHeader>
           <CardTitle>Completing sign in</CardTitle>
-          <CardDescription>Finishing the secure InsForge OAuth handshake.</CardDescription>
+          <CardDescription>Finishing the secure Supabase OAuth handshake.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           {twoFactorChallenge ? (

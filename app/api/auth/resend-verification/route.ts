@@ -11,12 +11,18 @@ export async function POST(request: Request) {
 
     const client = createAuthServerClient()
     const redirectTo = new URL("/sign-in", getOrigin(request)).toString()
-    const { data, error } = await client.auth.resendVerificationEmail({ email, redirectTo })
+    const { data, error } = await client.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    })
 
     if (error) {
       return Response.json(
-        { error: error.error, message: error.message || "Could not resend verification code." },
-        { status: error.statusCode || 400 }
+        { error: error.code, message: error.message || "Could not resend verification code." },
+        { status: error.status || 400 }
       )
     }
 

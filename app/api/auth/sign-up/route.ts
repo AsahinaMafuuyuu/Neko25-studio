@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { clearAllAuthCookies, createAuthServerClient, getOrigin, syncUserProfile } from "@/lib/auth/server"
-import type { AuthUser } from "@/lib/auth/types"
+import { clearAllAuthCookies, createAuthServerClient, getOrigin, normalizeSupabaseSession, syncUserProfile } from "@/lib/auth/server"
 
 export async function POST(request: Request) {
   try {
@@ -20,16 +19,24 @@ export async function POST(request: Request) {
 
     const client = createAuthServerClient()
     const redirectTo = new URL("/sign-in", getOrigin(request)).toString()
-    const { data, error } = await client.auth.signUp({ name, email, password, redirectTo })
+    const { data, error } = await client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: redirectTo,
+      },
+    })
 
     if (error) {
       return Response.json(
-        { error: error.error, message: error.message || "Could not create account." },
-        { status: error.statusCode || 400 }
+        { error: error.code, message: error.message || "Could not create account." },
+        { status: error.status || 400 }
       )
     }
 
-    if (data?.requireEmailVerification || !data?.accessToken) {
+    const session = normalizeSupabaseSession(data.session)
+    if (!session.accessToken) {
       return Response.json({
         needsEmailVerification: true,
         verificationMethod: "code",
@@ -37,11 +44,11 @@ export async function POST(request: Request) {
       })
     }
 
-    await syncUserProfile(data.accessToken, data.user as AuthUser, "sign_up")
+    await syncUserProfile(session.accessToken, session.user, "sign_up")
 
     const response = NextResponse.json({
       created: true,
-      user: data.user,
+      user: session.user,
     })
     clearAllAuthCookies(response)
     return response

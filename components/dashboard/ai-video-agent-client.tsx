@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { showAppToast } from "@/components/ui/app-toast"
-import { getValidAccessToken, refreshSession } from "@/lib/insforge"
+import { getValidAccessToken, refreshSession } from "@/lib/backend"
 import {
   getAiVideoAgentDimensions,
   type AiVideoAgentCaptionEffect,
