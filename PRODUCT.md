@@ -35,3 +35,4 @@ Premium, Artistic, Fluid. The interface should feel elevated and contemporary wi
 ## Accessibility & Inclusion
 
 Use WCAG AA as the default baseline. Maintain strong text contrast, color-blind-safe state communication, visible focus states, keyboard-accessible controls, and reduced-motion alternatives for interface transitions. Additional requirements can be revisited in a later iteration.
+
