@@ -1,3 +1,5 @@
+import { createRequire } from "node:module"
+
 import { createServerClient } from "@supabase/ssr"
 import { createClient, type Provider, type Session, type User } from "@supabase/supabase-js"
 import type { NextRequest, NextResponse } from "next/server"
@@ -10,12 +12,16 @@ type PendingCookie = {
   options?: Record<string, unknown>
 }
 
+type WebSocketConstructor = typeof WebSocket
+
 export const supabaseAccessTokenCookie = "supabase_access_token"
 export const supabaseRefreshTokenCookie = "supabase_refresh_token"
 export const legacyAccessTokenCookie = "insforge_access_token"
 export const legacyCsrfTokenCookie = "insforge_csrf_token"
 export const legacyOAuthVerifierCookie = "insforge_code_verifier"
 export const legacyAppSessionCookie = "kravix_ai_studio_session"
+
+const nodeRequire = createRequire(import.meta.url)
 
 function readRequiredEnv(name: string) {
   const value = process.env[name]?.trim()
@@ -39,33 +45,60 @@ export function getSupabaseConfig() {
   }
 }
 
-export function createSupabaseAnonClient() {
-  const { url, anonKey } = getSupabaseConfig()
-  return createClient(url, anonKey, {
+function getRealtimeTransport(): WebSocketConstructor | undefined {
+  if (typeof globalThis.WebSocket === "function") return globalThis.WebSocket
+
+  try {
+    const wsModule = nodeRequire("ws") as
+      | WebSocketConstructor
+      | {
+          WebSocket?: WebSocketConstructor
+          default?: WebSocketConstructor
+        }
+
+    if (typeof wsModule === "function") return wsModule
+    if (typeof wsModule.WebSocket === "function") return wsModule.WebSocket
+    if (typeof wsModule.default === "function") return wsModule.default
+  } catch {
+    return undefined
+  }
+
+  return undefined
+}
+
+function getSupabaseClientOptions() {
+  const transport = getRealtimeTransport()
+
+  return {
     auth: {
       autoRefreshToken: false,
       detectSessionInUrl: false,
       persistSession: false,
-      flowType: "pkce",
     },
+    realtime: transport ? { transport } : undefined,
+  }
+}
+
+export function createSupabaseAnonClient() {
+  const { url, anonKey } = getSupabaseConfig()
+  const options = getSupabaseClientOptions()
+
+  return createClient(url, anonKey, {
+    ...options,
+    auth: { ...options.auth, flowType: "pkce" },
   })
 }
 
 export function createSupabaseAdminClient() {
   const { url, serviceRoleKey } = getSupabaseConfig()
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      persistSession: false,
-    },
-  })
+  return createClient(url, serviceRoleKey, getSupabaseClientOptions())
 }
 
 export function createSupabaseRouteClient(request: NextRequest) {
   const { url, anonKey } = getSupabaseConfig()
   const pendingCookies: PendingCookie[] = []
   const client = createServerClient(url, anonKey, {
+    ...getSupabaseClientOptions(),
     cookies: {
       getAll() {
         return request.cookies.getAll().map(({ name, value }) => ({ name, value }))
