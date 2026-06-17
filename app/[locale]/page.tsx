@@ -43,13 +43,13 @@ export default function Home() {
             {common("brand")}
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="transition hover:text-foreground">
+            <a href="#features" className="rounded-sm transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50">
               {t("nav.features")}
             </a>
-            <a href="#security" className="transition hover:text-foreground">
+            <a href="#security" className="rounded-sm transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50">
               {t("nav.security")}
             </a>
-            <a href="#metrics" className="transition hover:text-foreground">
+            <a href="#metrics" className="rounded-sm transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50">
               {t("nav.metrics")}
             </a>
           </nav>
@@ -98,7 +98,7 @@ export default function Home() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/sign-up?next=%2Fdashboard"
-                className={cn(buttonVariants({ size: "lg" }), "h-12 bg-primary text-primary-foreground hover:bg-primary/90")}
+                className={cn(buttonVariants({ size: "lg" }), "h-12")}
               >
                 {t("createWorkspace")}
                 <ArrowRight />
@@ -118,21 +118,21 @@ export default function Home() {
 
         <div className="relative hidden border-t border-background/10 bg-foreground/82 sm:block">
           <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-3 sm:px-6 lg:px-8">
-            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4">
+            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4 shadow-sm">
               <LockKeyhole className="mb-3 size-4 text-accent" />
               <p className="text-sm font-semibold">{t("secureAccess")}</p>
               <p className="mt-1 line-clamp-2 text-sm leading-6 text-background/62">
                 {t("secureAccessDescription")}
               </p>
             </div>
-            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4">
+            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4 shadow-sm">
               <Sparkles className="mb-3 size-4 text-primary" />
               <p className="text-sm font-semibold">{t("studioPolish")}</p>
               <p className="mt-1 line-clamp-2 text-sm leading-6 text-background/62">
                 {t("studioPolishDescription")}
               </p>
             </div>
-            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4">
+            <div className="rounded-xl border border-background/12 bg-background/[0.06] p-4 shadow-sm">
               <Workflow className="mb-3 size-4 text-background/78" />
               <p className="text-sm font-semibold">{t("workflowQuality")}</p>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-background/14">
@@ -151,9 +151,9 @@ export default function Home() {
           </h2>
         </div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-          <Card className="border-border/80 shadow-sm">
+          <Card className="border-border/80 bg-card/95 shadow-sm">
             <CardHeader className="p-6 sm:p-8">
-              <div className="mb-5 grid size-11 place-items-center rounded-lg bg-primary text-primary-foreground">
+              <div className="mb-5 grid size-11 place-items-center rounded-lg bg-primary text-primary-foreground shadow-xs">
                 <Bot className="size-5" />
               </div>
               <CardTitle className="text-2xl tracking-tight">
@@ -166,9 +166,9 @@ export default function Home() {
           </Card>
           <div className="grid gap-3">
             {featureConfig.slice(1).map((feature) => (
-              <Card key={feature.key} className="border-border/80 shadow-sm" size="sm">
+              <Card key={feature.key} className="border-border/80 bg-card/95 shadow-sm transition-colors hover:border-primary/20 hover:bg-secondary/20" size="sm">
                 <CardHeader className="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
-                  <div className="grid size-10 place-items-center rounded-lg bg-secondary text-secondary-foreground">
+                  <div className="grid size-10 place-items-center rounded-lg bg-secondary text-secondary-foreground ring-1 ring-border/60">
                     <feature.icon className="size-5" />
                   </div>
                   <div>
@@ -183,7 +183,7 @@ export default function Home() {
       </section>
 
       <section id="security" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xl shadow-primary/10 sm:p-8">
+        <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm ring-1 ring-foreground/[0.03] sm:p-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
               <p className="text-sm font-medium text-primary">{t("securityEyebrow")}</p>
@@ -198,7 +198,7 @@ export default function Home() {
               {(["oauth", "protected", "theme"] as const).map((item) => (
                 <div
                   key={item}
-                  className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground shadow-sm"
+                  className="rounded-xl border border-border/70 bg-background/70 px-4 py-3 text-sm text-muted-foreground shadow-xs"
                 >
                   {t(`checks.${item}`)}
                 </div>
@@ -209,10 +209,10 @@ export default function Home() {
       </section>
 
       <section id="metrics" className="mx-auto max-w-7xl px-4 py-10 pb-16 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+        <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm ring-1 ring-foreground/[0.03] sm:p-5">
           <div className="grid gap-3 md:grid-cols-3">
             {stats.map(([value, label]) => (
-              <div key={label} className="flex items-center justify-between gap-4 rounded-lg border border-border/70 bg-background px-4 py-3">
+              <div key={label} className="flex items-center justify-between gap-4 rounded-lg border border-border/70 bg-background/70 px-4 py-3 shadow-xs">
                 <p className="text-sm text-muted-foreground">{t(`stats.${label}`)}</p>
                 <p className="text-lg font-semibold tabular-nums">{value}</p>
               </div>

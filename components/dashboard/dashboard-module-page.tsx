@@ -25,16 +25,13 @@ export function DashboardModulePage({
   return (
     <div className="grid gap-6">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-foreground/10 bg-card shadow-[0_18px_48px_rgba(16,18,34,0.16)]">
+        <div className="group relative min-h-[360px] overflow-hidden rounded-xl border border-foreground/10 bg-card shadow-[0_18px_48px_rgba(16,18,34,0.16)] ring-1 ring-background/10">
           <DashboardMediaSurface
             alt={item.title}
             mediaSrc={item.mediaSrc}
             mediaType={item.mediaType}
           />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,color-mix(in_oklch,var(--primary),transparent_62%),transparent_32%),radial-gradient(circle_at_78%_24%,color-mix(in_oklch,var(--accent),transparent_76%),transparent_28%)]"
-          />
+          <div aria-hidden className="absolute inset-0 bg-primary/10" />
           <div className="relative flex h-full flex-col justify-end p-6 text-white sm:p-8">
             <div className="mb-5 inline-flex size-11 items-center justify-center rounded-lg border border-white/18 bg-background text-foreground shadow-sm">
               <Icon className="size-6" />
@@ -67,7 +64,7 @@ export function DashboardModulePage({
                   key={entry}
                   className="flex items-start gap-3 text-sm leading-6 text-foreground"
                 >
-                  <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground">
+                    <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-accent/80 text-accent-foreground ring-1 ring-accent/25">
                     <span className="size-1.5 rounded-full bg-current" />
                   </span>
                   <span>{entry}</span>

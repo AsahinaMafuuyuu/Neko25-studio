@@ -342,7 +342,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         </section>
 
         <section className="flex items-center px-4 py-8 sm:px-8 lg:px-0 lg:pr-10">
-          <Card className="w-full border-border/80 bg-card shadow-sm">
+          <Card className="w-full border-border/80 bg-card/95 shadow-sm ring-1 ring-foreground/[0.03]">
             <CardHeader className="gap-2">
               <CardTitle className="text-2xl font-semibold tracking-tight">{title}</CardTitle>
               <CardDescription>{description}</CardDescription>
@@ -360,7 +360,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                       size="lg"
                       disabled={loading || pending || !enabled}
                       onClick={() => onOAuth(provider)}
-                      className="h-11 justify-center gap-2"
+                      className="h-11 justify-center gap-2 hover:border-primary/25"
                     >
                       {loading ? (
                         <Loader2 className="animate-spin" />
@@ -379,7 +379,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 <span className="h-px flex-1 bg-border" />
               </div>
 
-              <form className="grid gap-5" onSubmit={onSubmit} noValidate>
+              <form className="grid gap-5 rounded-xl border border-border/60 bg-secondary/25 p-3 sm:p-4" onSubmit={onSubmit} noValidate>
                 {!isSignUp && twoFactorChallenge ? (
                   <FieldGroup>
                     <Field>

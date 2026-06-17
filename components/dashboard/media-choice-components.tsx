@@ -27,11 +27,11 @@ export function ChoiceGroupCard({
   title: string
 }) {
   return (
-    <section className="group/choice-card min-h-[220px] rounded-xl border border-border/70 bg-card p-4 shadow-sm transition-colors hover:border-foreground/20">
+    <section className="group/choice-card min-h-[220px] rounded-xl border border-border/70 bg-card p-4 shadow-sm ring-1 ring-foreground/[0.03] transition-colors hover:border-primary/20">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-xl bg-background/80 text-primary shadow-sm ring-1 ring-border/70 transition group-hover/choice-card:scale-105">
+            <span className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary shadow-sm ring-1 ring-primary/15 transition-transform duration-200 group-hover/choice-card:scale-105 motion-reduce:transition-none">
               {icon}
             </span>
             <h4 className="text-sm font-semibold uppercase text-foreground">{title}</h4>
@@ -47,7 +47,7 @@ export function ChoiceGroupCard({
 
 export function ChoiceEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-border/80 bg-background/55 px-4 py-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-xl border border-dashed border-border/80 bg-background/70 px-4 py-6 text-center text-sm text-muted-foreground">
       {message}
     </div>
   )
@@ -90,8 +90,8 @@ export function AvatarChoice({
   return (
     <button
       className={cn(
-        "overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-colors hover:border-foreground/20 disabled:cursor-not-allowed disabled:opacity-60",
-        selected ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border/70"
+        "overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        selected ? "border-primary/55 bg-[color-mix(in_oklch,var(--primary),var(--background)_92%)] ring-2 ring-primary/20" : "border-border/70 hover:border-primary/25"
       )}
       disabled={disabled}
       type="button"
@@ -132,8 +132,8 @@ export function VoiceChoice({
   return (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border bg-card p-3 shadow-sm transition-colors hover:border-foreground/20",
-        selected ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border/70",
+        "grid gap-3 rounded-xl border bg-card p-3 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        selected ? "border-primary/55 bg-[color-mix(in_oklch,var(--primary),var(--background)_92%)] ring-2 ring-primary/20" : "border-border/70 hover:border-primary/25",
         disabled && "opacity-60"
       )}
     >

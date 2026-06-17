@@ -216,7 +216,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="gap-3 px-3 py-3">
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 rounded-lg px-2 py-1.5 font-semibold transition-colors hover:bg-sidebar-accent/70"
+            className="flex items-center gap-3 rounded-lg px-2 py-1.5 font-semibold transition-colors hover:bg-sidebar-accent/70 focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard")}
           >
             <span className="grid size-9 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
@@ -255,7 +255,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <SidebarSeparator />
           <Link
             href="/dashboard/billing"
-            className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 transition-colors hover:bg-sidebar-accent/70"
+            className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 shadow-xs transition-[background-color,border-color,box-shadow] hover:border-sidebar-primary/25 hover:bg-sidebar-accent/70 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard/billing")}
           >
             <div className="flex items-center gap-3">
@@ -284,7 +284,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/dashboard/personal-settings"
-            className="flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent/70"
+            className="flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 text-left shadow-xs transition-[background-color,border-color,box-shadow] hover:border-sidebar-primary/25 hover:bg-sidebar-accent/70 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard/personal-settings")}
           >
             <span className="grid size-9 place-items-center rounded-lg bg-background/60 text-foreground shadow-sm">
@@ -370,7 +370,7 @@ function AccountHoverCard({
         render={
           <button
             type="button"
-            className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted/60"
+            className="flex items-center gap-2 rounded-full border border-border/70 bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-[background-color,border-color,box-shadow] hover:border-primary/25 hover:bg-secondary/45 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring/50"
           />
         }
       >
@@ -470,7 +470,7 @@ function PageRouteTransition({ show }: { show: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200",
+        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200 motion-reduce:transition-none",
         show ? "opacity-100" : "opacity-0"
       )}
     >

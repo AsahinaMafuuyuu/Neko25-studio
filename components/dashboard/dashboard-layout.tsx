@@ -10,7 +10,7 @@ function DashboardPage({
   children: React.ReactNode
   className?: string
 }) {
-  return <div className={cn("grid gap-6", className)}>{children}</div>
+  return <div className={cn("grid gap-6 text-foreground", className)}>{children}</div>
 }
 
 function DashboardPageHeader({
@@ -35,7 +35,7 @@ function DashboardPageHeader({
   return (
     <section
       className={cn(
-        "rounded-xl border border-border/70 bg-card px-5 py-5 shadow-sm sm:px-6",
+        "rounded-xl border border-border/70 bg-card px-5 py-5 shadow-sm ring-1 ring-foreground/[0.03] sm:px-6",
         className
       )}
     >
@@ -43,7 +43,7 @@ function DashboardPageHeader({
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-3">
             {Icon ? (
-              <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-border/70 bg-background text-foreground shadow-xs">
+              <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary/15 bg-primary/10 text-primary shadow-xs">
                 <Icon className="size-5" />
               </span>
             ) : null}
@@ -98,7 +98,7 @@ function DashboardMetric({
   value: React.ReactNode
 }) {
   return (
-    <div className={cn("rounded-lg border border-border/70 bg-background px-4 py-3", className)}>
+    <div className={cn("rounded-lg border border-border/70 bg-background/70 px-4 py-3 shadow-xs", className)}>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
     </div>
@@ -117,7 +117,7 @@ function DashboardPanel({
   return (
     <section
       className={cn(
-        "rounded-xl border border-border/70 bg-card shadow-sm",
+        "rounded-xl border border-border/70 bg-card shadow-sm ring-1 ring-foreground/[0.03]",
         compact ? "p-4" : "p-5 sm:p-6",
         className
       )}
@@ -169,12 +169,12 @@ function DashboardEmptyState({
   return (
     <div
       className={cn(
-        "rounded-xl border border-dashed border-border bg-card px-6 py-8 text-center shadow-sm",
+        "rounded-xl border border-dashed border-border/80 bg-card px-6 py-8 text-center shadow-sm ring-1 ring-foreground/[0.03]",
         className
       )}
     >
       {Icon ? (
-        <div className="mx-auto grid size-11 place-items-center rounded-lg border border-border/70 bg-background text-foreground">
+        <div className="mx-auto grid size-11 place-items-center rounded-lg border border-primary/15 bg-primary/10 text-primary">
           <Icon className="size-5" />
         </div>
       ) : null}

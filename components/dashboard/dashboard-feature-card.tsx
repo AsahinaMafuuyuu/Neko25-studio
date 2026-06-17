@@ -22,7 +22,7 @@ export function DashboardFeatureCard({
     <Link
       href={href}
       className={cn(
-        "group relative flex min-h-[220px] overflow-hidden rounded-xl border border-border/70 bg-card text-background shadow-sm transition-colors hover:border-foreground/20",
+        "group relative flex min-h-[220px] overflow-hidden rounded-xl border border-border/70 bg-card text-background shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-background/24 hover:shadow-[0_24px_64px_rgba(16,18,34,0.22)] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         className
       )}
     >
@@ -30,7 +30,7 @@ export function DashboardFeatureCard({
 
       <div className="relative flex w-full flex-col justify-between p-5 sm:p-7">
         <div className="flex items-start justify-between gap-4">
-          <div className="inline-flex size-12 items-center justify-center rounded-xl border border-white/18 bg-primary text-primary-foreground shadow-sm">
+          <div className="inline-flex size-12 items-center justify-center rounded-xl border border-white/18 bg-primary text-primary-foreground shadow-sm transition-transform duration-200 group-hover:scale-[1.03] motion-reduce:transition-none">
             <Icon className="size-5" />
           </div>
           {eyebrow ? (
