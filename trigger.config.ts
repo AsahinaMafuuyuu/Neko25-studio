@@ -4,7 +4,7 @@ const project = process.env.TRIGGER_PROJECT_REF?.trim() || "proj_kscbzimghqugjpy
 
 export default defineConfig({
   project,
-  runtime: "node",
+  runtime: "node-22",
   logLevel: "log",
   // The max compute seconds a task is allowed to run. If the task run exceeds this duration, it will be stopped.
   // You can override this on an individual task.
