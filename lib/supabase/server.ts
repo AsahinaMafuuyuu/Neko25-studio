@@ -1,8 +1,7 @@
-import { createRequire } from "node:module"
-
 import { createServerClient } from "@supabase/ssr"
 import { createClient, type Provider, type Session, type User } from "@supabase/supabase-js"
 import type { NextRequest, NextResponse } from "next/server"
+import NodeWebSocket from "ws"
 
 import type { AuthSession, AuthUser, OAuthProvider } from "@/lib/auth/types"
 
@@ -20,8 +19,6 @@ export const legacyAccessTokenCookie = "insforge_access_token"
 export const legacyCsrfTokenCookie = "insforge_csrf_token"
 export const legacyOAuthVerifierCookie = "insforge_code_verifier"
 export const legacyAppSessionCookie = "kravix_ai_studio_session"
-
-const nodeRequire = createRequire(import.meta.url)
 
 function readRequiredEnv(name: string) {
   const value = process.env[name]?.trim()
@@ -47,23 +44,7 @@ export function getSupabaseConfig() {
 
 function getRealtimeTransport(): WebSocketConstructor | undefined {
   if (typeof globalThis.WebSocket === "function") return globalThis.WebSocket
-
-  try {
-    const wsModule = nodeRequire("ws") as
-      | WebSocketConstructor
-      | {
-          WebSocket?: WebSocketConstructor
-          default?: WebSocketConstructor
-        }
-
-    if (typeof wsModule === "function") return wsModule
-    if (typeof wsModule.WebSocket === "function") return wsModule.WebSocket
-    if (typeof wsModule.default === "function") return wsModule.default
-  } catch {
-    return undefined
-  }
-
-  return undefined
+  return NodeWebSocket as unknown as WebSocketConstructor
 }
 
 function getSupabaseClientOptions() {
