@@ -14,15 +14,14 @@ export async function POST(request: Request) {
     }
 
     const client = createAuthServerClient()
-    const { error } = await client.auth.sendResetPasswordEmail({
-      email,
+    const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: new URL("/sign-in", request.url).toString(),
     })
 
     if (error) {
       return Response.json(
         { message: error.message || "Could not send password verification code." },
-        { status: error.statusCode || 400 }
+        { status: error.status || 400 }
       )
     }
 

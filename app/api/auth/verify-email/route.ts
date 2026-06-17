@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { clearAllAuthCookies, createAuthServerClient, syncUserProfile } from "@/lib/auth/server"
-import type { AuthUser } from "@/lib/auth/types"
+import { clearAllAuthCookies, createAuthServerClient, normalizeSupabaseSession, syncUserProfile } from "@/lib/auth/server"
 
 export async function POST(request: Request) {
   try {
@@ -14,23 +13,24 @@ export async function POST(request: Request) {
     }
 
     const client = createAuthServerClient()
-    const { data, error } = await client.auth.verifyEmail({ email, otp })
+    const { data, error } = await client.auth.verifyOtp({ email, token: otp, type: "signup" })
+    const session = normalizeSupabaseSession(data.session)
 
-    if (error || !data?.accessToken) {
+    if (error || !session.accessToken) {
       return Response.json(
         {
-          error: error?.error || "EMAIL_VERIFICATION_FAILED",
+          error: error?.code || "EMAIL_VERIFICATION_FAILED",
           message: error?.message || "Invalid or expired verification code.",
         },
-        { status: error?.statusCode || 400 }
+        { status: error?.status || 400 }
       )
     }
 
-    await syncUserProfile(data.accessToken, data.user as AuthUser, "sign_up")
+    await syncUserProfile(session.accessToken, session.user, "sign_up")
 
     const response = NextResponse.json({
       verified: true,
-      user: data.user,
+      user: session.user,
     })
     clearAllAuthCookies(response)
     return response

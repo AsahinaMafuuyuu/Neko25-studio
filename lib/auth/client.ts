@@ -1,29 +1,20 @@
 "use client"
 
-import { createBrowserClient } from "@insforge/sdk/ssr"
-
 import { getDevelopmentAuthBypassUser, isDevelopmentAuthBypassEnabled } from "@/lib/auth/dev-bypass"
 import type { AuthResult, AuthSession, AuthUser, OAuthProvider, SignUpResult, VerifyEmailResult } from "@/lib/auth/types"
 
 const legacyAccessTokenKey = "kravix.insforge.accessToken"
 const legacyCsrfTokenKey = "kravix.insforge.csrfToken"
 const legacyOAuthVerifierKey = "kravix.insforge.oauthVerifier"
-const oauthNextKey = "kravix.insforge.oauthNext"
+const oauthNextKey = "kravix.supabase.oauthNext"
 const legacyAppSessionCookie = "kravix_ai_studio_session"
-const accessTokenCookie = "insforge_access_token"
-const csrfTokenCookie = "insforge_csrf_token"
+const accessTokenCookie = "supabase_access_token"
+const refreshTokenCookie = "supabase_refresh_token"
+const legacyInsforgeAccessTokenCookie = "insforge_access_token"
+const legacyInsforgeCsrfTokenCookie = "insforge_csrf_token"
+const csrfTokenCookie = "supabase_csrf_token"
 const supportedOAuthProviders = new Set<OAuthProvider>(["google", "x"])
 const defaultRequestTimeoutMs = 15_000
-
-let browserClient: ReturnType<typeof createBrowserClient> | null = null
-
-function getBrowserClient() {
-  if (!browserClient) {
-    browserClient = createBrowserClient()
-  }
-
-  return browserClient
-}
 
 function getCookie(name: string) {
   if (typeof document === "undefined") return null
@@ -71,7 +62,7 @@ async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}
     })
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("InsForge request timed out. Please try again.")
+      throw new Error("Authentication request timed out. Please try again.")
     }
 
     throw error
@@ -117,7 +108,6 @@ export async function refreshSession() {
     return null
   }
 
-  getBrowserClient().setAccessToken(body.accessToken)
   return body
 }
 
@@ -125,7 +115,6 @@ export async function getValidAccessToken() {
   const token = getCookie(accessTokenCookie)
 
   if (token && !shouldRefreshAccessToken(token)) {
-    getBrowserClient().setAccessToken(token)
     return token
   }
 
@@ -140,15 +129,14 @@ export function clearLocalSession() {
   window.sessionStorage.removeItem(legacyOAuthVerifierKey)
   document.cookie = `${legacyAppSessionCookie}=; Path=/; Max-Age=0; SameSite=Lax`
   document.cookie = `${accessTokenCookie}=; Path=/; Max-Age=0; SameSite=Lax`
+  document.cookie = `${refreshTokenCookie}=; Path=/; Max-Age=0; SameSite=Lax`
   document.cookie = `${csrfTokenCookie}=; Path=/; Max-Age=0; SameSite=Lax`
-  browserClient?.setAccessToken(null)
+  document.cookie = `${legacyInsforgeAccessTokenCookie}=; Path=/; Max-Age=0; SameSite=Lax`
+  document.cookie = `${legacyInsforgeCsrfTokenCookie}=; Path=/; Max-Age=0; SameSite=Lax`
 }
 
 export async function getCurrentUser() {
-  const token = await getValidAccessToken().catch(() => null)
-  if (token) {
-    getBrowserClient().setAccessToken(token)
-  }
+  await getValidAccessToken().catch(() => null)
 
   const response = await fetchWithTimeout("/api/auth/user", {
     credentials: "include",
@@ -175,25 +163,16 @@ export function isTwoFactorChallenge(value: unknown): value is Extract<AuthResul
 
 export async function signInWithPassword(email: string, password: string) {
   const session = await postJson<AuthResult>("/api/auth/sign-in", { email, password })
-  if (!isTwoFactorChallenge(session) && session.accessToken) {
-    getBrowserClient().setAccessToken(session.accessToken)
-  }
 
   return session
 }
 
 export async function signUpWithPassword(name: string, email: string, password: string) {
-  const result = await postJson<SignUpResult>("/api/auth/sign-up", { name, email, password })
-  if (result.accessToken) {
-    getBrowserClient().setAccessToken(result.accessToken)
-  }
-
-  return result
+  return postJson<SignUpResult>("/api/auth/sign-up", { name, email, password })
 }
 
 export async function verifyEmailCode(email: string, otp: string) {
   const result = await postJson<VerifyEmailResult>("/api/auth/verify-email", { email, otp })
-  getBrowserClient().setAccessToken(null)
   return result
 }
 
@@ -256,16 +235,7 @@ function buildProfilePayload(user: AuthUser) {
 }
 
 export async function getOAuthProviders() {
-  const { data, error } = await getBrowserClient().auth.getPublicAuthConfig()
-  if (error) {
-    return new Set<OAuthProvider>(["google", "x"])
-  }
-
-  return new Set(
-    [...(data?.oAuthProviders || []), ...(data?.customOAuthProviders || [])].filter(
-      (provider): provider is OAuthProvider => supportedOAuthProviders.has(provider as OAuthProvider)
-    )
-  )
+  return new Set<OAuthProvider>(["google", "x"])
 }
 
 export async function ensureOAuthProvider(provider: OAuthProvider) {
@@ -309,21 +279,11 @@ export async function startOAuth(provider: OAuthProvider, next = "/dashboard") {
 }
 
 export async function completeOAuth(code: string) {
-  const session = await postJson<AuthResult>("/api/auth/oauth/complete", { code })
-  if (!isTwoFactorChallenge(session) && session.accessToken) {
-    getBrowserClient().setAccessToken(session.accessToken)
-  }
-
-  return session
+  return postJson<AuthResult>("/api/auth/oauth/complete", { code })
 }
 
 export async function verifyTwoFactorChallenge(challengeId: string, code: string) {
-  const session = await postJson<AuthSession>("/api/auth/2fa/verify", { challengeId, code })
-  if (session.accessToken) {
-    getBrowserClient().setAccessToken(session.accessToken)
-  }
-
-  return session
+  return postJson<AuthSession>("/api/auth/2fa/verify", { challengeId, code })
 }
 
 export function getOAuthNext() {

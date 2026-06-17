@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Kravix AI Studio",
-  description: "A polished AI Studio SaaS workspace powered by InsForge.",
+  description: "A polished AI Studio SaaS workspace powered by Supabase and Cloudflare R2.",
 };
 
 export default async function RootLayout({

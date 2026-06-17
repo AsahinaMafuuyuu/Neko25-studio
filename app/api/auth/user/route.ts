@@ -1,22 +1,27 @@
 import { cookies } from "next/headers"
 
-import { createAuthServerClient } from "@/lib/auth/server"
-import type { AuthUser } from "@/lib/auth/types"
+import { createAuthAdminClient, normalizeSupabaseUser } from "@/lib/auth/server"
+import { supabaseAccessTokenCookie } from "@/lib/supabase/server"
 
 export async function GET() {
-  const client = createAuthServerClient({
-    cookies: await cookies(),
-  })
-  const { data, error } = await client.auth.getCurrentUser()
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get(supabaseAccessTokenCookie)?.value
+
+  if (!accessToken) {
+    return Response.json({ error: "AUTH_USER_UNAVAILABLE", message: "Could not load user." }, { status: 401 })
+  }
+
+  const client = createAuthAdminClient()
+  const { data, error } = await client.auth.getUser(accessToken)
 
   if (error) {
     return Response.json(
-      { error: error.error || "AUTH_USER_UNAVAILABLE", message: error.message || "Could not load user." },
-      { status: error.statusCode || 401 }
+      { error: error.code || "AUTH_USER_UNAVAILABLE", message: error.message || "Could not load user." },
+      { status: error.status || 401 }
     )
   }
 
   return Response.json({
-    user: (data?.user as AuthUser | null) || null,
+    user: normalizeSupabaseUser(data.user) || null,
   })
 }

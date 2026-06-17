@@ -1,3 +1,5 @@
+import { createAuthAdminClient } from "@/lib/auth/server"
+
 type ProfilePayload = {
   id?: string
   name?: string
@@ -7,39 +9,6 @@ type ProfilePayload = {
   email_verified?: boolean
   last_sign_in_at?: string
   updated_at?: string
-}
-
-type InsForgeResult = {
-  response: Response
-  body: unknown
-}
-
-function getInsForgeConfig() {
-  const baseUrl = process.env.INSFORGE_URL
-  const apiKey = process.env.INSFORGE_API_KEY
-
-  if (!baseUrl || !apiKey) {
-    throw new Error("InsForge is not configured. Add INSFORGE_URL and INSFORGE_API_KEY.")
-  }
-
-  return { baseUrl, apiKey }
-}
-
-function tryParseJson(text: string): unknown {
-  try {
-    return JSON.parse(text)
-  } catch {
-    return { message: text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() }
-  }
-}
-
-function getErrorMessage(body: unknown, fallback: string) {
-  if (body && typeof body === "object") {
-    const record = body as Record<string, unknown>
-    return String(record.message || record.error || fallback)
-  }
-
-  return fallback
 }
 
 function normalizeProfile(value: unknown) {
@@ -61,24 +30,6 @@ function normalizeProfile(value: unknown) {
   }
 }
 
-async function insforgeDatabaseRequest(path: string, accessToken: string, init: RequestInit = {}): Promise<InsForgeResult> {
-  const { baseUrl, apiKey } = getInsForgeConfig()
-  const headers = new Headers(init.headers)
-  headers.set("Content-Type", "application/json")
-  headers.set("Authorization", `Bearer ${accessToken}`)
-  headers.set("x-insforge-api-key", apiKey)
-
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
-    headers,
-  })
-
-  const text = await response.text()
-  const body = text ? tryParseJson(text) : {}
-
-  return { response, body }
-}
-
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get("Authorization") || ""
@@ -88,48 +39,24 @@ export async function POST(request: Request) {
       return Response.json({ message: "Missing authenticated session token." }, { status: 401 })
     }
 
+    const admin = createAuthAdminClient()
+    const { data: userResult, error: userError } = await admin.auth.getUser(accessToken)
+    if (userError || !userResult.user?.id) {
+      return Response.json({ message: userError?.message || "Could not read the current user." }, { status: 401 })
+    }
+
     const body = (await request.json().catch(() => ({}))) as { profile?: unknown }
     const profile = normalizeProfile(body.profile)
-
-    const insertResult = await insforgeDatabaseRequest("/api/database/records/users", accessToken, {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify([profile]),
-    })
-
-    if (insertResult.response.ok) {
-      return Response.json({ profile: insertResult.body })
+    if (profile.id !== userResult.user.id) {
+      return Response.json({ message: "Profile id does not match the authenticated user." }, { status: 403 })
     }
 
-    if (insertResult.response.status !== 409) {
-      return Response.json(
-        { message: getErrorMessage(insertResult.body, "Could not sync user profile.") },
-        { status: insertResult.response.status }
-      )
+    const { data, error } = await admin.from("users").upsert(profile, { onConflict: "id" }).select()
+    if (error) {
+      return Response.json({ message: error.message || "Could not sync user profile." }, { status: 400 })
     }
 
-    const updateResult = await insforgeDatabaseRequest(
-      `/api/database/records/users?id=eq.${encodeURIComponent(profile.id)}`,
-      accessToken,
-      {
-        method: "PATCH",
-        headers: {
-          Prefer: "return=representation",
-        },
-        body: JSON.stringify(profile),
-      }
-    )
-
-    if (!updateResult.response.ok) {
-      return Response.json(
-        { message: getErrorMessage(updateResult.body, "Could not update user profile.") },
-        { status: updateResult.response.status }
-      )
-    }
-
-    return Response.json({ profile: updateResult.body })
+    return Response.json({ profile: data })
   } catch (error) {
     return Response.json(
       {

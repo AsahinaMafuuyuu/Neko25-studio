@@ -37,7 +37,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { showAppToast } from "@/components/ui/app-toast"
-import { getValidAccessToken, refreshSession } from "@/lib/insforge"
+import { getValidAccessToken, refreshSession } from "@/lib/backend"
 import type {
   AiAvatar,
   AiAvatarJob,
@@ -696,7 +696,7 @@ export function AiAvatarsPage() {
                       <AlertDialogDescription className="space-y-3 text-left">
                         <span className="block">Are you sure you want to close the avatar form?</span>
                         <span className="block font-medium text-destructive">
-                          注：系统可能会丢失已经填写的表单信息
+                          娉細绯荤粺鍙兘浼氫涪澶卞凡缁忓～鍐欑殑琛ㄥ崟淇℃伅
                         </span>
                         <span className="block">Saved or uploaded work remains available in the library.</span>
                       </AlertDialogDescription>

@@ -1,8 +1,7 @@
 import {
   avatarErrorStatus,
   getDefaultAvatarById,
-  getInsForgeAdmin,
-  insforgeRequest,
+  getBackendAdmin,
   jsonError,
   requireBearerToken,
   requireCurrentUserId,
@@ -218,7 +217,7 @@ function isMissingAiVideoAgentTable(error: unknown) {
 }
 
 function aiVideoAgentMigrationMessage() {
-  return "AI Video Agent v2 database tables are not available in the current InsForge project. Apply migrations/20260611130000_ai-video-agent-v2-main-tables.sql or point the app to the ai-video-agent InsForge branch."
+  return "AI Video Agent v2 database tables are not available in the current Supabase project. Apply migrations/20260611130000_ai-video-agent-v2-main-tables.sql."
 }
 
 function firstRecord<T>(value: unknown): T | null {
@@ -458,7 +457,7 @@ export async function getAiVideoAgentInitialData(userId: string, accessToken: st
 }
 
 export async function listAiVideoAgentProjects(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.projects)
@@ -472,7 +471,7 @@ export async function listAiVideoAgentProjects(userId: string) {
 }
 
 export async function getAiVideoAgentProject(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.projects)
@@ -502,7 +501,7 @@ export async function getAiVideoAgentProjectDetail(projectId: string, userId: st
 }
 
 export async function deleteAiVideoAgentProject(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const project = await getAiVideoAgentProject(projectId, userId)
   if (!project) return false
 
@@ -536,7 +535,7 @@ export async function createAiVideoAgentJob(input: {
   message: string
   kind: "generation" | "render"
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const metadata = {
     kind: input.kind,
     status: input.status,
@@ -565,7 +564,7 @@ export async function createAiVideoAgentJob(input: {
 }
 
 export async function getLatestAiVideoAgentJob(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.jobs)
@@ -590,7 +589,7 @@ async function syncLatestAiVideoAgentJob(
     return
   }
 
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.jobs)
@@ -627,7 +626,7 @@ async function syncLatestAiVideoAgentJob(
 }
 
 export async function listAiVideoAgentScenes(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.scenes)
@@ -642,7 +641,7 @@ export async function listAiVideoAgentScenes(projectId: string, userId: string) 
 }
 
 export async function listAiVideoAgentDialogues(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.dialogues)
@@ -666,7 +665,7 @@ function compareAiVideoAgentDialogues(a: AiVideoAgentDialogue, b: AiVideoAgentDi
 }
 
 export async function listAiVideoAgentAssets(projectId: string, userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.assets)
@@ -751,32 +750,14 @@ export async function createAiVideoAgentProject(input: {
     status: "queued",
     metadata,
   }
-  const result = await insforgeRequest<unknown>(
-    `/api/database/records/${AI_VIDEO_V2_TABLES.projects}?select=*`,
-    {
-      method: "POST",
-      headers: {
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify([payload]),
-    },
-    input.accessToken
-  )
+  void input.accessToken
+  const admin = await getBackendAdmin()
+  const result = await admin.database.from(AI_VIDEO_V2_TABLES.projects).insert([payload]).select()
+  if (isMissingAiVideoAgentTable(result.error)) throw new Error(aiVideoAgentMigrationMessage())
+  throwIfSdkError(result.error, "Could not create AI video project.")
 
-  if (!result.response.ok) {
-    console.error("AI Video Agent create project InsForge POST failed.", {
-      status: result.response.status,
-      body: result.body,
-    })
-    if (isMissingAiVideoAgentTable(result.body)) throw new Error(aiVideoAgentMigrationMessage())
-    throw new Error(sdkErrorMessage(
-      result.body,
-      `Could not create AI video project. InsForge returned HTTP ${result.response.status}.`
-    ))
-  }
-
-  const project = firstRecord<V2ProjectRow>(result.body)
-  if (!project) throw new Error("InsForge did not return the created AI video project.")
+  const project = firstRecord<V2ProjectRow>(result.data)
+  if (!project) throw new Error("Supabase did not return the created AI video project.")
   return mapV2Project(project)
 }
 
@@ -786,7 +767,7 @@ export async function updateAiVideoAgentProject(
   accessToken?: string
 ) {
   void accessToken
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const existingResult = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.projects)
@@ -849,7 +830,7 @@ export async function replaceAiVideoAgentScenes(input: {
   userId: string
   scenes: SceneInput[]
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const deleteResult = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.scenes)
@@ -896,7 +877,7 @@ export async function replaceAiVideoAgentDialogues(input: {
   userId: string
   dialogues: DialogueInput[]
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const deleteResult = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.dialogues)
@@ -936,7 +917,7 @@ export async function updateAiVideoAgentDialogue(
     audio_asset_id: string
   }>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from(AI_VIDEO_V2_TABLES.dialogues)
@@ -963,7 +944,7 @@ export async function createAiVideoAgentAsset(input: {
   contentType: string
   metadata?: Record<string, unknown>
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const metadata: Record<string, unknown> = {
     ...(input.metadata || {}),
     asset_type: input.assetType,
@@ -1003,7 +984,7 @@ export async function uploadAiVideoAgentBlob(input: {
   const contentType = input.blob.type || "application/octet-stream"
   const fallback = `asset.${getExtension(contentType)}`
   const key = `${input.userId}/ai-video-agent/${input.projectId}/${input.folder}/${Date.now()}-${safeFileName(input.filename, fallback)}`
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
 
   for (const bucket of [primaryVideoAgentBucket, fallbackVideoAgentBucket]) {
     const result = (await admin.storage.from(bucket).upload(key, input.blob)) as SdkResponse<{

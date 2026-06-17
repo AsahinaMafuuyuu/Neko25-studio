@@ -1,5 +1,5 @@
 import type { AuthUser } from "@/lib/auth/types"
-import { getInsForgeAdmin } from "@/lib/avatar-server"
+import { getBackendAdmin } from "@/lib/avatar-server"
 import { encryptText, decryptText } from "@/lib/totp"
 import type {
   AccountSettingsPayload,
@@ -104,7 +104,7 @@ function toWorkspaceSummary(record: CreditBalanceRecord | null | undefined): Wor
 }
 
 export async function getUserProfileRecord(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("users")
@@ -134,7 +134,7 @@ export async function upsertUserProfileRecord(
     | "two_factor_pending_secret_encrypted"
   >>
 ) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const existing = await getUserProfileRecord(userId)
   const payload = { ...values, updated_at: new Date().toISOString() }
 
@@ -147,7 +147,7 @@ export async function upsertUserProfileRecord(
 }
 
 export async function ensureWorkspaceSummary(userId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   await admin.database.rpc("ensure_user_credit_balance", { p_user_id: userId, p_default_balance: 1280 })
 
   const { data, error } = await admin
@@ -254,7 +254,7 @@ export async function createTwoFactorChallenge(input: {
   refreshToken?: string | null
   user?: AuthUser
 }) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString()
   const payload = encryptText(JSON.stringify(input))
   const { data, error } = await admin
@@ -268,7 +268,7 @@ export async function createTwoFactorChallenge(input: {
 }
 
 export async function consumeTwoFactorChallenge(challengeId: string) {
-  const admin = await getInsForgeAdmin()
+  const admin = await getBackendAdmin()
   const { data, error } = await admin
     .database
     .from("user_two_factor_challenges")

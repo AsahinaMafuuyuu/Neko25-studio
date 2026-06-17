@@ -18,6 +18,6 @@ export {
   signUpWithPassword,
   startOAuth,
   syncAuthenticatedUserFromCurrentSession,
-  verifyTwoFactorChallenge,
   verifyEmailCode,
+  verifyTwoFactorChallenge,
 } from "@/lib/auth/client"

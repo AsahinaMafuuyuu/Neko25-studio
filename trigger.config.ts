@@ -1,10 +1,6 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
 
-const project = process.env.TRIGGER_PROJECT_REF?.trim();
-
-if (!project) {
-  throw new Error("Trigger.dev is not configured. Add TRIGGER_PROJECT_REF for this environment.");
-}
+const project = process.env.TRIGGER_PROJECT_REF?.trim() || "proj_kscbzimghqugjpyvujcd";
 
 export default defineConfig({
   project,

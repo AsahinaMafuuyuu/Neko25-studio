@@ -41,22 +41,24 @@ export async function POST(request: Request) {
     }
 
     const client = createAuthServerClient()
-    const exchange = await client.auth.exchangeResetPasswordToken({ email, code })
-    if (exchange.error || !exchange.data?.token) {
+    const exchange = await client.auth.verifyOtp({ email, token: code, type: "recovery" })
+    if (exchange.error || !exchange.data?.session?.access_token) {
       return Response.json(
         { message: exchange.error?.message || "Verification code is invalid or expired." },
-        { status: exchange.error?.statusCode || 400 }
+        { status: exchange.error?.status || 400 }
       )
     }
 
-    const reset = await client.auth.resetPassword({
-      newPassword,
-      otp: exchange.data.token,
+    const sessionClient = createAuthServerClient()
+    await sessionClient.auth.setSession({
+      access_token: exchange.data.session.access_token,
+      refresh_token: exchange.data.session.refresh_token,
     })
+    const reset = await sessionClient.auth.updateUser({ password: newPassword })
     if (reset.error) {
       return Response.json(
         { message: reset.error.message || "Could not change password." },
-        { status: reset.error.statusCode || 400 }
+        { status: reset.error.status || 400 }
       )
     }
 
