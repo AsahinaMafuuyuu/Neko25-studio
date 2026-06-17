@@ -4,6 +4,10 @@ import Link from "next/link"
 import { ArrowLeft, CalendarDays, Download, Film, LayoutTemplate, RefreshCcw, UserRound, WandSparkles } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
+import {
+  DashboardError,
+  DashboardPage,
+} from "@/components/dashboard/dashboard-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
@@ -56,9 +60,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
 
   if (error || !video) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
-        {error || "AI video avatar not found."}
-      </div>
+      <DashboardError>{error || "AI video avatar not found."}</DashboardError>
     )
   }
 
@@ -66,7 +68,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
   const createdAt = new Date(video.created_at).toLocaleString()
 
   return (
-    <div className="space-y-6">
+    <DashboardPage>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button nativeButton={false} render={<Link href="/dashboard/ai-video-avatar" />} variant="outline">
           <ArrowLeft />
@@ -133,7 +135,7 @@ export function AiVideoAvatarDetailPage({ videoId }: { videoId: string }) {
           </div>
         </aside>
       </div>
-    </div>
+    </DashboardPage>
   )
 }
 

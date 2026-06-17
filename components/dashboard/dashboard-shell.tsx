@@ -213,13 +213,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen>
       <Sidebar className="border-r border-sidebar-border/70" side="left">
-        <SidebarHeader className="gap-4 px-3 py-4">
+        <SidebarHeader className="gap-3 px-3 py-3">
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 rounded-xl px-2 py-2 font-semibold"
+            className="flex items-center gap-3 rounded-lg px-2 py-1.5 font-semibold transition-colors hover:bg-sidebar-accent/70 focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard")}
           >
-            <span className="grid size-10 place-items-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <span className="grid size-9 place-items-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
               <BrandIcon className="size-4" />
             </span>
             <span className="flex min-w-0 flex-col">
@@ -231,7 +231,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </Link>
         </SidebarHeader>
 
-        <SidebarContent className="px-2">
+        <SidebarContent className="px-2 py-1">
           <SidebarMenu>
             {dashboardNavItems.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -251,11 +251,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
 
-        <SidebarFooter className="gap-3 px-3 pb-4">
+        <SidebarFooter className="gap-2 px-3 pb-3">
           <SidebarSeparator />
           <Link
             href="/dashboard/billing"
-            className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 transition-colors hover:bg-sidebar-accent/70"
+            className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 shadow-xs transition-[background-color,border-color,box-shadow] hover:border-sidebar-primary/25 hover:bg-sidebar-accent/70 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard/billing")}
           >
             <div className="flex items-center gap-3">
@@ -271,12 +271,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+          <div className="rounded-lg border border-sidebar-border/70 bg-background/45 px-3 py-2.5">
             <div className="flex items-center justify-between gap-3">
               <p className="min-w-0 truncate text-xs font-medium uppercase tracking-[0.12em] text-sidebar-foreground/66">
                 {t("creditsTitle")}
               </p>
-              <span className="rounded-full border border-lime-300/60 bg-lime-300 px-2.5 py-1 text-xs font-semibold tabular-nums text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.42)]">
+              <span className="rounded-md border border-accent/40 bg-accent/80 px-2 py-0.5 text-xs font-semibold tabular-nums text-accent-foreground">
                 {creditBalanceFailed ? "--" : creditBalance === null ? "..." : creditBalance.toLocaleString("en")}
               </span>
             </div>
@@ -284,7 +284,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/dashboard/personal-settings"
-            className="flex items-center gap-3 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3 text-left transition-colors hover:bg-sidebar-accent/70"
+            className="flex items-center gap-3 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 px-3 py-2.5 text-left shadow-xs transition-[background-color,border-color,box-shadow] hover:border-sidebar-primary/25 hover:bg-sidebar-accent/70 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-sidebar-ring/50"
             onClick={() => onNavigationStart("/dashboard/personal-settings")}
           >
             <span className="grid size-9 place-items-center rounded-lg bg-background/60 text-foreground shadow-sm">
@@ -301,21 +301,24 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="min-h-screen">
         <PageRouteTransition show={routeTransitioning} />
 
-        <header className="sticky top-0 z-20 border-b border-border/70 bg-background/82 backdrop-blur-xl">
-          <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6">
-            <div className="flex min-w-0 items-center gap-3">
+        <header className="sticky top-0 z-20 border-b border-border/70 bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/78">
+          <div className="flex min-h-14 items-center justify-between gap-3 px-3 sm:px-5 lg:px-6">
+            <div className="flex min-w-0 items-center gap-2.5">
               <SidebarTrigger className="md:hidden" />
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                  {t("eyebrow")}
-                </p>
-                <h1 className="truncate text-lg font-semibold tracking-tight">
-                  {currentItem.title}
-                </h1>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground sm:block">
+                    {t("eyebrow")}
+                  </p>
+                  <span className="hidden h-3 w-px bg-border sm:block" aria-hidden="true" />
+                  <h1 className="truncate text-base font-semibold tracking-tight">
+                    {currentItem.title}
+                  </h1>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <AccountHoverCard
                 settings={accountSettings}
                 email={user?.email || t("emailFallback")}
@@ -333,8 +336,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+        <div className="flex-1 bg-background px-3 py-5 sm:px-5 lg:px-6 lg:py-6">
+          <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
             {children}
           </div>
         </div>
@@ -367,7 +370,7 @@ function AccountHoverCard({
         render={
           <button
             type="button"
-            className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted/60"
+            className="flex items-center gap-2 rounded-full border border-border/70 bg-card py-1 pl-1 pr-3 text-sm text-muted-foreground shadow-sm transition-[background-color,border-color,box-shadow] hover:border-primary/25 hover:bg-secondary/45 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring/50"
           />
         }
       >
@@ -383,7 +386,7 @@ function AccountHoverCard({
               <p className="mt-1 truncate text-sm text-muted-foreground">{email}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Badge variant="outline" className="rounded-full">{plan}</Badge>
-                <Badge className="rounded-full bg-lime-300 text-slate-950 shadow-[0_0_18px_rgba(190,242,100,0.45)]">
+                <Badge className="rounded-full border border-foreground/15 bg-foreground text-background shadow-none">
                   {creditsLabel} credits
                 </Badge>
               </div>
@@ -393,6 +396,7 @@ function AccountHoverCard({
         <div className="grid grid-cols-2 gap-2 border-t border-border/70 p-3">
           <Button
             variant="outline"
+            nativeButton={false}
             onClick={() => onNavigate("/dashboard/personal-settings")}
             render={<Link href="/dashboard/personal-settings" />}
           >
@@ -401,6 +405,7 @@ function AccountHoverCard({
           </Button>
           <Button
             variant="outline"
+            nativeButton={false}
             onClick={() => onNavigate("/dashboard/billing")}
             render={<Link href="/dashboard/billing" />}
           >
@@ -465,13 +470,13 @@ function PageRouteTransition({ show }: { show: boolean }) {
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200",
+        "pointer-events-none fixed inset-0 z-50 grid place-items-center bg-background/45 backdrop-blur-[2px] transition-opacity duration-200 motion-reduce:transition-none",
         show ? "opacity-100" : "opacity-0"
       )}
     >
       <div className="w-44 overflow-hidden rounded-full border border-border/70 bg-card/90 p-1.5 shadow-lg">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
+        <div className="studio-route-loader h-1.5 w-full overflow-hidden rounded-full">
+          <div className="studio-route-loader__bar h-full w-1/2 rounded-full" />
         </div>
       </div>
     </div>

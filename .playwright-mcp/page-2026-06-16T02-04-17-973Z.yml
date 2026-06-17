@@ -1,0 +1,95 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - link "Kravix AI Studio" [ref=e5] [cursor=pointer]:
+        - /url: /en
+        - img [ref=e7]
+        - text: Kravix AI Studio
+      - navigation [ref=e10]:
+        - link "Features" [ref=e11] [cursor=pointer]:
+          - /url: "#features"
+        - link "Security" [ref=e12] [cursor=pointer]:
+          - /url: "#security"
+        - link "Metrics" [ref=e13] [cursor=pointer]:
+          - /url: "#metrics"
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img
+          - generic [ref=e16]:
+            - combobox "Switch language" [ref=e17]:
+              - option "中文"
+              - option "English" [selected]
+              - option "日本語"
+            - img
+        - button "Toggle theme" [ref=e18]
+        - link "Sign in" [ref=e20] [cursor=pointer]:
+          - /url: /en/sign-in?next=%2Fdashboard
+        - link "Start" [ref=e21] [cursor=pointer]:
+          - /url: /en/sign-up?next=%2Fdashboard
+    - generic [ref=e22]:
+      - generic "The calm control room for production AI products." [ref=e23]
+      - generic [ref=e27]:
+        - paragraph [ref=e28]:
+          - img [ref=e29]
+          - text: AI Studio SaaS powered by InsForge
+        - heading "The calm control room for production AI products." [level=1] [ref=e31]
+        - paragraph [ref=e32]: Kravix brings authentication, prompt workflows, knowledge assets, and launch readiness into a polished studio your team can use every day.
+        - generic [ref=e33]:
+          - link "Create workspace" [ref=e34] [cursor=pointer]:
+            - /url: /en/sign-up?next=%2Fdashboard
+            - text: Create workspace
+            - img
+          - link "Open studio" [ref=e35] [cursor=pointer]:
+            - /url: /en/sign-in?next=%2Fdashboard
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - img [ref=e39]
+          - paragraph [ref=e43]: Secure access
+          - paragraph [ref=e44]: Email auth plus Google and X OAuth entry points.
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - paragraph [ref=e49]: Studio polish
+          - paragraph [ref=e50]: Light and dark themes with consistent design tokens.
+        - generic [ref=e51]:
+          - img [ref=e52]
+          - paragraph [ref=e56]: Workflow quality
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - paragraph [ref=e61]: Designed for daily product work
+        - heading "Everything feels close at hand." [level=2] [ref=e62]
+      - generic [ref=e63]:
+        - generic [ref=e65]:
+          - img [ref=e67]
+          - generic [ref=e70]: Prompt operations
+          - generic [ref=e71]: Design, compare, and ship prompts with repeatable evaluation habits.
+        - generic [ref=e72]:
+          - generic [ref=e74]:
+            - img [ref=e76]
+            - generic [ref=e80]:
+              - generic [ref=e81]: Context vault
+              - generic [ref=e82]: Prepare datasets, docs, and retrieval context for every product surface.
+          - generic [ref=e84]:
+            - img [ref=e86]
+            - generic [ref=e90]:
+              - generic [ref=e91]: Launch workflows
+              - generic [ref=e92]: Coordinate model runs, QA, and release signals from one workspace.
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - paragraph [ref=e97]: InsForge backend
+        - heading "Authentication and product state share one foundation." [level=2] [ref=e98]
+        - paragraph [ref=e99]: The app is linked to InsForge for auth, future database work, storage, realtime, and backend functions without spreading secrets through the UI.
+      - generic [ref=e100]:
+        - generic [ref=e101]: OAuth login
+        - generic [ref=e102]: Protected studio route
+        - generic [ref=e103]: Theme-safe components
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - paragraph [ref=e108]: faster experiment cycles
+        - paragraph [ref=e109]: 3.8x
+      - generic [ref=e110]:
+        - paragraph [ref=e111]: backend availability target
+        - paragraph [ref=e112]: 99.9%
+      - generic [ref=e113]:
+        - paragraph [ref=e114]: studio-ready workflows
+        - paragraph [ref=e115]: 24/7
+  - region "Notifications alt+T"

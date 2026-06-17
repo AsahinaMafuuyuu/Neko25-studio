@@ -22,6 +22,15 @@ import {
   GeneratedAudioAssetCard,
   VoiceAssetCard,
 } from "@/components/dashboard/library-asset-cards"
+import {
+  DashboardActionGroup,
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+  DashboardPanel,
+  DashboardSectionHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -191,29 +200,24 @@ export function MyLibraryPage() {
   const showVideoAvatar = filters.tab === "all" || filters.tab === "video_avatar"
 
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-2xl border border-border/70 bg-[linear-gradient(145deg,var(--card),color-mix(in_oklch,var(--primary),transparent_94%),color-mix(in_oklch,var(--accent),transparent_92%))] p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
-              <FolderKanban className="size-7" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="bg-background/70" variant="outline">Unified assets</Badge>
-                <Badge className="bg-background/70" variant="outline">{visibleStats.totalAssets} visible</Badge>
-              </div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">My Library</h2>
-            </div>
-          </div>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={FolderKanban}
+        eyebrow="Unified assets"
+        title="My Library"
+        description="Search, preview, and reuse the voices, avatars, generated audio, and videos created across the studio."
+        meta={<DashboardMetric label="Visible assets" value={visibleStats.totalAssets} />}
+        actions={
+          <DashboardActionGroup>
           <Button variant="outline" onClick={() => loadLibrary({ showLoading: true })}>
             <RefreshCcw />
             Refresh
           </Button>
-        </div>
-      </section>
+          </DashboardActionGroup>
+        }
+      />
 
-      <section className="rounded-2xl border border-border/70 bg-card/95 p-4 shadow-sm sm:p-5">
+      <DashboardPanel compact>
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto] lg:items-end">
           <div className="grid gap-2">
             <label className="text-xs font-medium uppercase text-muted-foreground" htmlFor="library-search">Search by name</label>
@@ -257,10 +261,10 @@ export function MyLibraryPage() {
             <button
               key={tab.value}
               className={cn(
-                "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-sm",
+                "inline-flex h-10 shrink-0 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors",
                 filters.tab === tab.value
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                  : "border-border/70 bg-background text-muted-foreground hover:text-foreground"
+                  : "border-border/70 bg-background text-muted-foreground hover:bg-muted/40 hover:text-foreground"
               )}
               type="button"
               onClick={() => setFilters((current) => ({ ...current, tab: tab.value }))}
@@ -270,16 +274,16 @@ export function MyLibraryPage() {
             </button>
           ))}
         </div>
-      </section>
+      </DashboardPanel>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={<FolderKanban className="size-5" />} label="Total Assets" value={loading ? "..." : String(visibleStats.totalAssets)} tone="primary" />
-        <StatCard icon={<Film className="size-5" />} label="Videos" value={loading ? "..." : String(visibleStats.videos)} tone="sky" />
-        <StatCard icon={<Mic2 className="size-5" />} label="Voices" value={loading ? "..." : String(visibleStats.voices)} tone="emerald" />
-        <StatCard icon={<Database className="size-5" />} label="Storage Upload" value={loading ? "..." : visibleStats.storageLabel} tone="violet" />
+        <StatCard icon={<Film className="size-5" />} label="Videos" value={loading ? "..." : String(visibleStats.videos)} tone="foreground" />
+        <StatCard icon={<Mic2 className="size-5" />} label="Voices" value={loading ? "..." : String(visibleStats.voices)} tone="accent" />
+        <StatCard icon={<Database className="size-5" />} label="Storage Upload" value={loading ? "..." : visibleStats.storageLabel} tone="secondary" />
       </section>
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <DashboardError>{error}</DashboardError> : null}
       {loading ? <LibrarySkeleton /> : null}
 
       {!loading && showVoice ? (
@@ -393,7 +397,7 @@ export function MyLibraryPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -409,18 +413,20 @@ function LibrarySection({
   title: string
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-border/70 bg-card/80 p-4 shadow-sm sm:p-5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
-            {icon}
+    <DashboardPanel compact>
+      <DashboardSectionHeader
+        title={
+          <span className="inline-flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-md bg-secondary text-secondary-foreground">
+              {icon}
+            </span>
+            {title}
           </span>
-          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-        </div>
-        <Badge variant="outline">{count}</Badge>
-      </div>
-      {children}
-    </section>
+        }
+        action={<Badge variant="outline">{count}</Badge>}
+      />
+      <div className="mt-4">{children}</div>
+    </DashboardPanel>
   )
 }
 
@@ -432,24 +438,24 @@ function StatCard({
 }: {
   icon: React.ReactNode
   label: string
-  tone: "primary" | "sky" | "emerald" | "violet"
+  tone: "primary" | "accent" | "foreground" | "secondary"
   value: string
 }) {
   const tones = {
     primary: "bg-primary/10 text-primary ring-primary/15",
-    sky: "bg-sky-400/10 text-sky-700 ring-sky-300/35 dark:text-sky-200",
-    emerald: "bg-emerald-400/10 text-emerald-700 ring-emerald-300/35 dark:text-emerald-200",
-    violet: "bg-violet-400/10 text-violet-700 ring-violet-300/35 dark:text-violet-200",
+    accent: "bg-accent/16 text-foreground ring-accent/25",
+    foreground: "bg-foreground/[0.06] text-foreground ring-foreground/15",
+    secondary: "bg-secondary text-secondary-foreground ring-border/70",
   }
 
   return (
-    <div className="group rounded-2xl border border-border/70 bg-card p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md">
+    <div className="rounded-xl border border-border/70 bg-card p-4 shadow-sm transition-colors hover:border-foreground/20">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase text-muted-foreground">{label}</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight">{value}</p>
         </div>
-        <span className={cn("grid size-11 place-items-center rounded-xl ring-1", tones[tone])}>{icon}</span>
+        <span className={cn("grid size-10 place-items-center rounded-lg ring-1", tones[tone])}>{icon}</span>
       </div>
     </div>
   )

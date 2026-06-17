@@ -23,13 +23,13 @@ export function DashboardMediaSurface({
           alt={alt}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.015] motion-reduce:transition-none"
         />
       ) : (
         <video
           aria-label={alt}
           autoPlay
-          className="size-full object-cover"
+          className="size-full object-cover transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.015] motion-reduce:transition-none"
           loop
           muted
           playsInline
@@ -37,8 +37,8 @@ export function DashboardMediaSurface({
           <source src={mediaSrc} />
         </video>
       )}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,12,18,0.1)_0%,rgba(10,12,18,0.55)_48%,rgba(10,12,18,0.92)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_36%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,12,18,0.04)_0%,rgba(10,12,18,0.52)_48%,rgba(10,12,18,0.94)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.14),transparent_34%)]" />
     </div>
   )
 }

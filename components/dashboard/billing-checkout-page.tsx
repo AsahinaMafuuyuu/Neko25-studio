@@ -3,8 +3,11 @@
 import { AlertCircle, Check, CreditCard, ShieldCheck, WalletCards, type LucideIcon } from "lucide-react"
 import { useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import {
   Card,
   CardContent,
@@ -29,19 +32,15 @@ export function BillingCheckoutPage({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(method)
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <Badge variant="outline" className="h-7 gap-2 rounded-md px-3 text-primary">
-          <CreditCard className="size-3.5" />
-          Checkout Preview
-        </Badge>
-        <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Buy Credits</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          This page confirms the selected package and payment preference. Real Alipay and WeChat payment integration is pending.
-        </p>
-      </section>
+    <DashboardPage className="mx-auto w-full max-w-3xl">
+      <DashboardPageHeader
+        icon={CreditCard}
+        eyebrow="Checkout Preview"
+        title="Buy Credits"
+        description="This page confirms the selected package and payment preference. Real Alipay and WeChat payment integration is pending."
+      />
 
-      <Card>
+      <Card className="border-border/70 bg-card/95 shadow-sm ring-1 ring-foreground/[0.03]">
         <CardHeader>
           <CardTitle>Order Summary</CardTitle>
           <CardDescription>No payment will be collected and no credits will be added yet.</CardDescription>
@@ -52,7 +51,7 @@ export function BillingCheckoutPage({
             <SummaryTile icon={ShieldCheck} label="Package price" value={price} />
           </div>
 
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
+          <div className="rounded-lg border border-accent/25 bg-accent/10 p-4 text-sm text-foreground">
             <div className="flex gap-3">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <div>
@@ -93,7 +92,7 @@ export function BillingCheckoutPage({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -107,7 +106,7 @@ function SummaryTile({
   value: string
 }) {
   return (
-    <div className="rounded-lg border border-border/70 bg-muted/20 p-4">
+    <div className="rounded-lg border border-border/70 bg-background/70 p-4 shadow-xs">
       <div className="flex items-center gap-3">
         <div className="grid size-10 place-items-center rounded-md bg-background text-primary shadow-sm">
           <Icon className="size-4" />
@@ -136,16 +135,19 @@ function PaymentButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "flex items-start justify-between rounded-lg border p-4 text-left transition-colors",
-        active ? "border-primary bg-primary/10" : "border-border/70 bg-muted/20 hover:bg-muted/40"
+        "flex items-start justify-between rounded-lg border p-4 text-left shadow-xs transition-[background-color,border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/35 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        active
+          ? "border-primary/55 bg-[color-mix(in_oklch,var(--primary),var(--background)_92%)] ring-2 ring-primary/15"
+          : "border-border/70 bg-[color-mix(in_oklch,var(--secondary),var(--background)_58%)] hover:border-accent/45 hover:bg-[color-mix(in_oklch,var(--accent),var(--background)_92%)]"
       )}
     >
       <span>
         <span className="block text-sm font-medium">{label}</span>
         <span className="mt-1 block text-xs leading-5 text-muted-foreground">{description}</span>
       </span>
-      <span className={cn("grid size-5 place-items-center rounded-full border", active ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+      <span className={cn("grid size-5 place-items-center rounded-full border transition-colors", active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background/70")}>
         {active ? <Check className="size-3" /> : null}
       </span>
     </button>

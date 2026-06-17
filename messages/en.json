@@ -120,6 +120,10 @@
     "creditsDescription": "Available this month for video, voice, and avatar generation",
     "homeHeroEyebrow": "Creative Command Center",
     "homeHeroTitle": "Manage video, avatars, voice, and media assets from one clean workspace.",
+    "homeModules": {
+      "title": "Creation Workspaces",
+      "description": "Move from avatar video, reusable identities, voice production, and asset management into the core workflows for short-form content creation."
+    },
     "cardEyebrows": {
       "featured": "Featured",
       "overview": "Overview",

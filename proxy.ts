@@ -2,6 +2,7 @@ import createMiddleware from "next-intl/middleware"
 import { updateSession } from "@insforge/sdk/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+import { isDevelopmentAuthBypassEnabled } from "@/lib/auth/dev-bypass"
 import { routing } from "@/src/i18n/routing"
 
 const intlMiddleware = createMiddleware(routing)
@@ -11,6 +12,11 @@ export async function proxy(request: NextRequest) {
   const locale = getPathLocale(pathname)
   const unprefixedPathname = stripLocale(pathname)
   const response = intlMiddleware(request)
+
+  if (isProtectedAppPath(unprefixedPathname) && isDevelopmentAuthBypassEnabled()) {
+    return response
+  }
+
   const requestCookies = {
     get: (name: string) => request.cookies.get(name),
   } as Parameters<typeof updateSession>[0]["requestCookies"]

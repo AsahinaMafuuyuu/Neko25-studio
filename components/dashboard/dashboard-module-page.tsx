@@ -1,6 +1,10 @@
 import { useTranslations } from "next-intl"
 
 import { DashboardMediaSurface } from "@/components/dashboard/dashboard-media-surface"
+import {
+  DashboardPanel,
+  DashboardSectionHeader,
+} from "@/components/dashboard/dashboard-layout"
 import type { DashboardNavItem } from "@/lib/dashboard"
 
 export function DashboardModulePage({
@@ -19,22 +23,23 @@ export function DashboardModulePage({
   ]
 
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-        <div className="relative min-h-[320px] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+    <div className="grid gap-6">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="group relative min-h-[360px] overflow-hidden rounded-xl border border-foreground/10 bg-card shadow-[0_18px_48px_rgba(16,18,34,0.16)] ring-1 ring-background/10">
           <DashboardMediaSurface
             alt={item.title}
             mediaSrc={item.mediaSrc}
             mediaType={item.mediaType}
           />
+          <div aria-hidden className="absolute inset-0 bg-primary/10" />
           <div className="relative flex h-full flex-col justify-end p-6 text-white sm:p-8">
-            <div className="mb-5 inline-flex size-12 items-center justify-center rounded-xl border border-white/15 bg-white/10 backdrop-blur">
+            <div className="mb-5 inline-flex size-11 items-center justify-center rounded-lg border border-white/18 bg-background text-foreground shadow-sm">
               <Icon className="size-6" />
             </div>
-            <p className="text-sm font-medium text-white/72">
+            <p className="text-sm font-medium text-white/74">
               {t("module.workspaceModule")}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
               {item.title}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-white/78 sm:text-base">
@@ -44,34 +49,29 @@ export function DashboardModulePage({
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">
-              {t("module.statusLabel")}
-            </p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight">
-              {t("module.statusTitle")}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {t("module.statusDescription")}
-            </p>
-          </div>
+          <DashboardPanel compact>
+            <DashboardSectionHeader
+              title={t("module.statusTitle")}
+              description={t("module.statusDescription")}
+            />
+          </DashboardPanel>
 
-          <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">
-              {t("module.includesLabel")}
-            </p>
+          <DashboardPanel compact>
+            <DashboardSectionHeader title={t("module.includesLabel")} />
             <ul className="mt-4 space-y-3">
               {resolvedChecklist.map((entry) => (
                 <li
                   key={entry}
                   className="flex items-start gap-3 text-sm leading-6 text-foreground"
                 >
-                  <span className="mt-1 size-2 rounded-full bg-primary" />
+                    <span className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-accent/80 text-accent-foreground ring-1 ring-accent/25">
+                    <span className="size-1.5 rounded-full bg-current" />
+                  </span>
                   <span>{entry}</span>
                 </li>
               ))}
             </ul>
-          </div>
+          </DashboardPanel>
         </div>
       </section>
     </div>

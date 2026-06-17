@@ -18,6 +18,12 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
+import {
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { GeneratedAudioAssetCard, VoiceAssetCard } from "@/components/dashboard/library-asset-cards"
 import { Button } from "@/components/ui/button"
 import {
@@ -489,34 +495,20 @@ export function AiVoiceCloningPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-4">
-        <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-                <Mic2 className="size-4" />
-                AI Voice Cloning
-              </div>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-4xl">Voice Studio</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Save reusable reference audio and generate TTS with custom Qwen3-TTS or Deepgram default voices.
-              </p>
-            </div>
-            <div className="w-fit rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
-              <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
-            </div>
-          </div>
-        </div>
-
+    <DashboardPage>
+      <section className="grid gap-4">
+        <DashboardPageHeader
+          icon={Mic2}
+          eyebrow="AI Voice Cloning"
+          title="Voice Studio"
+          description="Save reusable reference audio and generate TTS with custom Qwen3-TTS or Deepgram default voices."
+          meta={<DashboardMetric label="Credits" value={creditBalance ?? "..."} />}
+        />
         <StatusPanel tasks={taskQueue} />
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <DashboardError>{error}</DashboardError>
       ) : null}
 
       <Tabs defaultValue="voices" className="space-y-5">
@@ -615,7 +607,7 @@ export function AiVoiceCloningPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -626,7 +618,7 @@ function StatusPanel({ tasks }: { tasks: AudioTaskQueueItem[] }) {
   const hasMoreTasks = visibleCount < tasks.length
 
   return (
-    <div className="rounded-2xl border border-white/15 bg-card/60 p-5 shadow-[0_18px_50px_rgb(0_0_0_/_0.14)] backdrop-blur-xl supports-[backdrop-filter]:bg-card/45">
+    <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl border border-primary/20 bg-primary/15 text-primary shadow-sm">
@@ -653,7 +645,7 @@ function StatusPanel({ tasks }: { tasks: AudioTaskQueueItem[] }) {
             ))}
           </div>
         ) : (
-          <p className="rounded-xl border border-dashed border-white/15 bg-background/35 px-4 py-5 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border bg-background px-4 py-5 text-sm text-muted-foreground">
             No active audio tasks yet. New voice uploads and generated speech jobs will appear here.
           </p>
         )}
@@ -673,7 +665,7 @@ function TaskQueueCard({ task }: { task: AudioTaskQueueItem }) {
   const meta = getTaskStatusMeta(task.status)
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/15 bg-background/35 shadow-sm backdrop-blur-md">
+    <div className="overflow-hidden rounded-xl border border-border/70 bg-background shadow-sm">
       <div className={cn("h-1", meta.accentClass)} />
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
@@ -683,7 +675,7 @@ function TaskQueueCard({ task }: { task: AudioTaskQueueItem }) {
                 "grid size-10 shrink-0 place-items-center rounded-xl border shadow-sm",
                 task.type === "voice"
                   ? "border-primary/20 bg-primary/12 text-primary"
-                  : "border-sky-400/20 bg-sky-400/12 text-sky-500"
+                  : "border-accent/30 bg-accent/14 text-foreground"
               )}
             >
               {task.type === "voice" ? <Mic2 className="size-4" /> : <AudioLines className="size-4" />}
@@ -721,8 +713,8 @@ function getTaskStatusMeta(status: VoiceJobStatus) {
     return {
       label: "Waiting",
       icon: <Clock3 className="size-3.5" />,
-      badgeClass: "border-amber-400/30 bg-amber-400/12 text-amber-600 dark:text-amber-300",
-      accentClass: "bg-amber-400",
+      badgeClass: "border-foreground/15 bg-foreground/[0.05] text-foreground",
+      accentClass: "bg-foreground/45",
     }
   }
 
@@ -730,8 +722,8 @@ function getTaskStatusMeta(status: VoiceJobStatus) {
     return {
       label: "Running",
       icon: <LoaderCircle className="size-3.5 animate-spin" />,
-      badgeClass: "border-blue-400/30 bg-blue-400/12 text-blue-600 dark:text-blue-300",
-      accentClass: "bg-blue-500",
+      badgeClass: "border-primary/30 bg-primary/10 text-primary",
+      accentClass: "bg-primary",
     }
   }
 
@@ -739,8 +731,8 @@ function getTaskStatusMeta(status: VoiceJobStatus) {
     return {
       label: "Generating",
       icon: <WandSparkles className="size-3.5" />,
-      badgeClass: "border-violet-400/30 bg-violet-400/12 text-violet-600 dark:text-violet-300",
-      accentClass: "bg-violet-500",
+      badgeClass: "border-primary/30 bg-primary/10 text-primary",
+      accentClass: "bg-primary",
     }
   }
 
@@ -748,8 +740,8 @@ function getTaskStatusMeta(status: VoiceJobStatus) {
     return {
       label: "Uploading",
       icon: <Upload className="size-3.5" />,
-      badgeClass: "border-cyan-400/30 bg-cyan-400/12 text-cyan-600 dark:text-cyan-300",
-      accentClass: "bg-cyan-500",
+      badgeClass: "border-accent/35 bg-accent/14 text-foreground",
+      accentClass: "bg-accent",
     }
   }
 
@@ -757,16 +749,16 @@ function getTaskStatusMeta(status: VoiceJobStatus) {
     return {
       label: "Completed",
       icon: <CircleCheck className="size-3.5" />,
-      badgeClass: "border-emerald-400/30 bg-emerald-400/12 text-emerald-600 dark:text-emerald-300",
-      accentClass: "bg-emerald-500",
+      badgeClass: "border-accent/35 bg-accent/14 text-foreground",
+      accentClass: "bg-accent",
     }
   }
 
   return {
     label: "Failed",
     icon: <CircleAlert className="size-3.5" />,
-    badgeClass: "border-red-400/30 bg-red-400/12 text-red-600 dark:text-red-300",
-    accentClass: "bg-red-500",
+    badgeClass: "border-destructive/30 bg-destructive/10 text-destructive",
+    accentClass: "bg-destructive",
   }
 }
 

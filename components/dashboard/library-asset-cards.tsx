@@ -79,31 +79,31 @@ export function VoiceAssetCard({
   return (
     <div
       className={cn(
-        "flex min-h-56 flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        "flex min-h-56 flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-colors hover:border-foreground/20",
         voice.is_selected ? "border-primary/60 ring-2 ring-primary/20" : "border-border/70"
       )}
     >
       <div className={cn("relative min-h-28 overflow-hidden", getVoiceGradient(tone))}>
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgb(255_255_255_/_0.28),transparent)]" />
+        <div className="absolute inset-0 bg-foreground/5" />
         <div className="relative flex items-start justify-between gap-3 p-4">
           <div className="flex min-w-0 items-center gap-3">
             <VoiceAvatar imageUrl={voice.avatar_image_url} name={voice.name} />
             <div className="min-w-0">
-              <h4 className="truncate text-base font-semibold text-white">{voice.name}</h4>
-              <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-white/78">
+              <h4 className="truncate text-base font-semibold text-background">{voice.name}</h4>
+              <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-background/78">
                 {voice.source === "custom" ? voice.preview_text || "Reference audio saved." : voice.preview_text}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1.5">
-            <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
+            <Badge className="border-background/20 bg-background/12 text-background" variant="outline">
               {voice.source === "custom" ? "Custom" : "Default"}
             </Badge>
-            <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
+            <Badge className="border-background/20 bg-background/12 text-background" variant="outline">
               {voice.source === "custom" ? "Multilingual" : getVoiceLanguageLabel(voice.language)}
             </Badge>
             {voice.created_at ? (
-              <Badge className="border-white/20 bg-white/16 text-white" variant="outline">
+              <Badge className="border-background/20 bg-background/12 text-background" variant="outline">
                 {formatDate(voice.created_at)}
               </Badge>
             ) : null}
@@ -173,7 +173,7 @@ export function GeneratedAudioAssetCard({
   })
 
   return (
-    <div className="grid gap-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md lg:grid-cols-[72px_minmax(0,1fr)_320px_auto] lg:items-center">
+    <div className="grid gap-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm transition-colors hover:border-foreground/20 lg:grid-cols-[72px_minmax(0,1fr)_320px_auto] lg:items-center">
       <GeneratedVoiceAvatar imageUrl={voice?.avatar_image_url || ""} name={output.voice_name} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
@@ -253,7 +253,7 @@ export function AvatarAssetCard({
   return (
     <div
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md",
+        "group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-colors hover:border-foreground/20",
         selected ? "border-primary/60 ring-2 ring-primary/20" : "border-border/70"
       )}
     >
@@ -354,12 +354,12 @@ export function AiVideoAgentProjectCard({
   const createdAt = formatDate(project.created_at)
 
   return (
-    <article className="group flex min-h-[430px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
+    <article className="group flex min-h-[430px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-colors hover:border-foreground/20">
       <div className={cn("relative overflow-hidden bg-muted", project.aspect_ratio === "9:16" ? "aspect-[9/12]" : "aspect-video")}>
         {project.thumbnail_url ? (
           <img alt={project.title} className="size-full object-cover transition group-hover:scale-[1.03]" src={project.thumbnail_url} />
         ) : (
-          <div className="grid size-full place-items-center bg-[linear-gradient(135deg,#0f766e,#2563eb,#7c3aed)] text-white">
+          <div className="grid size-full place-items-center bg-foreground text-background">
             <Film className="size-10" />
           </div>
         )}
@@ -370,7 +370,7 @@ export function AiVideoAgentProjectCard({
           <Badge className="bg-background/90" variant="outline">{project.aspect_ratio}</Badge>
           <Badge className="bg-background/90" variant="outline">{project.duration_seconds}s</Badge>
         </div>
-        <Button aria-label="Preview project" className="absolute bottom-3 right-3 shadow-md" size="icon" variant="secondary" onClick={onPreview}>
+        <Button aria-label="Preview project" className="absolute bottom-3 right-3" size="icon" variant="secondary" onClick={onPreview}>
           <Play />
         </Button>
       </div>
@@ -389,21 +389,21 @@ export function AiVideoAgentProjectCard({
         </div>
         {project.error ? <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{project.error}</p> : null}
         <div className="mt-auto grid grid-cols-2 gap-2">
-          <Button className="border-cyan-300/55 bg-cyan-400/10 text-cyan-700 shadow-[0_0_16px_rgba(34,211,238,.12)] transition hover:-translate-y-0.5 hover:bg-cyan-400/18 hover:shadow-[0_0_26px_rgba(34,211,238,.26)] dark:text-cyan-200" variant="outline" onClick={onPreview}>
+          <Button className={libraryActionClasses.primary} variant="outline" onClick={onPreview}>
             <Eye />
             Preview
           </Button>
           {onDelete ? (
-            <Button className="border-rose-300/60 bg-rose-500/10 text-rose-700 shadow-[0_0_16px_rgba(244,63,94,.12)] transition hover:-translate-y-0.5 hover:bg-rose-500/18 hover:shadow-[0_0_26px_rgba(244,63,94,.28)] dark:text-rose-200" disabled={deleting} variant="outline" onClick={onDelete}>
+            <Button className={libraryActionClasses.destructive} disabled={deleting} variant="outline" onClick={onDelete}>
               <Trash2 />
               {deleting ? "Deleting" : "Delete"}
             </Button>
           ) : null}
-          <Button className="border-violet-300/55 bg-violet-400/10 text-violet-700 shadow-[0_0_16px_rgba(167,139,250,.12)] transition hover:-translate-y-0.5 hover:bg-violet-400/18 hover:shadow-[0_0_26px_rgba(167,139,250,.26)] dark:text-violet-200" disabled={!project.final_video_url} nativeButton={false} render={project.final_video_url ? <a href={project.final_video_url} download /> : undefined} variant="outline">
+          <Button className={libraryActionClasses.accent} disabled={!project.final_video_url} nativeButton={false} render={project.final_video_url ? <a href={project.final_video_url} download /> : undefined} variant="outline">
             <Download />
             Download
           </Button>
-          <Button className="border-emerald-300/55 bg-emerald-400/10 text-emerald-700 shadow-[0_0_16px_rgba(52,211,153,.12)] transition hover:-translate-y-0.5 hover:bg-emerald-400/18 hover:shadow-[0_0_26px_rgba(52,211,153,.26)] dark:text-emerald-200" nativeButton={false} render={<Link href={`/dashboard/ai-video-agent/${project.id}`} />} variant="outline">
+          <Button className={libraryActionClasses.foreground} nativeButton={false} render={<Link href={`/dashboard/ai-video-agent/${project.id}`} />} variant="outline">
             <Film />
             Open
           </Button>
@@ -428,14 +428,14 @@ export function AiVideoAvatarVideoCard({
   const createdAt = formatDate(video.created_at)
 
   return (
-    <article className="group flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md">
+    <article className="group flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-colors hover:border-foreground/20">
       <div className={cn("relative overflow-hidden bg-muted", video.aspect_ratio === "9:16" ? "aspect-[9/12]" : "aspect-video")}>
         {video.thumbnail_url ? (
           <img alt={video.title} className="size-full object-cover transition duration-300 group-hover:scale-[1.03]" src={video.thumbnail_url} />
         ) : video.avatar_image_url ? (
           <img alt={video.avatar_name} className="size-full object-cover opacity-80 transition duration-300 group-hover:scale-[1.03]" src={video.avatar_image_url} />
         ) : (
-          <div className="grid size-full place-items-center bg-[linear-gradient(135deg,#0f766e,#2563eb)] text-white">
+          <div className="grid size-full place-items-center bg-foreground text-background">
             <Film className="size-10" />
           </div>
         )}
@@ -448,7 +448,7 @@ export function AiVideoAvatarVideoCard({
         </div>
         <Button
           aria-label="Preview video"
-          className="absolute bottom-3 right-3 shadow-md"
+          className="absolute bottom-3 right-3"
           disabled={!completed}
           size="icon"
           variant="secondary"
@@ -474,7 +474,7 @@ export function AiVideoAvatarVideoCard({
 
         <div className="mt-auto grid grid-cols-2 gap-2">
           <Button
-            className="border-sky-200 bg-sky-50 text-sky-700 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-800 hover:shadow-md dark:border-sky-400/30 dark:bg-sky-400/10 dark:text-sky-200 dark:hover:bg-sky-400/20"
+            className={libraryActionClasses.primary}
             disabled={!completed}
             variant="outline"
             onClick={onPreview}
@@ -483,7 +483,7 @@ export function AiVideoAvatarVideoCard({
             Preview
           </Button>
           <Button
-            className="border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800 hover:shadow-md dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/20"
+            className={libraryActionClasses.accent}
             disabled={!completed}
             nativeButton={false}
             render={completed ? <a href={video.video_url} download /> : undefined}
@@ -493,7 +493,7 @@ export function AiVideoAvatarVideoCard({
             Download
           </Button>
           <Button
-            className="border-violet-200 bg-violet-50 text-violet-700 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800 hover:shadow-md dark:border-violet-400/30 dark:bg-violet-400/10 dark:text-violet-200 dark:hover:bg-violet-400/20"
+            className={libraryActionClasses.foreground}
             nativeButton={false}
             render={<Link href={`/dashboard/ai-video-avatar/${video.id}`} />}
             variant="outline"
@@ -503,7 +503,7 @@ export function AiVideoAvatarVideoCard({
           </Button>
           {onRequestDelete ? (
             <Button
-              className="border-rose-200 bg-rose-50 text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 hover:shadow-md dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200 dark:hover:bg-rose-400/20"
+              className={libraryActionClasses.destructive}
               disabled={deleting}
               variant="outline"
               onClick={onRequestDelete}
@@ -548,7 +548,7 @@ function GeneratedVoiceAvatar({ imageUrl, name }: { imageUrl: string; name: stri
     .toUpperCase()
 
   return (
-    <div className="grid size-16 place-items-center overflow-hidden rounded-xl border border-border/70 bg-[linear-gradient(135deg,#0f766e,#2563eb)] text-sm font-semibold text-white shadow-sm">
+    <div className="grid size-16 place-items-center overflow-hidden rounded-xl border border-border/70 bg-foreground text-sm font-semibold text-background shadow-sm">
       {imageUrl && !failed ? (
         <img alt={name} className="size-full object-cover" src={imageUrl} onError={() => setFailed(true)} />
       ) : (
@@ -584,7 +584,7 @@ function AvatarRatioAssetPreview({
       {!imageLoaded ? (
         <span
           aria-hidden
-          className="absolute inset-0 animate-pulse bg-[radial-gradient(circle_at_30%_24%,rgb(255_255_255_/_0.55),transparent_34%),linear-gradient(115deg,transparent_0%,rgb(255_255_255_/_0.32)_46%,transparent_68%)] opacity-80 dark:bg-[radial-gradient(circle_at_30%_24%,rgb(255_255_255_/_0.10),transparent_34%),linear-gradient(115deg,transparent_0%,rgb(255_255_255_/_0.08)_46%,transparent_68%)]"
+          className="studio-skeleton absolute inset-0 opacity-90"
         />
       ) : null}
       {shouldLoadImage ? (
@@ -633,14 +633,25 @@ function formatDate(value: string) {
 
 function getVoiceGradient(tone: number) {
   const tones = [
-    "bg-[linear-gradient(135deg,#0f766e,#2563eb)]",
-    "bg-[linear-gradient(135deg,#be123c,#7c3aed)]",
-    "bg-[linear-gradient(135deg,#047857,#ca8a04)]",
-    "bg-[linear-gradient(135deg,#1d4ed8,#db2777)]",
+    "bg-foreground",
+    "bg-foreground",
+    "bg-foreground",
+    "bg-foreground",
   ]
 
   return tones[tone % tones.length]
 }
+
+const libraryActionClasses = {
+  primary:
+    "border-border/70 bg-background text-foreground transition-colors hover:border-foreground/20 hover:bg-muted/40 hover:text-foreground",
+  accent:
+    "border-border/70 bg-background text-foreground transition-colors hover:border-foreground/20 hover:bg-muted/40 hover:text-foreground",
+  foreground:
+    "border-border/70 bg-background text-foreground transition-colors hover:border-foreground/20 hover:bg-muted/40 hover:text-foreground",
+  destructive:
+    "border-destructive/30 bg-destructive/10 text-destructive transition-colors hover:border-destructive/40 hover:bg-destructive/15 hover:text-destructive",
+} as const
 
 function getAvatarPlaceholderClassName(tone: number) {
   const tones = [

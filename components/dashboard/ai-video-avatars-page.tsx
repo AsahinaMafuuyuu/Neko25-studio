@@ -4,12 +4,19 @@ import Link from "next/link"
 import {
   Film,
   Plus,
-  Sparkles,
   Trash2,
 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 
 import { AiVideoAvatarVideoCard } from "@/components/dashboard/library-asset-cards"
+import {
+  DashboardActionGroup,
+  DashboardEmptyState,
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -88,37 +95,25 @@ export function AiVideoAvatarsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="size-4" />
-              AI Video Avatars
-            </div>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-4xl">Talking Avatar Videos</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Generate and manage AI avatar videos with selected avatars, voices, scripts, ratios, and durations.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
-              <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
-            </div>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={Film}
+        eyebrow="AI Video Avatars"
+        title="Talking Avatar Videos"
+        description="Generate and manage AI avatar videos with selected avatars, voices, scripts, ratios, and durations."
+        meta={<DashboardMetric label="Credits" value={creditBalance ?? "..."} />}
+        actions={
+          <DashboardActionGroup>
             <Button nativeButton={false} render={<Link href="/dashboard/ai-video-avatar/create" />}>
               <Plus />
               Generate New Avatar Video
             </Button>
-          </div>
-        </div>
-      </section>
+          </DashboardActionGroup>
+        }
+      />
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <DashboardError>{error}</DashboardError>
       ) : null}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -178,25 +173,24 @@ export function AiVideoAvatarsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </DashboardPage>
   )
 }
 
 function EmptyVideoState() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
-      <div className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
-        <Film className="size-6" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold">No avatar videos yet</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        Create your first talking AI avatar video with a saved avatar, voice, script, ratio, and duration.
-      </p>
-      <Button className="mt-5" nativeButton={false} render={<Link href="/dashboard/ai-video-avatar/create" />}>
-        <Plus />
-        Generate New Avatar Video
-      </Button>
-    </div>
+    <DashboardEmptyState
+      className="sm:col-span-2 xl:col-span-3"
+      icon={Film}
+      title="No avatar videos yet"
+      description="Create your first talking AI avatar video with a saved avatar, voice, script, ratio, and duration."
+      action={
+        <Button nativeButton={false} render={<Link href="/dashboard/ai-video-avatar/create" />}>
+          <Plus />
+          Generate New Avatar Video
+        </Button>
+      }
+    />
   )
 }
 

@@ -120,6 +120,10 @@
     "creditsDescription": "今月の動画、音声、アバター生成に利用可能",
     "homeHeroEyebrow": "クリエイティブ司令室",
     "homeHeroTitle": "動画、アバター、音声、素材を一つの整理されたワークスペースで管理。",
+    "homeModules": {
+      "title": "制作ワークスペース",
+      "description": "アバター動画、再利用できるキャラクター、音声制作、素材管理へすばやく移動し、ショート動画制作の主要工程を進められます。"
+    },
     "cardEyebrows": {
       "featured": "注目",
       "overview": "概要",

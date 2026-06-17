@@ -26,6 +26,13 @@ import {
   VoiceGroupIcon,
   getAvatarPreviewImageUrl,
 } from "@/components/dashboard/media-choice-components"
+import {
+  DashboardActionGroup,
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -307,22 +314,25 @@ export function CreateAiVideoAvatarPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <Button nativeButton={false} render={<Link href="/dashboard/ai-video-avatar" />} variant="outline">
-          <ArrowLeft />
-          Library
-        </Button>
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm shadow-sm">
-          <span className="text-muted-foreground">Credits </span>
-          <span className="font-semibold">{creditBalance ?? "..."}</span>
-        </div>
-      </div>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={Film}
+        eyebrow="AI Video Avatars"
+        title="Create Talking Avatar Video"
+        description="Choose the script, avatar, voice, aspect ratio, and duration for a publishable talking-avatar clip."
+        meta={<DashboardMetric label="Credits" value={creditBalance ?? "..."} />}
+        actions={
+          <DashboardActionGroup>
+            <Button nativeButton={false} render={<Link href="/dashboard/ai-video-avatar" />} variant="outline">
+              <ArrowLeft />
+              Library
+            </Button>
+          </DashboardActionGroup>
+        }
+      />
 
       {error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <DashboardError>{error}</DashboardError>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
@@ -372,7 +382,7 @@ export function CreateAiVideoAvatarPage() {
                         key={item}
                         className={cn(
                           "rounded-lg border px-3 py-2 text-sm font-medium capitalize transition",
-                          tone === item ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+                        tone === item ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/20" : "border-border bg-card hover:bg-muted"
                         )}
                         disabled={generatingScript || submitting || isActive}
                         type="button"
@@ -516,7 +526,7 @@ export function CreateAiVideoAvatarPage() {
                       key={ratio}
                       className={cn(
                         "rounded-xl border p-4 text-left transition hover:bg-muted/40",
-                        aspectRatio === ratio ? "border-primary bg-primary/10 ring-2 ring-primary/20" : "border-border bg-card"
+                        aspectRatio === ratio ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border bg-card"
                       )}
                       type="button"
                       onClick={() => setAspectRatio(ratio)}
@@ -535,7 +545,7 @@ export function CreateAiVideoAvatarPage() {
                       key={duration}
                       className={cn(
                         "rounded-xl border px-2 py-4 text-sm font-semibold transition hover:bg-muted/40",
-                        durationSeconds === duration ? "border-primary bg-primary/10 ring-2 ring-primary/20" : "border-border bg-card"
+                        durationSeconds === duration ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border bg-card"
                       )}
                       type="button"
                       onClick={() => setDurationSeconds(duration)}
@@ -573,8 +583,7 @@ export function CreateAiVideoAvatarPage() {
       </div>
 
       <Dialog open={completionDialogOpen} onOpenChange={setCompletionDialogOpen}>
-        <DialogContent className="overflow-hidden border-primary/20 bg-[linear-gradient(135deg,var(--popover),color-mix(in_oklch,var(--accent),transparent_88%))] sm:max-w-lg">
-          <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--primary),var(--accent),oklch(0.68_0.16_55))]" />
+        <DialogContent className="overflow-hidden border-border bg-popover sm:max-w-lg">
           <DialogHeader>
             <div className="mb-1 grid size-12 place-items-center rounded-xl bg-primary/10 text-primary shadow-sm">
               <Check className="size-6" />
@@ -601,13 +610,13 @@ export function CreateAiVideoAvatarPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 
 function Panel({ children, icon, title }: { children: React.ReactNode; icon: React.ReactNode; title: string }) {
   return (
-    <section className="rounded-2xl border border-border/70 bg-[linear-gradient(145deg,var(--card),color-mix(in_oklch,var(--secondary),transparent_68%))] p-4 shadow-sm transition duration-300 hover:shadow-md sm:p-5">
+    <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</span>
         <h3 className="text-base font-semibold">{title}</h3>
@@ -668,7 +677,7 @@ function PreviewPanel({
 
   return (
     <aside className="xl:sticky xl:top-24 xl:self-start">
-      <div className="space-y-4 rounded-2xl border border-border/70 bg-[linear-gradient(155deg,var(--card),color-mix(in_oklch,var(--primary),transparent_92%),color-mix(in_oklch,var(--accent),transparent_90%))] p-4 shadow-lg shadow-primary/5 sm:p-5">
+      <div className="space-y-4 rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">Live preview</h3>
@@ -703,7 +712,7 @@ function PreviewPanel({
           <PreviewStat icon={<Clock3 className="size-4" />} label="Duration" value={`${durationSeconds}s`} />
         </div>
 
-        <div className="rounded-2xl border border-primary/15 bg-background/60 p-4 shadow-inner">
+        <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-base font-semibold">Generation progress</p>
@@ -719,7 +728,7 @@ function PreviewPanel({
             ) : null}
           </div>
           <Progress
-            className="avatar-progress [&_[data-slot=progress-track]]:h-3 [&_[data-slot=progress-track]]:bg-primary/10 [&_[data-slot=progress-indicator]]:bg-[linear-gradient(90deg,var(--primary),var(--accent),oklch(0.68_0.16_55))]"
+            className="avatar-progress [&_[data-slot=progress-track]]:h-3 [&_[data-slot=progress-track]]:bg-primary/10 [&_[data-slot=progress-indicator]]:bg-primary"
             value={Math.round(visibleProgress)}
           >
             <ProgressLabel>{activeJob?.message || outputVideo?.message || "Ready to generate."}</ProgressLabel>

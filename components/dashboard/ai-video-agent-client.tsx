@@ -1,12 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { Film, LoaderCircle, Plus, RefreshCcw, Sparkles, Trash2 } from "lucide-react"
+import { Film, LoaderCircle, Plus, RefreshCcw, Trash2 } from "lucide-react"
 import { Player } from "@remotion/player"
 import { useCallback, useEffect, useState } from "react"
 
 import { AiVideoAgentRemotion } from "@/components/dashboard/ai-video-agent-remotion"
 import { AiVideoAgentProjectCard } from "@/components/dashboard/library-asset-cards"
+import {
+  DashboardActionGroup,
+  DashboardEmptyState,
+  DashboardError,
+  DashboardMetric,
+  DashboardPage,
+  DashboardPageHeader,
+} from "@/components/dashboard/dashboard-layout"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,25 +94,15 @@ export function AiVideoAgentClient() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="size-4" />
-              AI Video Agent
-            </div>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight sm:text-4xl">Saved Video Projects</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Create, reopen, preview, render, and download multi-scene AI videos with persistent composition data.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="rounded-xl border border-border/70 bg-muted/25 px-4 py-3">
-              <p className="text-xs font-medium uppercase text-muted-foreground">Credits</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight">{creditBalance ?? "..."}</p>
-            </div>
+    <DashboardPage>
+      <DashboardPageHeader
+        icon={Film}
+        eyebrow="AI Video Agent"
+        title="Saved Video Projects"
+        description="Create, reopen, preview, render, and download multi-scene AI videos with persistent composition data."
+        meta={<DashboardMetric label="Credits" value={creditBalance ?? "..."} />}
+        actions={
+          <DashboardActionGroup>
             <Button variant="outline" onClick={loadProjects}>
               <RefreshCcw />
               Refresh
@@ -113,11 +111,11 @@ export function AiVideoAgentClient() {
               <Plus />
               Create Video with AI Agent
             </Button>
-          </div>
-        </div>
-      </section>
+          </DashboardActionGroup>
+        }
+      />
 
-      {error ? <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div> : null}
+      {error ? <DashboardError>{error}</DashboardError> : null}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {loading ? <ProjectSkeletons /> : null}
@@ -164,7 +162,7 @@ export function AiVideoAgentClient() {
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && !deletingId && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogMedia className="bg-rose-500/10 text-rose-500">
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
               <Trash2 />
             </AlertDialogMedia>
             <AlertDialogTitle>Delete this project?</AlertDialogTitle>
@@ -174,14 +172,14 @@ export function AiVideoAgentClient() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={Boolean(deletingId)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="border border-rose-300/60 bg-rose-500/15 text-rose-700 shadow-[0_0_18px_rgba(244,63,94,.18)] transition hover:-translate-y-0.5 hover:bg-rose-500/25 hover:text-rose-800 hover:shadow-[0_0_28px_rgba(244,63,94,.34)] dark:border-rose-400/30 dark:text-rose-200" disabled={Boolean(deletingId)} onClick={deleteProject}>
+            <AlertDialogAction variant="destructive" disabled={Boolean(deletingId)} onClick={deleteProject}>
               {deletingId ? <LoaderCircle className="animate-spin" /> : <Trash2 />}
               {deletingId ? "Deleting" : "Delete project"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </DashboardPage>
   )
 }
 
@@ -253,19 +251,18 @@ function buildScenePreviewComposition(composition: AiVideoAgentProject["composit
 
 function EmptyState() {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center shadow-sm sm:col-span-2 xl:col-span-3">
-      <div className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
-        <Film className="size-6" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold">No AI video projects yet</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-        Build your first multi-scene video with an avatar, voiceover, B-roll, captions, and Remotion composition.
-      </p>
-      <Button className="mt-5" nativeButton={false} render={<Link href="/dashboard/ai-video-agent/create" />}>
-        <Plus />
-        Create Video with AI Agent
-      </Button>
-    </div>
+    <DashboardEmptyState
+      className="sm:col-span-2 xl:col-span-3"
+      icon={Film}
+      title="No AI video projects yet"
+      description="Build your first multi-scene video with an avatar, voiceover, B-roll, captions, and Remotion composition."
+      action={
+        <Button nativeButton={false} render={<Link href="/dashboard/ai-video-agent/create" />}>
+          <Plus />
+          Create Video with AI Agent
+        </Button>
+      }
+    />
   )
 }
 

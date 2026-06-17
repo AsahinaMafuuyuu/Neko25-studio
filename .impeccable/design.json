@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-15T17:49:18.3424381+08:00",
+  "title": "Design System: Kravix AI Studio",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Warm Gallery White",
+        "canonical": "oklch(0.986 0.012 93)",
+        "tonalRamp": ["oklch(0.15 0.012 93)", "oklch(0.28 0.012 93)", "oklch(0.42 0.012 93)", "oklch(0.56 0.012 93)", "oklch(0.70 0.012 93)", "oklch(0.84 0.012 93)", "oklch(0.93 0.012 93)", "oklch(0.986 0.012 93)"]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink Blue-Black",
+        "canonical": "oklch(0.17 0.028 258)",
+        "tonalRamp": ["oklch(0.12 0.028 258)", "oklch(0.20 0.028 258)", "oklch(0.32 0.028 258)", "oklch(0.46 0.028 258)", "oklch(0.60 0.028 258)", "oklch(0.74 0.028 258)", "oklch(0.88 0.028 258)", "oklch(0.96 0.028 258)"]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Studio Violet",
+        "canonical": "oklch(0.56 0.19 267)",
+        "tonalRamp": ["oklch(0.18 0.19 267)", "oklch(0.28 0.19 267)", "oklch(0.40 0.19 267)", "oklch(0.52 0.19 267)", "oklch(0.64 0.16 267)", "oklch(0.76 0.12 267)", "oklch(0.88 0.07 267)", "oklch(0.96 0.03 267)"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Cool Panel Mist",
+        "canonical": "oklch(0.94 0.024 252)",
+        "tonalRamp": ["oklch(0.16 0.024 252)", "oklch(0.28 0.024 252)", "oklch(0.42 0.024 252)", "oklch(0.56 0.024 252)", "oklch(0.70 0.024 252)", "oklch(0.82 0.024 252)", "oklch(0.94 0.024 252)", "oklch(0.98 0.012 252)"]
+      },
+      "accent": {
+        "role": "tertiary",
+        "displayName": "Creator Teal",
+        "canonical": "oklch(0.83 0.14 174)",
+        "tonalRamp": ["oklch(0.18 0.14 174)", "oklch(0.30 0.14 174)", "oklch(0.42 0.14 174)", "oklch(0.54 0.14 174)", "oklch(0.66 0.14 174)", "oklch(0.78 0.14 174)", "oklch(0.88 0.10 174)", "oklch(0.96 0.04 174)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Public landing hero and rare media-led studio headers."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Dashboard module heroes and major page titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Operational copy, helper text, descriptions, and form content."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Compact scanning labels, statuses, and metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "control-shadow",
+        "value": "shadow-xs",
+        "purpose": "Low elevation for controls and compact cards."
+      },
+      {
+        "name": "media-lift",
+        "value": "0 18px 48px rgba(16,18,34,0.16)",
+        "purpose": "Resting depth for media-led creator cards."
+      },
+      {
+        "name": "media-hover-lift",
+        "value": "0 24px 64px rgba(16,18,34,0.22)",
+        "purpose": "Hover-only depth for clickable media cards."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "150ms ease-out",
+        "purpose": "Small hover, focus, and pressed feedback."
+      },
+      {
+        "name": "route-fluid",
+        "value": "200-420ms ease-out",
+        "purpose": "Route transitions and page-level loading feedback."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Compact primary action for creation, generation, and confirmation.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M13 2 4 14h7l-1 8 9-12h-7l1-8Z\" fill=\"currentColor\"/></svg><span>Generate</span></button>",
+      "css": ".ds-btn-primary{display:inline-flex;height:36px;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:var(--radius-md);background:var(--primary);color:var(--primary-foreground);padding:0 10px;font:500 14px/1 var(--font-ui);transition:background-color 150ms ease-out,transform 150ms ease-out,box-shadow 150ms ease-out}.ds-btn-primary svg{width:16px;height:16px}.ds-btn-primary:hover{background:color-mix(in oklch,var(--primary),transparent 20%)}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring),transparent 50%)}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action that keeps the workspace quiet.",
+      "html": "<button class=\"ds-btn-outline\">Open Studio</button>",
+      "css": ".ds-btn-outline{display:inline-flex;height:36px;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--foreground);padding:0 10px;font:500 14px/1 var(--font-ui);box-shadow:0 1px 2px rgb(0 0 0 / .04);transition:background-color 150ms ease-out,color 150ms ease-out,box-shadow 150ms ease-out}.ds-btn-outline:hover{background:var(--muted);color:var(--foreground)}.ds-btn-outline:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring),transparent 50%)}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Compact field for script titles, prompts, and settings.",
+      "html": "<label class=\"ds-field\"><span>Project title</span><input class=\"ds-input\" value=\"New AI video\" /></label>",
+      "css": ".ds-field{display:grid;gap:6px;color:var(--foreground);font:500 13px/1.3 var(--font-ui)}.ds-input{height:36px;width:100%;border:1px solid var(--input);border-radius:var(--radius-md);background:transparent;color:var(--foreground);padding:4px 10px;font:400 14px/1.4 var(--font-ui);box-shadow:0 1px 2px rgb(0 0 0 / .04);transition:border-color 150ms ease-out,box-shadow 150ms ease-out}.ds-input:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring),transparent 50%)}"
+    },
+    {
+      "name": "Studio Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Default operational container for dashboard panels and grouped settings.",
+      "html": "<article class=\"ds-card\"><h3>Generation status</h3><p>Preview is rendering with captions and B-roll.</p></article>",
+      "css": ".ds-card{display:flex;flex-direction:column;gap:6px;overflow:hidden;border:1px solid color-mix(in oklch,var(--border),transparent 30%);border-radius:var(--radius-xl);background:var(--card);color:var(--card-foreground);padding:24px;box-shadow:0 1px 2px rgb(0 0 0 / .04)}.ds-card h3{margin:0;font:600 16px/1.4 var(--font-ui);letter-spacing:0}.ds-card p{margin:0;color:var(--muted-foreground);font:400 14px/1.6 var(--font-ui)}"
+    },
+    {
+      "name": "Credit Badge",
+      "kind": "chip",
+      "refersTo": "badge-credit",
+      "description": "Compact credit or positive-energy state indicator.",
+      "html": "<span class=\"ds-credit-badge\">1,240 credits</span>",
+      "css": ".ds-credit-badge{display:inline-flex;height:24px;align-items:center;justify-content:center;border:1px solid rgb(190 242 100 / .6);border-radius:999px;background:rgb(190 242 100);color:rgb(2 6 23);padding:0 10px;font:700 12px/1 var(--font-ui);box-shadow:0 0 18px rgb(190 242 100 / .42)}"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "sidebar-nav-item",
+      "description": "Icon-led studio navigation item with quiet hover and active fills.",
+      "html": "<a class=\"ds-sidebar-item\" href=\"#\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 5h16v14H4zM7 8v8l7-4-7-4Z\" fill=\"currentColor\"/></svg><span>AI Video Agent</span></a>",
+      "css": ".ds-sidebar-item{display:flex;height:48px;width:100%;align-items:center;gap:8px;overflow:hidden;border-radius:var(--radius-md);color:var(--sidebar-foreground);padding:8px;text-decoration:none;font:500 14px/1 var(--font-ui);transition:background-color 150ms ease-out,color 150ms ease-out}.ds-sidebar-item svg{width:16px;height:16px;flex:none}.ds-sidebar-item:hover,.ds-sidebar-item[data-active=true]{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground)}.ds-sidebar-item:focus-visible{outline:none;box-shadow:0 0 0 2px var(--sidebar-ring)}"
+    },
+    {
+      "name": "Media Feature Card",
+      "kind": "custom",
+      "refersTo": "media-feature-card",
+      "description": "Signature creator card for dashboard modules and cinematic entry points.",
+      "html": "<article class=\"ds-media-card\"><div class=\"ds-media-card__image\"></div><div class=\"ds-media-card__content\"><span class=\"ds-media-card__icon\">AI</span><div><h3>AI Video Agent</h3><p>Turn scripts into short-drama scenes with avatars, subtitles, and B-roll.</p></div></div></article>",
+      "css": ".ds-media-card{position:relative;display:flex;min-height:220px;overflow:hidden;border:1px solid color-mix(in oklch,var(--border),transparent 30%);border-radius:24px;background:var(--card);color:white;box-shadow:0 18px 48px rgb(16 18 34 / .16);transition:transform 200ms ease-out,box-shadow 200ms ease-out}.ds-media-card:hover{transform:translateY(-2px);box-shadow:0 24px 64px rgb(16 18 34 / .22)}.ds-media-card__image{position:absolute;inset:0;background:linear-gradient(180deg,rgb(10 12 18 / .10),rgb(10 12 18 / .55) 48%,rgb(10 12 18 / .92)),radial-gradient(circle at top left,rgb(255 255 255 / .16),transparent 36%),linear-gradient(135deg,var(--primary),var(--accent))}.ds-media-card__content{position:relative;display:flex;width:100%;flex-direction:column;justify-content:space-between;padding:24px}.ds-media-card__icon{display:inline-flex;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid rgb(255 255 255 / .15);border-radius:14px;background:rgb(255 255 255 / .10);font:700 12px/1 var(--font-ui);backdrop-filter:blur(12px)}.ds-media-card h3{margin:0;font:600 24px/1.15 var(--font-ui);letter-spacing:0}.ds-media-card p{max-width:340px;margin:8px 0 0;color:rgb(255 255 255 / .78);font:400 15px/1.6 var(--font-ui)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cinematic Control Room",
+    "overview": "Kravix should feel like a premium production workspace for short-drama creators: fast, composed, and visually sharp. The system uses crisp contrast, restrained surfaces, compact controls, and cinematic media panels to keep creative work moving without the fatigue of an overloaded editing suite.\n\nThe interface is product-first. Familiar controls are a virtue here, but the atmosphere must still feel artistic and modern: white and near-black contrast, disciplined purple emphasis, teal as a rare signal color, and media-led cards that give the studio a creator-native quality.",
+    "keyCharacteristics": [
+      "Product UI that serves speed and publishing confidence.",
+      "Premium through restraint, not decoration.",
+      "Fluid state changes and route transitions that explain progress.",
+      "Cinematic media surfaces balanced by calm operational panels.",
+      "Strong contrast, WCAG AA readability, and reduced-motion alternatives."
+    ],
+    "rules": [
+      {
+        "name": "The Violet Authority Rule",
+        "body": "Primary violet is for decisions, current location, focus, and generation progress. It is not decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Cheap AI Glow Rule",
+        "body": "Glows are forbidden as surface decoration. Use shadow and glow only when tied to state, media depth, or an active balance badge.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Display Labels Rule",
+        "body": "Labels, buttons, form controls, and data must stay in the product scale. Display-sized type belongs only to true heroes and media-led headers.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Until Useful Rule",
+        "body": "Surfaces are quiet by default. Elevation increases only for hover, focus, popover, modal, or media hierarchy.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep Kravix product-first: every visual decision should help creators move from script or raw material to publishable subtitled video faster.",
+      "Do use sharp black-and-white contrast and readable body text; WCAG AA is the baseline.",
+      "Do reserve Studio Violet for primary action, current location, focus, and progress.",
+      "Do make transitions silky but stateful: route changes, generation progress, preview readiness, and media selection.",
+      "Do use cinematic media surfaces for creator context, especially in dashboard modules and creation previews."
+    ],
+    "donts": [
+      "Don't make the product feel like CapCut's dense, cluttered mobile editing UI.",
+      "Don't make it feel like Canva's overly playful, mass-market flat design style.",
+      "Don't use gamer, neon, or cyberpunk styling.",
+      "Don't drift into generic cookie-cutter SaaS dashboards, including early Notion-like or Jira-style surfaces.",
+      "Don't create the cheap AI product feel of excessive gradients, glowing effects, and decorative spectacle layered together.",
+      "Don't use side-stripe borders, gradient text, nested cards, or repeated identical icon-card grids as default scaffolding."
+    ]
+  }
+}

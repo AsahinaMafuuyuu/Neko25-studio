@@ -1,0 +1,144 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - link "Kravix AI Studio" [ref=e5]:
+        - /url: /zh
+        - img [ref=e7]
+        - text: Kravix AI Studio
+      - navigation [ref=e10]:
+        - link "功能" [ref=e11]:
+          - /url: "#features"
+        - link "安全" [ref=e12]:
+          - /url: "#security"
+        - link "指标" [ref=e13]:
+          - /url: "#metrics"
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img
+          - generic [ref=e16]:
+            - combobox "切换语言" [ref=e17]:
+              - option "中文" [selected]
+              - option "English"
+              - option "日本語"
+            - img
+        - button "Toggle theme" [ref=e18]:
+          - img
+        - link "登录" [ref=e19]:
+          - /url: /zh/sign-in?next=%2Fdashboard
+        - link "开始" [ref=e20]:
+          - /url: /zh/sign-up?next=%2Fdashboard
+    - generic [ref=e21]:
+      - generic [ref=e23]:
+        - paragraph [ref=e24]:
+          - img [ref=e25]
+          - text: 由 InsForge 驱动的 AI Studio SaaS
+        - heading "面向生产级 AI 产品的从容控制台。" [level=1] [ref=e27]
+        - paragraph [ref=e28]: Kravix 将认证、提示词工作流、知识资产和发布准备聚合进一个精致的日常工作室。
+        - generic [ref=e29]:
+          - link "创建工作区" [ref=e30]:
+            - /url: /zh/sign-up?next=%2Fdashboard
+            - generic [ref=e31]: 创建工作区
+            - img [ref=e32]
+          - link "打开工作室" [ref=e34]:
+            - /url: /zh/sign-in?next=%2Fdashboard
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - paragraph [ref=e40]: 工作流质量
+              - paragraph [ref=e41]: 98.4%
+            - generic [ref=e42]: 实时
+          - generic [ref=e43]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: 评估通道 1
+              - generic [ref=e47]: 82%
+            - generic [ref=e51]:
+              - generic [ref=e52]: 评估通道 2
+              - generic [ref=e53]: 94%
+            - generic [ref=e57]:
+              - generic [ref=e58]: 评估通道 3
+              - generic [ref=e59]: 68%
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - img [ref=e64]
+            - paragraph [ref=e68]: 安全访问
+            - paragraph [ref=e69]: 支持邮箱认证以及 Google 和 X OAuth 入口。
+          - generic [ref=e70]:
+            - img [ref=e71]
+            - paragraph [ref=e74]: 精致工作台
+            - paragraph [ref=e75]: 浅色和深色主题共享一致的设计令牌。
+    - generic [ref=e76]:
+      - generic [ref=e77]:
+        - paragraph [ref=e78]: 为日常产品工作而设计
+        - heading "所有能力都触手可及。" [level=2] [ref=e79]
+      - generic [ref=e80]:
+        - generic [ref=e82]:
+          - img [ref=e84]
+          - generic [ref=e87]: 提示词运营
+          - generic [ref=e88]: 用可重复的评估习惯设计、比较并发布提示词。
+        - generic [ref=e90]:
+          - img [ref=e92]
+          - generic [ref=e96]: 上下文资产库
+          - generic [ref=e97]: 为每个产品界面准备数据集、文档和检索上下文。
+        - generic [ref=e99]:
+          - img [ref=e101]
+          - generic [ref=e105]: 发布工作流
+          - generic [ref=e106]: 在一个工作区协调模型运行、QA 和发布信号。
+    - generic [ref=e109]:
+      - generic [ref=e110]:
+        - paragraph [ref=e111]: InsForge 后端
+        - heading "认证和产品状态共享同一个基础设施。" [level=2] [ref=e112]
+        - paragraph [ref=e113]: 应用已连接 InsForge，用于认证、数据库、存储、实时能力和后端函数，同时避免在 UI 中暴露密钥。
+      - generic [ref=e114]:
+        - generic [ref=e115]: OAuth 登录
+        - generic [ref=e116]: 受保护的工作室路由
+        - generic [ref=e117]: 主题安全组件
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - paragraph [ref=e121]: 3.8x
+        - paragraph [ref=e122]: 实验周期更快
+      - generic [ref=e123]:
+        - paragraph [ref=e124]: 99.9%
+        - paragraph [ref=e125]: 后端可用性目标
+      - generic [ref=e126]:
+        - paragraph [ref=e127]: 24/7
+        - paragraph [ref=e128]: 工作室工作流随时可用
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e134] [cursor=pointer]:
+    - img [ref=e135]
+  - generic [ref=e138]:
+    - img "Impeccable live mode - agent not polling" [ref=e139]:
+      - img [ref=e141]
+    - generic [ref=e144]:
+      - button "Pick element" [ref=e145]:
+        - img [ref=e146]
+        - generic [ref=e148]: Pick
+      - button "Insert new element" [ref=e149]:
+        - img [ref=e150]
+        - generic: Insert
+      - button "Detect anti-patterns" [ref=e151]:
+        - img [ref=e152]
+        - generic: Detect
+      - button "Toggle DESIGN.md panel" [ref=e155]:
+        - generic: DESIGN.md
+      - generic "Steer the page" [ref=e161]:
+        - generic:
+          - img
+        - textbox "Steer the page" [active] [ref=e162]:
+          - /placeholder: Steer…
+        - button "Voice input" [ref=e163]:
+          - img [ref=e164]
+      - button "Exit live mode" [ref=e168]:
+        - img [ref=e169]
+  - generic:
+    - generic:
+      - complementary:
+        - generic:
+          - generic: DESIGN.md
+          - generic:
+            - button "Visual"
+            - button "Raw"
+          - button "Close panel": ✕
+        - generic:
+          - generic: No design system data available.
+  - alert [ref=e172]

@@ -120,6 +120,10 @@
     "creditsDescription": "本月可用于视频、语音与形象生成",
     "homeHeroEyebrow": "创意指挥中心",
     "homeHeroTitle": "在一个干净的工作台里管理视频、虚拟人、声音与素材库。",
+    "homeModules": {
+      "title": "创作能力入口",
+      "description": "从虚拟人视频、头像资产、声音复用到素材管理，快速进入短剧内容生产的关键工作区。"
+    },
     "cardEyebrows": {
       "featured": "精选",
       "overview": "总览",

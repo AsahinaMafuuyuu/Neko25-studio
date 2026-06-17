@@ -93,10 +93,10 @@ function validate(
 
 function ProviderIcon({ provider }: { provider: OAuthProvider }) {
   if (provider === "google") {
-    return <span className="text-base font-semibold leading-none">G</span>
+    return <span className="grid size-5 place-items-center rounded-md border border-border text-xs font-semibold leading-none" aria-hidden>G</span>
   }
 
-  return <span className="text-base font-semibold leading-none">X</span>
+  return <span className="grid size-5 place-items-center rounded-md border border-border text-xs font-semibold leading-none" aria-hidden>X</span>
 }
 
 export function AuthPage({ mode }: { mode: AuthMode }) {
@@ -292,10 +292,20 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 lg:grid-cols-[1fr_520px]">
-        <section className="relative flex min-h-[42vh] flex-col justify-between overflow-hidden px-6 py-6 sm:px-10 lg:min-h-screen lg:px-12">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_22%,color-mix(in_oklch,var(--accent),transparent_50%),transparent_32%),radial-gradient(circle_at_82%_18%,color-mix(in_oklch,var(--primary),transparent_78%),transparent_28%)]" />
+        <section className="relative flex min-h-[42vh] flex-col justify-between overflow-hidden bg-foreground px-6 py-6 text-background sm:px-10 lg:min-h-screen lg:px-12">
+          <video
+            aria-label={t("heroTitle")}
+            autoPlay
+            className="absolute inset-0 size-full object-cover opacity-36"
+            loop
+            muted
+            playsInline
+          >
+            <source src="/ai-avatar.mp4" />
+          </video>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,12,18,0.94)_0%,rgba(10,12,18,0.78)_58%,rgba(10,12,18,0.38)_100%)]" />
           <nav className="flex items-center justify-between gap-3">
-            <Link href="/" className="flex items-center gap-3 font-semibold">
+            <Link href="/" className="relative flex items-center gap-3 font-semibold">
               <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
                 <Sparkles className="size-4" />
               </span>
@@ -307,23 +317,23 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             </div>
           </nav>
 
-          <div className="max-w-2xl py-12 lg:py-0">
-            <p className="mb-5 w-fit rounded-full border border-border bg-card/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur">
+          <div className="relative max-w-2xl py-12 lg:py-0">
+            <p className="mb-5 w-fit rounded-md border border-background/14 bg-background/10 px-3 py-1 text-sm font-medium text-background/76 shadow-sm">
               {t("heroEyebrow")}
             </p>
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
               {t("heroTitle")}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-7 text-background/70 sm:text-lg">
               {t("heroDescription")}
             </p>
           </div>
 
-          <div className="grid max-w-2xl grid-cols-3 gap-3 text-sm">
+          <div className="relative grid max-w-2xl grid-cols-3 gap-3 text-sm">
             {(["oauth", "theme", "routing"] as const).map((item) => (
               <div
                 key={item}
-                className="rounded-xl border border-border bg-card/70 px-3 py-3 text-muted-foreground shadow-sm backdrop-blur"
+                className="rounded-xl border border-background/12 bg-background/[0.07] px-3 py-3 text-background/68 shadow-sm"
               >
                 {t(`heroPills.${item}`)}
               </div>
@@ -332,7 +342,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         </section>
 
         <section className="flex items-center px-4 py-8 sm:px-8 lg:px-0 lg:pr-10">
-          <Card className="w-full border-border/80 bg-card/90 shadow-2xl shadow-primary/10 backdrop-blur">
+          <Card className="w-full border-border/80 bg-card/95 shadow-sm ring-1 ring-foreground/[0.03]">
             <CardHeader className="gap-2">
               <CardTitle className="text-2xl font-semibold tracking-tight">{title}</CardTitle>
               <CardDescription>{description}</CardDescription>
@@ -350,7 +360,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                       size="lg"
                       disabled={loading || pending || !enabled}
                       onClick={() => onOAuth(provider)}
-                      className="h-11"
+                      className="h-11 justify-center gap-2 hover:border-primary/25"
                     >
                       {loading ? (
                         <Loader2 className="animate-spin" />
@@ -369,7 +379,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 <span className="h-px flex-1 bg-border" />
               </div>
 
-              <form className="grid gap-5" onSubmit={onSubmit} noValidate>
+              <form className="grid gap-5 rounded-xl border border-border/60 bg-secondary/25 p-3 sm:p-4" onSubmit={onSubmit} noValidate>
                 {!isSignUp && twoFactorChallenge ? (
                   <FieldGroup>
                     <Field>
