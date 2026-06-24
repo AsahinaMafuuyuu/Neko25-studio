@@ -696,7 +696,7 @@ export function AiAvatarsPage() {
                       <AlertDialogDescription className="space-y-3 text-left">
                         <span className="block">Are you sure you want to close the avatar form?</span>
                         <span className="block font-medium text-destructive">
-                          娉細绯荤粺鍙兘浼氫涪澶卞凡缁忓～鍐欑殑琛ㄥ崟淇℃伅
+                          注意：系统可能会丢失已经填写的表单信息
                         </span>
                         <span className="block">Saved or uploaded work remains available in the library.</span>
                       </AlertDialogDescription>
